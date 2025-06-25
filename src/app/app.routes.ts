@@ -19,5 +19,11 @@ export const routes: Routes = [
     path: 'tasks',
     canActivate: [authGuard],
     loadChildren: () => import('./features/tasks/tasks.routes').then(m => m.tasksRoutes)
+  },
+  {
+    path: 'chat',
+    loadChildren: () =>
+      import('./features/chat/chat.routes').then((m) => m.chatRoutes)
   }
+  
 ];
