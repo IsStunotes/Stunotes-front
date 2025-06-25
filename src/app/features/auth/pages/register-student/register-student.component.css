@@ -64,6 +64,7 @@
   color: #374151;
   margin-bottom: 6px;
   display: block;
+  margin-left: -15px;
 }
 
 .form-control {
@@ -72,6 +73,8 @@
   border-radius: 8px;
   border: 2px solid #e5e7eb;
   font-size: 14px;
+  margin-left: -15px;
+
 }
 
 .form-control:focus {
