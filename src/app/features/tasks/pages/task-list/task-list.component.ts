@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TaskService } from '../../../../core/services/task.service';
-import { TaskResponse } from '../../../../core/models/task.model';
+import { TaskService } from '../../../../services/task.service';
+import { TaskResponse } from '../../../../models/task.model';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -144,8 +144,8 @@ export class TaskListComponent implements OnInit {
     
     this.taskService.getTasks(this.currentPage, this.pageSize, this.selectedCategory).subscribe({
       next: (response) => {
-        this.activeTasks = response.content.filter(task => !task.finishedAt);
-        this.completedTasks = response.content.filter(task => task.finishedAt);
+        this.activeTasks = response.content.filter((task: TaskResponse) => !task.finishedAt);
+        this.completedTasks = response.content.filter((task: TaskResponse) => task.finishedAt);
         this.loading = false;
       },
       error: (error) => {

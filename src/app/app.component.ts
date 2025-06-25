@@ -21,7 +21,6 @@ import { RouterOutlet } from '@angular/router';
 
     .main-content {
       flex: 1;
-      padding-top: 64px;
     }
   `]
 })

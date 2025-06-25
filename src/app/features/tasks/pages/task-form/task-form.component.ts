@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService } from '../../../../core/services/task.service';
-import { TaskRequest, TaskResponse } from '../../../../core/models/task.model';
+import { TaskService } from '../../../../services/task.service';
+import { TaskRequest, TaskResponse } from '../../../../models/task.model';
 
 @Component({
   selector: 'app-task-form',
