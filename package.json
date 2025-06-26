@@ -11,7 +11,7 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^20.0.4",
+    "@angular/animations": "^20.0.5",
     "@angular/common": "^20.0.4",
     "@angular/compiler": "^20.0.0",
     "@angular/core": "^20.0.0",
@@ -19,10 +19,19 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
     "@angular/ssr": "^20.0.3",
+    "@fullcalendar/angular": "^6.1.17",
+    "@fullcalendar/core": "^6.1.17",
+    "@fullcalendar/daygrid": "^6.1.17",
+    "@fullcalendar/interaction": "^6.1.17",
+    "@fullcalendar/timegrid": "^6.1.17",
+    "@types/html2canvas": "^0.5.35",
     "express": "^5.1.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "lucide-angular": "^0.523.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "version": "^0.0.1",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {

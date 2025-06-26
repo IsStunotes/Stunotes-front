@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
   template: `
     <header class="navbar">
       <h1 class="logo">StuNotes</h1>
-
       <div *ngIf="user" class="user-info">
         <i class="fa fa-user user-icon"></i>
         <span class="user-name">{{ user.name }}</span>

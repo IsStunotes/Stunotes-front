@@ -20,6 +20,9 @@ import { ChatComponent } from '../../../chat/chat.component';
           <button class="new-task-btn" (click)="createNewTask()">
             <i class="fas fa-plus"></i> Nueva Tarea
           </button>
+          <button class="calendar-btn" (click)="navigateToCalendar()">
+            <i class="fas fa-calendar-alt"></i> Calendario
+          </button>
         </div>
         
         <div class="search-container">
@@ -103,7 +106,6 @@ import { ChatComponent } from '../../../chat/chat.component';
               
               <h3 class="task-title">{{ task.title }}</h3>
               <p class="task-description">{{ task.description }}</p>
-              
               <div class="task-meta">
                 <span class="task-category" *ngIf="task.category">
                   {{ task.category.name }}
@@ -171,6 +173,10 @@ export class TaskListComponent implements OnInit {
 
   createNewTask(): void {
     this.router.navigate(['/tasks/new']); 
+  }
+
+  navigateToCalendar(): void {
+    this.router.navigate(['/calendar']);
   }
 
   editTask(taskId: number): void {
