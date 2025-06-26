@@ -8,19 +8,24 @@ import { DocumentService } from '../../services/document.service';
 import { DocumentResponse } from '../../models/document.model';
 import { CommentRequest } from '../../models/comment.model';
 import { UserService } from '../../services/user.service';
+import { NavbarLoggedComponent } from '../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
   standalone: true,
   selector: 'app-document-comments',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,NavbarLoggedComponent,FooterComponent],
   template: `
-    <div class="container">
- <div class="document" *ngIf="documento">
-  <h2>{{ documento.title }}</h2>
-  <p>{{ documento.description }}</p>
-  <p><strong>Versión {{ documento.version }}</strong></p>
+ <app-navbar></app-navbar> 
 
-</div>
+<button class="btn-volver" (click)="volver()">⬅ Volver</button>
+
+<div class="container">
+  <div class="document" *ngIf="documento">
+    <h2>{{ documento.title }}</h2>
+    <p>{{ documento.description }}</p>
+    <p><strong>Versión {{ documento.version }}</strong></p>
+  </div>
 
   <div class="comments-box">
     <h3 class="comments-title">COMENTARIOS</h3>
@@ -32,9 +37,9 @@ import { UserService } from '../../services/user.service';
           <small>{{ comentario.fecha | date: 'short' }}</small>
         </div>
         <div class="comment-user">
-  <span>{{ comentario.username || comentario.userId }}</span>
-  <div class="avatar"></div>
-</div>
+          <span>{{ comentario.username || comentario.userId }}</span>
+          <div class="avatar"></div>
+        </div>
       </div>
     </div>
 
@@ -42,12 +47,14 @@ import { UserService } from '../../services/user.service';
       <p>No hay comentarios aún.</p>
     </ng-template>
 
-   <div class="new-comment">
-  <input type="text" [(ngModel)]="nuevoComentario" placeholder="Escribe un comentario..." />
-  <button (click)="crearComentario()">Enviar</button>
-</div>
+    <div class="new-comment">
+      <input type="text" [(ngModel)]="nuevoComentario" placeholder="Escribe un comentario..." />
+      <button (click)="crearComentario()">Enviar</button>
+    </div>
   </div>
 </div>
+
+<app-footer></app-footer>
   `,
   styleUrls: ['document-comments.component.css']
 })
@@ -130,7 +137,10 @@ crearComentario(): void {
   });
 }
 
+volver(): void {
 
+  history.back();
+}
 
 
 

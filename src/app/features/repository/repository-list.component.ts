@@ -5,57 +5,64 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { DocumentService } from '../../services/document.service';
 import { HttpHeaders } from '@angular/common/http';
+import { NavbarLoggedComponent } from '../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
   standalone: true,
   selector: 'app-repository-list',
   template: `
-    <div *ngIf="loading" class="loading">Cargando repositorios...</div>
-    <div *ngIf="error" class="error">{{ error }}</div>
+   <app-navbar></app-navbar>
 
-    <div *ngIf="!loading">
-        <div class="top-bar">
-  <button class="back-btn" (click)="cancelar()">← Atrás</button>
+<div *ngIf="loading" class="loading">Cargando repositorios...</div>
+<div *ngIf="error" class="error">{{ error }}</div>
 
- <button class="create-btn" (click)="crearRepositorio()">
-  + Crear nuevo repositorio
-</button>
+<div *ngIf="!loading">
+  <div class="top-bar">
+    <button class="back-btn" (click)="cancelar()">← Atrás</button>
 
-  <div class="search-container">
-    <input type="text" placeholder="Buscar..." />
-    <span class="search-icon">🔍</span>
-  </div>
-</div>
-      <ng-container *ngFor="let repo of repositories">
-       <h2>Repositorio {{ repo.id }}</h2>
-<div class="repo-actions">
-  <button class="create-btn" (click)="crearDocumento(repo.id)">
-    + Crear nuevo documento
-  </button>
-
-  <button class="delete-btn" (click)="eliminarRepositorio(repo.id)">
-    🗑️ Eliminar repositorio
-  </button>
-</div>
-<div class="document-grid">
-  <div *ngFor="let doc of repo.documents" class="document-card-wrapper">
-    <a class="card-link" [routerLink]="['/document', doc.id, 'comments']">
-      <div class="card">
-        <h3>{{ doc.title }}</h3>
-        <p>{{ doc.description }}</p>
-        <small>
-          Documento v{{ doc.version }} – {{ doc.dateCreated | date: 'yyyy-MM-dd' }}
-        </small>
-      </div>
-    </a>
-    <button class="delete-btn" (click)="eliminarDocumento(doc.id, repo.id); $event.stopPropagation();">
-      🗑️ Eliminar
+    <button class="create-btn" (click)="crearRepositorio()">
+      + Crear nuevo repositorio
     </button>
-  </div>
-</div>
 
+    <div class="search-container">
+      <input type="text" placeholder="Buscar..." />
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+  <ng-container *ngFor="let repo of repositories">
+    <h2>Repositorio {{ repo.id }}</h2>
+    <div class="repo-actions">
+      <button class="create-btn" (click)="crearDocumento(repo.id)">
+        + Crear nuevo documento
+      </button>
+
+      <button class="delete-btn" (click)="eliminarRepositorio(repo.id)">
+        🗑️ Eliminar repositorio
+      </button>
+    </div>
+
+    <div class="document-grid">
+      <div *ngFor="let doc of repo.documents" class="document-card-wrapper">
+        <a class="card-link" [routerLink]="['/document', doc.id, 'comments']">
+          <div class="card">
+            <h3>{{ doc.title }}</h3>
+            <p>{{ doc.description }}</p>
+            <small>
+              Documento v{{ doc.version }} – {{ doc.dateCreated | date: 'yyyy-MM-dd' }}
+            </small>
+          </div>
+        </a>
+        <button class="delete-btn" (click)="eliminarDocumento(doc.id, repo.id); $event.stopPropagation();">
+          🗑️ Eliminar
+        </button>
+      </div>
+    </div>
+  </ng-container>
+  <app-footer></app-footer>
+</div>
   `,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule,NavbarLoggedComponent, FooterComponent],
   styleUrls: ['repository-list.component.css']
 
 })
