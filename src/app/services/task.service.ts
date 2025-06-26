@@ -12,19 +12,37 @@ export class TaskService {
 
   constructor(private http: HttpClient) {}
 
-  getTasks(page: number = 0, size: number = 15, categoryName?: string, sort?: string): Observable<PagedResponse<TaskResponse>> {
+  getTasks(
+    page: number = 0, 
+    size: number = 15, 
+    categoryId?: number,
+    searchTerm?: string
+  ): Observable<PagedResponse<TaskResponse>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-
-    if (categoryName) {
-      params = params.set('categoryName', categoryName);
+    
+    if (categoryId) {
+      params = params.set('categoryName', categoryId.toString());
     }
-
-    if (sort) {
-      params = params.set('sort', sort);
+    
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('categoryName', searchTerm.trim());
     }
+    
+    return this.http.get<PagedResponse<TaskResponse>>(this.apiUrl, { params });
+  }
 
+  searchTasksByCategoryName(
+    categoryName: string,
+    page: number = 0, 
+    size: number = 15
+  ): Observable<PagedResponse<TaskResponse>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('categoryName', categoryName);
+    
     return this.http.get<PagedResponse<TaskResponse>>(this.apiUrl, { params });
   }
 

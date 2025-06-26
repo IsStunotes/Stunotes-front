@@ -4,7 +4,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TaskService } from '../../../../services/task.service';
+import { CategoryService } from '../../../../services/category.service';
 import { TaskRequest, TaskResponse } from '../../../../models/task.model';
+import { CategoryResponse } from '../../../../models/category.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-task-form',
@@ -140,6 +143,7 @@ import { TaskRequest, TaskResponse } from '../../../../models/task.model';
 })
 export class TaskFormComponent implements OnInit {
   taskForm: FormGroup;
+  categories: CategoryResponse[] = [];
   isEditMode = false;
   taskId: number | null = null;
   loading = false;
@@ -151,18 +155,10 @@ export class TaskFormComponent implements OnInit {
     { value: 3, label: 'Baja', color: 'low' }
   ];
 
-  // Mock categories
-  categories = [
-    { id: 1, name: 'Trabajo' },
-    { id: 2, name: 'Personal' },
-    { id: 3, name: 'Estudio' },
-    { id: 4, name: 'Salud' },
-    { id: 5, name: 'Hogar' }
-  ];
-
   constructor(
     private fb: FormBuilder,
     private taskService: TaskService,
+    private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -170,12 +166,14 @@ export class TaskFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.taskId = this.route.snapshot.params['id'];
+    this.taskId = this.route.snapshot.params['id'] ? +this.route.snapshot.params['id'] : null;
     this.isEditMode = !!this.taskId;
-
-    if (this.isEditMode && this.taskId) {
-      this.loadTask(this.taskId);
-    }
+    
+    this.loadCategories(() => {
+      if (this.isEditMode && this.taskId) {
+        this.loadTask(this.taskId);
+      }
+    });
   }
 
   createForm(): FormGroup {
@@ -184,7 +182,20 @@ export class TaskFormComponent implements OnInit {
       description: [''],
       priority: [2, Validators.required],
       categoryId: ['', Validators.required],
-      userId: [1] //  usuario autenticado
+      userId: [1] // Valor fijo para el usuario autenticado
+    });
+  }
+
+  loadCategories(callback?: () => void): void {
+    this.categoryService.getCategories().subscribe({
+      next: (categories: CategoryResponse[]) => {
+        this.categories = categories;
+        if (callback) callback();
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.showError('Error al cargar las categorías');
+      }
     });
   }
 
@@ -203,6 +214,7 @@ export class TaskFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading task:', error);
+        this.showError('Error al cargar la tarea');
         this.loading = false;
         this.router.navigate(['/tasks']);
       }
@@ -210,7 +222,13 @@ export class TaskFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.taskForm.valid && !this.submitting) {
+    if (this.taskForm.invalid) {
+      this.markFormGroupTouched();
+      Swal.fire('Error', 'Por favor complete todos los campos correctamente.', 'error');
+      return;
+    }
+
+    if (!this.submitting) {
       this.submitting = true;
       const formValue = this.taskForm.value;
 
@@ -222,22 +240,33 @@ export class TaskFormComponent implements OnInit {
         userId: formValue.userId
       };
 
-      const operation = this.isEditMode && this.taskId
-        ? this.taskService.updateTask(this.taskId, taskRequest)
-        : this.taskService.createTask(taskRequest);
-
-      operation.subscribe({
-        next: () => {
-          this.submitting = false;
-          this.router.navigate(['/tasks']);
-        },
-        error: (error) => {
-          console.error('Error saving task:', error);
-          this.submitting = false;
-        }
-      });
-    } else {
-      this.markFormGroupTouched();
+      if (this.isEditMode && this.taskId) {
+        this.taskService.updateTask(this.taskId, taskRequest).subscribe({
+          next: () => {
+            this.submitting = false;
+            Swal.fire('Actualizado', 'La tarea fue actualizada correctamente.', 'success');
+            this.router.navigate(['/tasks']);
+          },
+          error: (error) => {
+            console.error('Error updating task:', error);
+            this.submitting = false;
+            this.showError('Error al actualizar la tarea');
+          }
+        });
+      } else {
+        this.taskService.createTask(taskRequest).subscribe({
+          next: () => {
+            this.submitting = false;
+            Swal.fire('Creado', 'La tarea fue creada correctamente.', 'success');
+            this.router.navigate(['/tasks']);
+          },
+          error: (error) => {
+            console.error('Error creating task:', error);
+            this.submitting = false;
+            this.showError('Error al crear la tarea');
+          }
+        });
+      }
     }
   }
 
@@ -287,5 +316,9 @@ export class TaskFormComponent implements OnInit {
       case 3: return 'priority-low';
       default: return 'priority-medium';
     }
+  }
+
+  private showError(message: string): void {
+    Swal.fire('Error', message, 'error');
   }
 }
