@@ -24,6 +24,7 @@ import Swal from 'sweetalert2';
           <button class="new-task-btn" (click)="createNewTask()">
             <i class="fas fa-plus"></i> Nueva Tarea
           </button>
+          <button class="new-task-btn" (click)="goToRepo()">Repositorios</button>
         </div>
         
         <div class="search-filters">
@@ -476,4 +477,7 @@ export class TaskListComponent implements OnInit {
   private showError(message: string): void {
     Swal.fire('Error', message, 'error');
   }
+  
+   goToRepo(): void {
+  this.router.navigate(['/repositorios/list']);
 }
