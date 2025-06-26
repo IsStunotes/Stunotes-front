@@ -20,6 +20,7 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
       <div>
         <button class="btn-outline" (click)="goToLogin()">Iniciar Sesión</button>
         <button class="btn-purple" (click)="goToRegister()">Registrarse</button>
+        
       </div>
     </header>
 
@@ -141,4 +142,5 @@ export class LandingComponent implements OnInit, AfterViewInit {
   goToRegister(): void {
     this.router.navigate(['/auth/select-role']);
   }
+   
 }

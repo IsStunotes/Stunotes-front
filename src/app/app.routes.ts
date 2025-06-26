@@ -21,6 +21,23 @@ export const routes: Routes = [
     loadChildren: () => import('./features/tasks/tasks.routes').then(m => m.tasksRoutes)
   },
   {
+    path: 'repositorios',
+    canActivate: [authGuard],  
+    loadChildren: () => import('./features/repository/repository.routes').then(m => m.repositoryRoutes)
+  },
+{
+  path: 'document/:id/comments',
+  loadComponent: () =>
+    import('./features/documents/document-comments.component').then(m => m.DocumentCommentsComponent)
+},
+{
+  path: 'document/create',
+  loadComponent: () =>
+    import('./features/documents/document-create/document-create.component').then(
+      m => m.DocumentCreateComponent
+    )
+},
+  {
     path: 'chat',
     loadChildren: () =>
       import('./features/chat/chat.routes').then((m) => m.chatRoutes)
