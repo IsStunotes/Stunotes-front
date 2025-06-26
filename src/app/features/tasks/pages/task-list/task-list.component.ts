@@ -17,6 +17,7 @@ import { Router } from '@angular/router';
           <button class="new-task-btn" (click)="createNewTask()">
             <i class="fas fa-plus"></i> Nueva Tarea
           </button>
+          <button class="new-task-btn" (click)="goToRepo()">Repositorios</button>
         </div>
         
         <div class="search-container">
@@ -213,4 +214,7 @@ export class TaskListComponent implements OnInit {
       default: return 'Media';
     }
   }
+   goToRepo(): void {
+  this.router.navigate(['/repositorios/list']);
+}
 }
