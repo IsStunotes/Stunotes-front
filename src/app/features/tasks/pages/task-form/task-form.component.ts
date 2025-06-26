@@ -22,12 +22,12 @@ import { TaskRequest, TaskResponse } from '../../../../models/task.model';
     </button>
   </div>
 
-  <div [@If]="loading" class="loading-container">
+  <div *ngIf="loading" class="loading-container">
     <div class="loading-spinner"></div>
     <p>Cargando tarea...</p>
   </div>
 
-  <div [@If]="!loading" class="form-content">
+  <div *ngIf="!loading" class="form-content">
     <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="task-form">
       
       <div class="form-group">
