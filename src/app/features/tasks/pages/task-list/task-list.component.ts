@@ -4,11 +4,14 @@ import { TaskResponse } from '../../../../models/task.model';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { NavbarLoggedComponent } from '../../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { ChatComponent } from '../../../chat/chat.component';
 @Component({
   selector: 'app-task-list',
   template: `
     <div class="task-container">
+      <app-navbar></app-navbar>
       <div class="task-header">
         <div class="header-left">
           <button class="back-btn" (click)="router.navigate(['/'])">
@@ -118,9 +121,11 @@ import { Router } from '@angular/router';
         </div>
       </div>
     </div>
-  `,
+    <app-floating-chat></app-floating-chat>
+  <app-footer></app-footer>
+ `,
   styleUrls: ['./task-list.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, FormsModule]
+  imports: [CommonModule, ReactiveFormsModule, FormsModule,NavbarLoggedComponent, FooterComponent,ChatComponent]
 })
 export class TaskListComponent implements OnInit {
   activeTasks: TaskResponse[] = [];

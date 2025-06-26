@@ -36,5 +36,11 @@ export const routes: Routes = [
     import('./features/documents/document-create/document-create.component').then(
       m => m.DocumentCreateComponent
     )
-}]
-  ;
+},
+  {
+    path: 'chat',
+    loadChildren: () =>
+      import('./features/chat/chat.routes').then((m) => m.chatRoutes)
+  }
+  
+];

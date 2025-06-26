@@ -8,12 +8,11 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideIconsModule } from './lucide-icons.module';
-
+import { FooterComponent } from '../../../shared/components/footer/footer.component'
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, LucideIconsModule],
-
+  imports: [CommonModule, LucideIconsModule, FooterComponent],
   styleUrls: ['./landing.component.css'],
   template: `
     <header class="navbar">
@@ -66,16 +65,7 @@ import { LucideIconsModule } from './lucide-icons.module';
         </div>
       </div>
     </section>
-
-    <footer class="footer">
-      <strong>StuNotes</strong> © 2025 - Todos los derechos reservados
-      <nav>
-        <a href="#">Términos</a>
-        <a href="#">Privacidad</a>
-        <a href="#">Ayuda</a>
-        <a href="#">Contacto</a>
-      </nav>
-    </footer>
+    <app-footer></app-footer>
   `
 })
 export class LandingComponent implements OnInit, AfterViewInit {
@@ -119,7 +109,7 @@ export class LandingComponent implements OnInit, AfterViewInit {
       entries.forEach(entry => {
         if (entry.isIntersecting && !this.animated) {
           this.animated = true;
-          this.animateCount('teachersCount', 10000, 1500);
+          this.animateCount('teachersCount', 100, 1500);
           this.animateCount('studentsCount', 500, 1500);
           this.animateCount('coursesCount', 95, 1500);
         }
@@ -145,7 +135,6 @@ export class LandingComponent implements OnInit, AfterViewInit {
       }
     }, interval);
   }
-
   goToLogin(): void {
     this.router.navigate(['/auth/login']);
   }

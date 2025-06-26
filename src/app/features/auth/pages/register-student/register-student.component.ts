@@ -105,6 +105,6 @@ export class RegisterStudentComponent {
   }
 
   goBack(): void {
-    this.router.navigate(['/select-role']);
+    this.router.navigate(['/auth/select-role']);
   }
 }
