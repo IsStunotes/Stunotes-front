@@ -55,13 +55,14 @@
 }
 
 .search-container {
+  padding-right: 7px;
   position: relative;
   width: 300px;
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 1px 12px 4px;
+  padding: 12px 1px 12px 11px;
   border: 2px solid #e5e7eb;
   border-radius: 25px;
   font-size: 14px;
@@ -314,6 +315,59 @@
 .task-date {
   color: #9ca3af;
   font-size: 12px;
+}
+
+/* Estilos para el contenedor de ordenamiento */
+.sort-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sort-select, .sort-direction-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.sort-select:focus, .sort-direction-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.sort-select:hover, .sort-direction-select:hover {
+  border-color: #007bff;
+}
+
+/* Actualizar el contenedor de filtros de búsqueda */
+.search-filters {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .search-filters {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .sort-container {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .sort-select, .sort-direction-select {
+    flex: 1;
+    min-width: 120px;
+  }
 }
 
 @media (max-width: 768px) {

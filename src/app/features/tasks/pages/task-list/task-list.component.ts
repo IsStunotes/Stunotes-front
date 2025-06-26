@@ -35,23 +35,27 @@ import Swal from 'sweetalert2';
               [(ngModel)]="searchTerm"
               (keyup.enter)="onSearch()"
               (input)="onSearchInput()">
-            <button class="search-btn" (click)="onSearch()">
-              <i class="fas fa-search"></i>
-            </button>
-            <button *ngIf="searchTerm" class="clear-search-btn" (click)="clearSearch()">
-              <i class="fas fa-times"></i>
-            </button>
           </div>
           
-          <div class="filter-container">
+          <!-- Filtro de ordenamiento -->
+          <div class="sort-container">
             <select 
-              class="category-filter" 
-              [(ngModel)]="selectedCategoryName" 
-              (change)="onCategoryFilterChange()">
-              <option value="">Todas las categorías</option>
-              <option *ngFor="let category of categories" [value]="category.name">
-                {{ category.name }}
-              </option>
+              class="sort-select" 
+              [(ngModel)]="sortBy" 
+              (change)="onSortChange()">
+              <option value="">Sin ordenar</option>
+              <option value="priority">Ordenar por prioridad</option>
+              <option value="createdAt">Ordenar por fecha</option>
+              <option value="title">Ordenar por título</option>
+            </select>
+            
+            <select 
+              *ngIf="sortBy" 
+              class="sort-direction-select" 
+              [(ngModel)]="sortDirection" 
+              (change)="onSortChange()">
+              <option value="asc">Ascendente</option>
+              <option value="desc">Descendente</option>
             </select>
           </div>
         </div>
@@ -74,6 +78,10 @@ import Swal from 'sweetalert2';
           <span *ngIf="selectedCategoryName" class="filter-tag">
             Categoría: "{{ selectedCategoryName }}"
             <button (click)="clearCategoryFilter()" class="remove-filter">×</button>
+          </span>
+          <span *ngIf="sortBy" class="filter-tag">
+            Orden: {{ getSortText() }}
+            <button (click)="clearSort()" class="remove-filter">×</button>
           </span>
           <button (click)="clearAllFilters()" class="clear-all-filters">Limpiar todo</button>
         </div>
@@ -222,6 +230,8 @@ export class TaskListComponent implements OnInit {
   loading = false;
   searchTerm = '';
   selectedCategoryName = '';
+  sortBy = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
   currentPage = 0;
   pageSize = 15;
   totalPages = 0;
@@ -265,7 +275,13 @@ export class TaskListComponent implements OnInit {
     }
     
     if (categoryName) {
-      this.taskService.searchTasksByCategoryName(categoryName, this.currentPage, this.pageSize).subscribe({
+      this.taskService.searchTasksByCategoryName(
+        categoryName, 
+        this.currentPage, 
+        this.pageSize,
+        this.sortBy || undefined,
+        this.sortDirection
+      ).subscribe({
         next: (response) => {
           this.processTasksResponse(response);
           this.loading = false;
@@ -277,7 +293,14 @@ export class TaskListComponent implements OnInit {
         }
       });
     } else {
-      this.taskService.getTasks(this.currentPage, this.pageSize).subscribe({
+      this.taskService.getTasks(
+        this.currentPage, 
+        this.pageSize,
+        undefined,
+        undefined,
+        this.sortBy || undefined,
+        this.sortDirection
+      ).subscribe({
         next: (response) => {
           this.processTasksResponse(response);
           this.loading = false;
@@ -315,6 +338,11 @@ export class TaskListComponent implements OnInit {
     this.loadTasks();
   }
 
+  onSortChange(): void {
+    this.currentPage = 0;
+    this.loadTasks();
+  }
+
   clearSearch(): void {
     this.searchTerm = '';
     this.currentPage = 0;
@@ -327,15 +355,37 @@ export class TaskListComponent implements OnInit {
     this.loadTasks();
   }
 
+  clearSort(): void {
+    this.sortBy = '';
+    this.sortDirection = 'asc';
+    this.currentPage = 0;
+    this.loadTasks();
+  }
+
   clearAllFilters(): void {
     this.searchTerm = '';
     this.selectedCategoryName = '';
+    this.sortBy = '';
+    this.sortDirection = 'asc';
     this.currentPage = 0;
     this.loadTasks();
   }
 
   hasActiveFilters(): boolean {
-    return !!(this.searchTerm || this.selectedCategoryName);
+    return !!(this.searchTerm || this.selectedCategoryName || this.sortBy);
+  }
+
+  getSortText(): string {
+    if (!this.sortBy) return '';
+    
+    const sortTexts: { [key: string]: string } = {
+      'priority': 'Prioridad',
+      'createdAt': 'Fecha de creación',
+      'title': 'Título'
+    };
+    
+    const direction = this.sortDirection === 'asc' ? 'Ascendente' : 'Descendente';
+    return `${sortTexts[this.sortBy]} (${direction})`;
   }
 
   goToPage(page: number): void {

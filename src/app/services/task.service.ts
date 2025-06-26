@@ -16,7 +16,9 @@ export class TaskService {
     page: number = 0, 
     size: number = 15, 
     categoryId?: number,
-    searchTerm?: string
+    searchTerm?: string,
+    sortBy?: string,
+    sortDirection?: 'asc' | 'desc'
   ): Observable<PagedResponse<TaskResponse>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -30,18 +32,32 @@ export class TaskService {
       params = params.set('categoryName', searchTerm.trim());
     }
     
+    // Agregar parámetros de ordenamiento
+    if (sortBy) {
+      const sortParam = sortDirection ? `${sortBy},${sortDirection}` : sortBy;
+      params = params.set('sort', sortParam);
+    }
+    
     return this.http.get<PagedResponse<TaskResponse>>(this.apiUrl, { params });
   }
 
   searchTasksByCategoryName(
     categoryName: string,
     page: number = 0, 
-    size: number = 15
+    size: number = 15,
+    sortBy?: string,
+    sortDirection?: 'asc' | 'desc'
   ): Observable<PagedResponse<TaskResponse>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('categoryName', categoryName);
+    
+    // Agregar parámetros de ordenamiento
+    if (sortBy) {
+      const sortParam = sortDirection ? `${sortBy},${sortDirection}` : sortBy;
+      params = params.set('sort', sortParam);
+    }
     
     return this.http.get<PagedResponse<TaskResponse>>(this.apiUrl, { params });
   }
@@ -66,11 +82,21 @@ export class TaskService {
     return this.http.put<TaskResponse>(`${this.apiUrl}/${id}/complete`, {});
   }
 
-  getActiveTasks(page: number = 0, size: number = 15): Observable<PagedResponse<TaskResponse>> {
-    return this.getTasks(page, size);
+  getActiveTasks(
+    page: number = 0, 
+    size: number = 15, 
+    sortBy?: string, 
+    sortDirection?: 'asc' | 'desc'
+  ): Observable<PagedResponse<TaskResponse>> {
+    return this.getTasks(page, size, undefined, undefined, sortBy, sortDirection);
   }
 
-  getCompletedTasks(page: number = 0, size: number = 15): Observable<PagedResponse<TaskResponse>> {
-    return this.getTasks(page, size);
+  getCompletedTasks(
+    page: number = 0, 
+    size: number = 15, 
+    sortBy?: string, 
+    sortDirection?: 'asc' | 'desc'
+  ): Observable<PagedResponse<TaskResponse>> {
+    return this.getTasks(page, size, undefined, undefined, sortBy, sortDirection);
   }
 }
