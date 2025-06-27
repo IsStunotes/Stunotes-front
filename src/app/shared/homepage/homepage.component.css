@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:host {
+  font-family: 'Poppins', sans-serif;
+  background: #fdfdfd;
+  display: block;
+}
+
+.dashboard-wrapper {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.welcome-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.welcome-section h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+}
+
+.username {
+  color: #8b5cf6;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 18px;
+}
+
+.task-section {
+  background: linear-gradient(to right, #ede9fe, #f3f0ff);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+  margin-bottom: 40px;
+}
+
+.task-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.task-section-header h2 {
+  font-size: 22px;
+  color: #7c3aed;
+  margin: 0;
+}
+
+.task-card {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.task-card:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-2px);
+}
+
+.task-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.task-date {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.arrow-icon {
+  color: #9ca3af;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.no-task-msg {
+  color: #6b7280;
+  font-style: italic;
+  padding: 12px;
+  text-align: center;
+}
+
+.create-task-btn {
+  background-color: #7c3aed;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.3s ease;
+}
+
+.create-task-btn:hover {
+  background-color: #6d28d9;
+}
+
+.plus-icon {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.document-carousel-wrapper {
+  position: relative;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.document-carousel {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+}
+
+.document-card {
+  min-width: 240px;
+  flex: 0 0 auto;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  scroll-snap-align: start;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.document-card:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-2px);
+}
+
+.carousel-arrow.right {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  background: linear-gradient(to left, #f9fafb 70%, transparent);
+  padding: 10px;
+  pointer-events: none;
+}
+
+.carousel-arrow i {
+  color: #9ca3af;
+  font-size: 20px;
+}
+
+.repository-section {
+  background: linear-gradient(to right, #ede9fe, #f3f0ff);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+  margin-bottom: 40px;
+}
+
+.repository-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.repository-section-header h2 {
+  font-size: 22px;
+  color: #7c3aed;
+  margin: 0;
+}
+
+.repository-list {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+}
+
+.repository-card {
+  min-width: 240px;
+  flex: 0 0 auto;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  scroll-snap-align: start;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.repository-card:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-2px);
+}
+
+@keyframes drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-drop {
+  animation: drop 0.8s ease-out forwards;
+}
+
+.animate-rise {
+  animation: rise 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+.animate-fade {
+  animation: fade 0.5s ease-out forwards;
+}
+
+

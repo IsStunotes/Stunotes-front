@@ -90,7 +90,7 @@ export class RegisterStudentComponent {
       this.authService.registerStudent(request).subscribe({
         next: () => {
           this.submitting = false;
-          this.router.navigate(['/auth/login']);
+          this.router.navigate(['/home']);
         },
         error: (error) => {
           this.submitting = false;
