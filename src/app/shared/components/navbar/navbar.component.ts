@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
         <span class="user-name">{{ user.name }}</span>
         <button class="btn-purple" (click)="logout()">Cerrar Sesión</button>
       </div>
+    </header>
   `,
   styleUrls: ['./navbar.component.css']
 })

@@ -1,0 +1,82 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+
+@Component({
+    selector: 'app-sidebar',
+    standalone: true,
+    imports: [CommonModule, RouterLink],
+    template: `
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+          </div>
+        </div>
+        
+        <nav class="sidebar-nav">    
+          <ul class="nav-list">
+            <li class="nav-item" [class.active]="isActiveRoute('/profile')">
+              <a routerLink="/profile" class="nav-link">
+                <i class="fas fa-user"></i>
+                <span>Perfil</span>
+              </a>
+            </li>
+            <li class="nav-item" [class.active]="isActiveRoute('/home')">
+              <a routerLink="/home" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+              </a>
+            </li>
+            <li class="nav-item" [class.active]="isActiveRoute('/calendar')">
+              <a routerLink="/calendar" class="nav-link">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Calendario</span>
+              </a>
+            </li>
+            <li class="nav-item" [class.active]="isActiveRoute('/activities')">
+              <a routerLink="/activities" class="nav-link">
+                <i class="fas fa-list-ul"></i>
+                <span>Actividades</span>
+              </a>
+            </li>
+            <li class="nav-item" [class.active]="isActiveRoute('/tasks')">
+              <a routerLink="/tasks" class="nav-link">
+                <i class="fas fa-tasks"></i>
+                <span>Tareas</span>
+              </a>
+            </li>
+            <li class="nav-item" [class.active]="isActiveRoute('/documents')">
+              <a routerLink="/documents" class="nav-link">
+                <i class="fas fa-file-alt"></i>
+                <span>Trabajos</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+    `,
+    styleUrls: ['./sidebar.component.css']
+})
+export class SidebarComponent implements OnInit {
+  currentRoute: string = '';
+  
+  constructor(private router: Router) {}
+
+  ngOnInit() {
+    // Obtener la ruta actual al inicializar
+    this.currentRoute = this.router.url;
+    
+    // Suscribirse a cambios de ruta
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.currentRoute = event.url;
+    });
+  }
+
+  isActiveRoute(route: string): boolean {
+    return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
+  }
+}

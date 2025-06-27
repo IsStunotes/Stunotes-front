@@ -8,6 +8,8 @@ import { ViewEncapsulation } from '@angular/core';
 import { Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavbarLoggedComponent } from '../../../shared/components/navbar/navbar.component';
+import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarPrintModalComponent } from '../calendar-print-modal/calendar-print-modal.component';
 import { CalendarService } from '../../../services/calendar.service';
@@ -17,59 +19,69 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
-  imports: [FullCalendarModule, CalendarPrintModalComponent, CommonModule],
+  imports: [FullCalendarModule, CalendarPrintModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent, FooterComponent],
   styleUrls: ['./calendar.component.css'],
-  encapsulation: ViewEncapsulation.None, // Permitir estilos globales
+  encapsulation: ViewEncapsulation.None, 
   template: `
-    <div class="calendar-container">
-        <!-- Fila superior con botones de acción -->
-        <div class="action-header">
-            <button class="nav-btn" (click)="goBack()">
-                &lt; Back
-            </button>
-            <div class="action-buttons">
-                <button class="action-btn print-btn" (click)="openPrintModal()">
-                    Imprimir Calendario
-                </button>
-                <button class="action-btn create-btn" (click)="createActivity()">
-                    Crear Actividad
-                </button>
-            </div>
-        </div>
+  
+    <div class="app-layout">
+      <app-navbar></app-navbar>
+      <div class="app-body">
         
-        <!-- Fila inferior con controles de navegación y vista -->
-        <div class="calendar-header">
-            <div class="nav-controls">
-                <button class="nav-btn" (click)="previousPeriod()">&lt;</button>
-                <button class="nav-btn today-btn" (click)="goToToday()">Today</button>
-                <button class="nav-btn" (click)="nextPeriod()">&gt;</button>
-            </div>
-            
-            <div class="view-selector">
-                <button class="view-btn" [class.active]="currentView === 'day'" (click)="changeView('day')">Day</button>
-                <button class="view-btn" [class.active]="currentView === 'week'" (click)="changeView('week')">Week</button>
-                <button class="view-btn" [class.active]="currentView === 'month'" (click)="changeView('month')">Month</button>
-                <button class="view-btn" [class.active]="currentView === 'year'" (click)="changeView('year')">Year</button>
-            </div>
-        </div>
         
-        <div *ngIf="error" class="error-message">
-          {{ error }}
-        </div>
-        
-        <div class="calendar-view">
-            <full-calendar [options]="calendarOptions"></full-calendar>
-        </div>
-    </div>
+        <div class="main-content">
+          <app-sidebar></app-sidebar>
+          <div class="calendar-container">
+              <div class="action-header">
+                  <button class="nav-btn" (click)="goBack()">
+                      &lt; Back
+                  </button>
+                  <div class="action-buttons">
+                      <button class="action-btn print-btn" (click)="openPrintModal()">
+                          Imprimir Calendario
+                      </button>
+                      <button class="action-btn create-btn" (click)="createActivity()">
+                          Crear Actividad
+                      </button>
+                  </div>
+              </div>
+              
+              <!-- Fila inferior con controles de navegación y vista -->
+              <div class="calendar-header">
+                  <div class="nav-controls">
+                      <button class="nav-btn" (click)="previousPeriod()">&lt;</button>
+                      <button class="nav-btn today-btn" (click)="goToToday()">Today</button>
+                      <button class="nav-btn" (click)="nextPeriod()">&gt;</button>
+                  </div>
+                  
+                  <div class="view-selector">
+                      <button class="view-btn" [class.active]="currentView === 'day'" (click)="changeView('day')">Day</button>
+                      <button class="view-btn" [class.active]="currentView === 'week'" (click)="changeView('week')">Week</button>
+                      <button class="view-btn" [class.active]="currentView === 'month'" (click)="changeView('month')">Month</button>
+                  </div>
+              </div>
+              
+              <div *ngIf="error" class="error-message">
+                {{ error }}
+              </div>
+              
+              <div class="calendar-view">
+                  <full-calendar [options]="calendarOptions"></full-calendar>
+              </div>
+          </div>
 
-    <!-- Modal de Impresión -->
-    <app-calendar-print-modal
-      [isVisible]="showPrintModal"
-      [events]="calendarEvents"
-      (closeModal)="closePrintModal()"
-      (printCalendar)="handlePrint()"
-      (savePDF)="handleSavePDF()">
-    </app-calendar-print-modal>
+          <!-- Modal de Impresión -->
+          <app-calendar-print-modal
+            [isVisible]="showPrintModal"
+            [events]="calendarEvents"
+            (closeModal)="closePrintModal()"
+            (printCalendar)="handlePrint()"
+            (savePDF)="handleSavePDF()">
+          </app-calendar-print-modal>
+        </div>
+      </div>
+      <app-footer></app-footer>
+    </div>
   `,
 })
 export class CalendarComponent implements OnInit, OnDestroy {
@@ -114,22 +126,28 @@ export class CalendarComponent implements OnInit, OnDestroy {
           };
       }, 
       // Configuraciones para vistas de tiempo
-      slotMinTime: '07:00:00',
-      slotMaxTime: '22:00:00',
+      slotMinTime: '06:00:00',
+      slotMaxTime: '23:00:00',
       slotDuration: '01:00:00',
       slotLabelInterval: '01:00:00',
       allDaySlot: false,
       nowIndicator: true,
-      scrollTime: '08:00:00',
+      scrollTime: '06:00:00',
       // Interacciones
       editable: true,
-      selectable: false,
+      selectable: true,
       selectMirror: false,
+      selectConstraint: {
+        start: '06:00:00',
+        end: '23:00:00'
+      },
+      selectMinDistance: 0,
       dayMaxEvents: true,
       weekends: true,
       // Callbacks
       eventClick: this.handleEventClick.bind(this),
       dateClick: this.handleDateClick.bind(this),
+      select: this.handleDateSelect.bind(this),
       eventDrop: this.handleEventDrop.bind(this),
       eventResize: this.handleEventResize.bind(this),
       datesSet: (info) => {
@@ -399,14 +417,15 @@ export class CalendarComponent implements OnInit, OnDestroy {
         case 'month':
           newCalendarView = 'dayGridMonth';
           break;
-        case 'year':
-          // FullCalendar no tiene vista de año nativa, usar mes
-          newCalendarView = 'dayGridMonth';
-          break;
       }
       
       if (this.calendarApi) {
         this.calendarApi.changeView(newCalendarView);
+        
+        // Restaurar configuraciones normales
+        this.calendarApi.setOption('height', 'auto');
+        this.calendarApi.setOption('aspectRatio', 1.35);
+        this.calendarApi.setOption('dayMaxEvents', true);
       } else {
         // Si no hay API disponible, actualizar las opciones
         this.calendarOptions = {
@@ -495,5 +514,50 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // Getter para los eventos del calendario
     get calendarEvents(): CalendarEvent[] {
       return this.events;
+    }
+
+    // Manejar selección de celda específica
+    handleDateSelect(selectInfo: any): void {
+      const start = selectInfo.start;
+      const end = selectInfo.end;
+      
+      // Verificar que solo se seleccione una hora (evitar selección de rango)
+      const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60); // Duración en horas
+      
+      if (duration > 1) {
+        // Si se selecciona más de una hora, mostrar mensaje
+        alert('Por favor, selecciona solo una celda de tiempo (1 hora).');
+        selectInfo.view.calendar.unselect();
+        return;
+      }
+
+      if (this.activities.length === 0) {
+        alert('No hay actividades disponibles. Primero cree una actividad.');
+        selectInfo.view.calendar.unselect();
+        return;
+      }
+
+      const selectedDateTime = start.toISOString();
+      let activityOptions = 'Seleccione una actividad para el recordatorio:\n\n';
+      this.activities.forEach((activity, index) => {
+        const dueDateText = activity.finishedAt ? 
+          ` (Fecha límite: ${new Date(activity.finishedAt).toLocaleDateString()})` : 
+          ' (Sin fecha límite)';
+        activityOptions += `${index + 1}. ${activity.title}${dueDateText}\n`;
+      });
+      
+      const selection = prompt(activityOptions + '\nIngrese el número de la actividad:');
+      if (selection) {
+        const index = parseInt(selection) - 1;
+        if (index >= 0 && index < this.activities.length) {
+          const selectedActivity = this.activities[index];
+          this.createNewReminder(selectedActivity.id, selectedDateTime);
+        } else {
+          alert('Selección inválida');
+        }
+      }
+      
+      // Limpiar la selección
+      selectInfo.view.calendar.unselect();
     }
 }
