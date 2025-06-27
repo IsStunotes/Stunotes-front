@@ -1,25 +1,23 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CalendarOptions, EventApi, EventClickArg }  from '@fullcalendar/core';
+import { CalendarOptions, EventClickArg }  from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-
 import { ViewEncapsulation } from '@angular/core';
 import { Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavbarLoggedComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
-import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarPrintModalComponent } from '../calendar-print-modal/calendar-print-modal.component';
+import { CreateReminderModalComponent } from '../create-reminder-modal/create-reminder-modal.component';
 import { CalendarService } from '../../../services/calendar.service';
 import { CalendarEvent } from '../../../models/reminder.model';
-import { ActivityService, Activity } from '../../../services/activity.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
-  imports: [FullCalendarModule, CalendarPrintModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent],
+  imports: [FullCalendarModule, CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent],
   styleUrls: ['./calendar.component.css'],
   encapsulation: ViewEncapsulation.None, 
   template: `
@@ -33,7 +31,7 @@ import { Subscription } from 'rxjs';
           <button class="nav-btn" (click)="goBack()"> &lt; Back </button>
             <div class="action-buttons">
               <button class="action-btn print-btn" (click)="openPrintModal()"> Imprimir Calendario </button>
-              <button class="action-btn create-btn" (click)="createActivity()"> Crear Actividad </button>
+              <button class="action-btn create-btn" (click)="openCreateReminderModal()"> Crear Recordatorio </button>
             </div>
         </div>      
     
@@ -59,7 +57,6 @@ import { Subscription } from 'rxjs';
           <full-calendar [options]="calendarOptions"></full-calendar>
         </div>
 
-          <!-- Modal de Impresión -->
         <app-calendar-print-modal
             [isVisible]="showPrintModal"
             [events]="calendarEvents"
@@ -68,28 +65,39 @@ import { Subscription } from 'rxjs';
             (savePDF)="handleSavePDF()">
         </app-calendar-print-modal>
 
+        <app-create-reminder-modal
+            [isVisible]="showCreateReminderModal"
+            [preselectedDate]="selectedDate"
+            [preselectedTime]="selectedTime"
+            (close)="closeCreateReminderModal()"
+            (reminderCreated)="onReminderCreated($event)">
+        </app-create-reminder-modal>
+
       </div>
     </div>
   `,
 })
 export class CalendarComponent implements OnInit, OnDestroy {
-    currentView: string = 'week'; // Cambiar a vista de semana por defecto
+    currentView: string = 'week';
     showPrintModal: boolean = false;
+    showCreateReminderModal: boolean = false;
     events: CalendarEvent[] = [];
-    activities: Activity[] = [];
     error: string = '';
+    selectedDate: string = '';
+    selectedTime: string = '';
     private eventsSubscription?: Subscription;
     private calendarApi: any;
     
     calendarOptions: CalendarOptions = {
       plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-      initialView: 'timeGridWeek', // Vista de semana por defecto
+      initialView: 'timeGridWeek', 
       height: 'auto',
       contentHeight: 'auto',
       aspectRatio: 1.35,
       events: [],
       locale: 'es',
-      headerToolbar: false, // Desactivar el toolbar por defecto
+      firstDay: 1, 
+      headerToolbar: false, 
 
       slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: true },
       slotLabelContent: (arg) => {
@@ -98,11 +106,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
         return `${hour}\n${ampm}`;
       },
 
-      // Configuración de formato de fechas para la vista de semana
       dayHeaderFormat: { weekday: 'short', day: 'numeric' },
       dayHeaderContent: (arg) => {
         const date = arg.date;
-        const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
+        const dayNames = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
         const dayName = dayNames[date.getDay()];
         const dayNumber = date.getDate();
         return { 
@@ -113,7 +120,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
             </div>` 
           };
       }, 
-      // Configuraciones para vistas de tiempo
+      
       slotMinTime: '06:00:00',
       slotMaxTime: '23:00:00',
       slotDuration: '01:00:00',
@@ -121,9 +128,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
       allDaySlot: false,
       nowIndicator: true,
       scrollTime: '06:00:00',
-      // Interacciones
-      editable: false, // Deshabilitar edición de eventos
-      selectable: false, // Deshabilitar selección
+      editable: false, 
+      selectable: false,
       selectMirror: false,
       selectConstraint: {
         start: '06:00:00',
@@ -132,10 +138,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
       selectMinDistance: 0,
       dayMaxEvents: true,
       weekends: true,
-      // Callbacks
       eventClick: this.handleEventClick.bind(this),
       dateClick: this.handleDateClick.bind(this),
-      select: this.handleDateSelect.bind(this),
       datesSet: (info) => {
         this.calendarApi = info.view.calendar;
       }
@@ -143,12 +147,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     constructor(
       private router: Router,
-      private calendarService: CalendarService,
-      private activityService: ActivityService
+      private calendarService: CalendarService
     ) {}
 
     ngOnInit(): void {
-      this.loadActivities();
       this.loadEvents();
       this.subscribeToEvents();
     }
@@ -159,27 +161,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Cargar actividades disponibles
-    private loadActivities(): void {
-      this.activityService.getUserActivities().subscribe({
-        next: (activities) => {
-          this.activities = activities;
-        },
-        error: (error) => {
-          console.error('Error loading activities:', error);
-          // Continuar sin actividades
-        }
-      });
-    }
-
-    // Cargar eventos desde el backend
     private loadEvents(): void {
       this.error = '';
       
       this.calendarService.getEvents().subscribe({
         next: (events) => {
           this.events = events;
-          this.calendarService.updateEvents(events); // Actualizar el subject
+          this.calendarService.updateEvents(events); 
           this.updateCalendarEvents();
           
           if (events.length === 0) {
@@ -191,17 +179,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
           
           if (error.message.includes('autenticado')) {
             this.error = 'Sesión expirada. Redirigiendo al login...';
-            // El servicio ya redirige automáticamente
           } else {
             this.error = 'Error al cargar los recordatorios. Intenta recargar la página.';
-            // Fallback: usar eventos de ejemplo solo si no es un error de autenticación
             this.loadSampleEvents();
           }
         }
       });
     }
 
-    // Suscribirse a cambios en eventos
     private subscribeToEvents(): void {
       this.eventsSubscription = this.calendarService.events$.subscribe(events => {
         this.events = events;
@@ -209,43 +194,34 @@ export class CalendarComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Actualizar eventos en el calendario
     private updateCalendarEvents(): void {
-      this.calendarOptions = {
-        ...this.calendarOptions,
-        events: this.events
-      };
+      if (this.calendarApi) {
+        this.calendarApi.removeAllEvents();
+        this.calendarApi.addEventSource(this.events);
+      } else {
+        this.calendarOptions = {
+          ...this.calendarOptions,
+          events: this.events
+        };
+      }
     }
 
-    // Eventos de ejemplo como fallback
     private loadSampleEvents(): void {
       this.events = [
         {
           id: '1',
-          title: 'Examen de Matemáticas',
-          start: '2025-06-26T10:00:00',
-          end: '2025-06-26T11:00:00',
-          activityId: 1,
-          activityName: 'Examen de Matemáticas'
-        },
-        {
-          id: '2',
-          title: 'Entrega de Proyecto',
-          start: '2025-06-27T14:00:00',
-          end: '2025-06-27T15:00:00',
-          activityId: 2,
-          activityName: 'Entrega de Proyecto'
+          title: 'Recordatorio de Ejemplo',
+          start: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Mañana
+          end: new Date(Date.now() + 24 * 60 * 60 * 1000 + 60 * 60 * 1000).toISOString() // +1 hora
         }
       ];
       this.updateCalendarEvents();
     } 
 
-    // Navegación
     goBack(): void {
       this.router.navigate(['/tasks']);
     }
 
-    // Modal de impresión
     openPrintModal(): void {
       this.showPrintModal = true;
     }
@@ -264,21 +240,68 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.closePrintModal();
     }
 
-    // Crear recordatorio (función deshabilitada)
-    createActivity(): void {
-      // Función deshabilitada - no permite crear actividades desde el calendario
-      console.log('Función de crear actividad deshabilitada');
+    openCreateReminderModal(): void {
+      if (!this.selectedDate) {
+        const today = new Date();
+        this.selectedDate = today.toISOString().split('T')[0];
+        this.selectedTime = '09:00';
+      }
+      this.showCreateReminderModal = true;
     }
 
-    // Manejar click en evento (función deshabilitada)
+    closeCreateReminderModal(): void {
+      this.showCreateReminderModal = false;
+      this.selectedDate = '';
+      this.selectedTime = '';
+    }
+
+    onReminderCreated(event: CalendarEvent): void {
+
+      this.calendarService.addEvent(event);
+      console.log('Recordatorio creado exitosamente:', event);
+
+      this.closeCreateReminderModal();
+    }
+
+    deleteReminder(reminderId: string): void {
+      console.log('Intentando eliminar recordatorio con ID:', reminderId);
+      
+      this.calendarService.deleteReminder(reminderId).subscribe({
+        next: () => {
+
+          this.calendarService.removeEventFromSubject(reminderId);
+          console.log('Recordatorio eliminado exitosamente');
+          
+          alert('Recordatorio eliminado exitosamente');
+        },
+        error: (error) => {
+          console.error('Error eliminando recordatorio:', error);
+          
+          let errorMessage = 'Error al eliminar el recordatorio.';
+          if (error.message) {
+            errorMessage += ` ${error.message}`;
+          }
+          if (error.error && error.error.message) {
+            errorMessage += ` ${error.error.message}`;
+          }
+          
+          alert(errorMessage);
+        }
+      });
+    }
+
     handleEventClick(clickInfo: EventClickArg): void {
       const event = clickInfo.event;
-      // Función deshabilitada - solo mostrar información del evento
-      alert(
-        `Recordatorio: ${event.title}\n` +
+      const confirmed = confirm(
+        `¿Deseas eliminar este recordatorio?\n\n` +
+        `Título: ${event.title}\n` +
         `Fecha: ${event.start?.toLocaleString()}\n\n` +
-        `(Funciones de edición deshabilitadas)`
+        `Esta acción no se puede deshacer.`
       );
+      
+      if (confirmed && event.id) {
+        this.deleteReminder(event.id);
+      }
     }
 
     changeView(view: string): void {
@@ -300,12 +323,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
       if (this.calendarApi) {
         this.calendarApi.changeView(newCalendarView);
         
-        // Restaurar configuraciones normales
         this.calendarApi.setOption('height', 'auto');
         this.calendarApi.setOption('aspectRatio', 1.35);
         this.calendarApi.setOption('dayMaxEvents', true);
       } else {
-        // Si no hay API disponible, actualizar las opciones
+
         this.calendarOptions = {
           ...this.calendarOptions,
           initialView: newCalendarView
@@ -315,45 +337,47 @@ export class CalendarComponent implements OnInit, OnDestroy {
       console.log(`Vista cambiada a: ${view} (${newCalendarView})`);
     }
 
-    // Manejar click en fecha (función deshabilitada)
     handleDateClick(dateClickInfo: any): void {
-      // Función deshabilitada - no permite crear actividades desde clicks en fechas
-      console.log('Click en fecha detectado pero función deshabilitada:', dateClickInfo.dateStr);
+      console.log('Click en fecha detectado:', dateClickInfo);
+      
+      let selectedDate: string;
+      let selectedTime: string;
+      
+      if (dateClickInfo.dateStr.includes('T')) {
+
+        const [date, time] = dateClickInfo.dateStr.split('T');
+        selectedDate = date;
+        selectedTime = time.substring(0, 5); 
+      } else {
+
+        selectedDate = dateClickInfo.dateStr;
+        selectedTime = '09:00'; 
+      }
+      
+      this.selectedDate = selectedDate;
+      this.selectedTime = selectedTime;
+      this.openCreateReminderModal();
     }
 
-    // Obtener la API del calendario después de que se inicialice
-    onCalendarInit(calendarApi: any): void {
-      this.calendarApi = calendarApi;
-    }
-
-    // Ir al período anterior
     previousPeriod(): void {
       if (this.calendarApi) {
         this.calendarApi.prev();
       }
     }
 
-    // Ir al período siguiente
     nextPeriod(): void {
       if (this.calendarApi) {
         this.calendarApi.next();
       }
     }
 
-    // Ir a la fecha de hoy
     goToToday(): void {
       if (this.calendarApi) {
         this.calendarApi.today();
       }
     }
 
-    // Getter para los eventos del calendario
     get calendarEvents(): CalendarEvent[] {
       return this.events;
-    }
-
-    handleDateSelect(selectInfo: any): void {
-      console.log('Selección de celda detectada pero función deshabilitada');
-      selectInfo.view.calendar.unselect();
     }
 }

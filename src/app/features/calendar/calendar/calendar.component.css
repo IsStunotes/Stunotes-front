@@ -1,11 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;500;600;700&display=swap');
 
+:host{
+  font-family: 'lato', sans-serif;
+}
 
 .content-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 180px; /* Width of the sidebar */
+  margin-left: 180px; 
   height: 100%;
 }
 
@@ -204,7 +207,6 @@
   background: #94a3b8;
 }
 
-/* Estilos visuales del calendario */
 .fc-timegrid-slot {
   height: 45px !important;
   cursor: pointer !important;
@@ -237,7 +239,6 @@
   border: 2px solid rgba(123, 58, 237, 0.5) !important;
 }
 
-/* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;

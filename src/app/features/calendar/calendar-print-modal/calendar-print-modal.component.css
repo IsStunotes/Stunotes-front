@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;500;600;700&display=swap');
 
-/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -15,7 +14,6 @@
   backdrop-filter: blur(3px);
 }
 
-/* Modal Content */
 .modal-content {
   background: white;
   border-radius: 12px;
@@ -39,7 +37,6 @@
   }
 }
 
-/* Modal Header */
 .modal-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -104,7 +101,6 @@
   transform: rotate(90deg);
 }
 
-/* Modal Body */
 .modal-body {
   padding: 25px;
   max-height: 60vh;
@@ -119,7 +115,6 @@
   min-height: 400px;
 }
 
-/* Estilos específicos para el calendario en el modal */
 .preview-container ::ng-deep .fc {
   background: white;
   border-radius: 6px;
@@ -150,7 +145,6 @@
   border-color: #2980b9;
 }
 
-/* Modal Footer */
 .modal-footer {
   background: #f8f9fa;
   padding: 20px 25px;
@@ -214,7 +208,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .modal-content {
     width: 95%;

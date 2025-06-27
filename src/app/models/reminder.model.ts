@@ -10,16 +10,13 @@ export interface CalendarEvent {
 
 export interface ReminderResponse {
   id: number;
-  title: string;
-  activityId: number;  
+  titulo: string;
+  activityName?: string;
   dateTime: string;
 }
 
 export interface CreateReminderRequest {
-  activityId: number;
+  titulo: string;
+  activityId?: number;
   dateTime: string;
-}
-
-export interface UpdateReminderRequest extends CreateReminderRequest {
-  id: number;
 }
