@@ -92,20 +92,36 @@ loadRepositories(): void {
   }
 
   const user = JSON.parse(storedUser);
-  const userId = user.id;
 
-  this.repositoryService.getRepositoriesByUsuarioId(userId).subscribe({
-    next: (repos) => {
-      this.repositories = repos;
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Error al obtener repositorios del usuario:', err);
-      this.error = 'Error al cargar repositorios del usuario';
-      this.loading = false;
-    }
-  });
+  if (user.role === 'TEACHER' || user.roleId === 2) {
+    // Si es profesor, obtener todos los repositorios de todos los estudiantes
+    this.repositoryService.getAllRepositories().subscribe({
+      next: (repos) => {
+        this.repositories = repos;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener todos los repositorios:', err);
+        this.error = 'Error al cargar todos los repositorios';
+        this.loading = false;
+      }
+    });
+  } else {
+    // Si es estudiante, obtener solo sus repositorios
+    this.repositoryService.getRepositoriesByUsuarioId(user.id).subscribe({
+      next: (repos) => {
+        this.repositories = repos;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener repositorios del usuario:', err);
+        this.error = 'Error al cargar repositorios del usuario';
+        this.loading = false;
+      }
+    });
+  }
 }
+
 crearDocumento(repositoryId: number): void {
   this.router.navigate(['/document/create'], {
     queryParams: { repositoryId }
