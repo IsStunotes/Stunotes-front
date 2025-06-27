@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
 :host {
   font-family: 'Poppins', sans-serif;
   background: #fdfdfd;
@@ -27,7 +25,7 @@
   }
 
   .user-icon {
-    font-size: 18px;
+    font-size: 20px;
     color: #7c3aed;
     margin-right: 8px;
   }
@@ -35,6 +33,7 @@
   .user-name {
     margin-right: 1rem;
     font-weight: 600;
+    font-size: 1.2rem;
     color: #4b5563;
   }
 
@@ -45,7 +44,7 @@
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
-    transition: background 0.2s ease;
+    font-size: 1rem;
   }
 
   .btn-outline:hover {
@@ -55,14 +54,17 @@
   .btn-purple {
     background-color: #7c3aed;
     color: white;
-    padding: 10px 20px;
+    padding: 0.75rem 2rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     font-weight: 600;
+    font-size: 1rem;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: all 0.3s ease;
   }
-
+  
   .btn-purple:hover {
-    background-color: #6d28d9;
+    background-color: #5b21b6;
+    scale: 1.05;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
   }

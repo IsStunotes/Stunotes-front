@@ -19,18 +19,27 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
 <div *ngIf="error" class="error">{{ error }}</div>
 
 <div *ngIf="!loading">
-  <div class="top-bar">
-    <button class="back-btn" (click)="cancelar()">← Atrás</button>
-
-    <button class="create-btn" (click)="crearRepositorio()">
-      + Crear nuevo repositorio
-    </button>
-
-    <div class="search-container">
-      <input type="text" placeholder="Buscar..." />
-      <span class="search-icon">🔍</span>
-    </div>
+  <div class="task-header">
+        <div class="header-left">
+          <button class="back-btn" (click)="cancelar()">
+            <i class="fas fa-arrow-left"></i> Atrás
+          </button>
+          <button class="new-task-btn" (click)="crearRepositorio()">
+            <i class="fas fa-plus"></i> Nuevo Repositorio
+          </button>
+        </div>
+        
+        <div class="search-filters">
+          <div class="search-container">
+            <input type="text" placeholder="Buscar..." />
+            <span class="search-icon">🔍</span>
+          </div>          
+        </div>
   </div>
+  <div *ngIf="repositories.length === 0 && !loading" class="no-repos-msg">
+    Aún no se ha creado un repositorio
+  </div>
+
   <ng-container *ngFor="let repo of repositories">
     <h2>Repositorio {{ repo.id }}</h2>
     <div class="repo-actions">
@@ -93,20 +102,36 @@ loadRepositories(): void {
   }
 
   const user = JSON.parse(storedUser);
-  const userId = user.id;
 
-  this.repositoryService.getRepositoriesByUsuarioId(userId).subscribe({
-    next: (repos) => {
-      this.repositories = repos;
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Error al obtener repositorios del usuario:', err);
-      this.error = 'Error al cargar repositorios del usuario';
-      this.loading = false;
-    }
-  });
+  if (user.role === 'TEACHER' || user.roleId === 2) {
+    // Si es profesor, obtener todos los repositorios de todos los estudiantes
+    this.repositoryService.getAllRepositories().subscribe({
+      next: (repos) => {
+        this.repositories = repos;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener todos los repositorios:', err);
+        this.error = 'Error al cargar todos los repositorios';
+        this.loading = false;
+      }
+    });
+  } else {
+    // Si es estudiante, obtener solo sus repositorios
+    this.repositoryService.getRepositoriesByUsuarioId(user.id).subscribe({
+      next: (repos) => {
+        this.repositories = repos;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener repositorios del usuario:', err);
+        this.error = 'Error al cargar repositorios del usuario';
+        this.loading = false;
+      }
+    });
+  }
 }
+
 crearDocumento(repositoryId: number): void {
   this.router.navigate(['/document/create'], {
     queryParams: { repositoryId }

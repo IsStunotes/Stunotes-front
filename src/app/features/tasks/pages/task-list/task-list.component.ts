@@ -17,13 +17,12 @@ import Swal from 'sweetalert2';
       <app-navbar></app-navbar>
       <div class="task-header">
         <div class="header-left">
-          <button class="back-btn" (click)="router.navigate(['/'])">
+          <button class="back-btn" (click)="goBack()">
             <i class="fas fa-arrow-left"></i> Atrás
           </button>
           <button class="new-task-btn" (click)="createNewTask()">
             <i class="fas fa-plus"></i> Nueva Tarea
           </button>
-          <button class="new-task-btn" (click)="goToRepo()">Repositorios</button>
         </div>
         
         <div class="search-filters">
@@ -242,6 +241,10 @@ export class TaskListComponent implements OnInit {
     private categoryService: CategoryService,
     public router: Router
   ) {}
+
+  goBack(): void {
+    history.back();
+  }
 
   ngOnInit(): void {
     this.loadCategories(() => {
@@ -481,7 +484,4 @@ export class TaskListComponent implements OnInit {
     Swal.fire('Error', message, 'error');
   }
   
-   goToRepo(): void {
-  this.router.navigate(['/repositorios/list']);
-}
 }

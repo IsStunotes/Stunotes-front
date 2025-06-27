@@ -13,6 +13,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/landing/landing.routes').then(m => m.landingRoutes)
   },
   {
+    path: 'home',
+    canActivate: [authGuard],
+    loadComponent: () => import('./shared/homepage/homepage.component').then(m => m.HomeComponent)
+  },
+  {
     path: 'auth',
     loadChildren: () => import('./features/auth/pages/auth.routes').then(m => m.authRoutes) 
   },
@@ -33,20 +38,24 @@ export const routes: Routes = [
 },
 {
   path: 'document/create',
-  loadComponent: () =>
-    import('./features/documents/document-create/document-create.component').then(
-      m => m.DocumentCreateComponent
-    )
+  loadComponent: () => import('./features/documents/document-create/document-create.component').then(m => m.DocumentCreateComponent)
 },
   {
     path: 'chat',
     loadChildren: () =>
       import('./features/chat/chat.routes').then((m) => m.chatRoutes)
   },
-
   {
     path: 'calendar',
     loadChildren: () => import('./features/calendar/calendar.router').then(m => m.calendarRoutes)
-  }
-  
+  },{
+    path: 'recover',
+    loadComponent: () =>
+      import('./features/auth/pages/recover/recover.component').then(m => m.RecoverComponent)
+  },
+  {
+    path: 'reset/:token',
+    loadComponent: () =>
+      import('./features/auth/pages/recover/reset-password.component').then(m => m.ResetPasswordComponent)
+  }  
 ];
