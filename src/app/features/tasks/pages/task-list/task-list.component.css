@@ -4,6 +4,8 @@
   margin: 0 auto;
   background: #f8f9fa;
   min-height: 100vh;
+  font-family: "Font Awesome 6 Brand", sans-serif; 
+  line-height: 1;
 }
 
 .task-header {
@@ -47,6 +49,30 @@
 .new-task-btn {
   background: #7c3aed;
   color: white;
+}
+
+.clear-filters-btn {
+  grid-area: 2px;
+  padding: 6px 20px;
+  border: none;
+  background: #7c3aed;
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clear-all-filters {
+  grid-area: 2px;
+  padding: 5px 20px;
+  border: none;
+  background: #7c3aed;
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .new-task-btn:hover {
@@ -145,6 +171,18 @@
 .active-task {
   border-left: 5px solid #7c3aed;
   box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+}
+
+.active-filters {
+  display: flex;
+  gap: 15px;
+}
+
+.remove-filter {
+  border: none;
+  background: #28242f;
+  color: white;
+  border-radius: 8px;
 }
 
 .completed-task {
