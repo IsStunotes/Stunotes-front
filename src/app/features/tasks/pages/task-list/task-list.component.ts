@@ -481,3 +481,4 @@ export class TaskListComponent implements OnInit {
    goToRepo(): void {
   this.router.navigate(['/repositorios/list']);
 }
+}
