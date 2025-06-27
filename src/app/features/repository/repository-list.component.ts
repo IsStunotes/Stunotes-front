@@ -7,14 +7,15 @@ import { DocumentService } from '../../services/document.service';
 import { HttpHeaders } from '@angular/common/http';
 import { NavbarLoggedComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { SidebarComponent } from "../../shared/components/sidebar/sidebar.component";
 
 @Component({
   standalone: true,
   selector: 'app-repository-list',
   template: `
    <app-navbar></app-navbar>
-
-<div *ngIf="loading" class="loading" style="min-height: 600px;">Cargando repositorios...</div>
+   <app-sidebar></app-sidebar>
+<div *ngIf="loading" class="loading">Cargando repositorios...</div>
 <div *ngIf="error" class="error">{{ error }}</div>
 
 <div *ngIf="!loading">
@@ -68,12 +69,10 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
       </div>
     </div>
   </ng-container>
-  </div>
-  
-<app-footer></app-footer>
-
-`,
-  imports: [CommonModule, RouterModule,NavbarLoggedComponent, FooterComponent],
+  <app-footer></app-footer>
+</div>
+  `,
+  imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent],
   styleUrls: ['repository-list.component.css']
 
 })

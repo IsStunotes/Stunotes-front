@@ -10,7 +10,6 @@ import { NavbarLoggedComponent } from '../../../../shared/components/navbar/navb
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 import { ChatComponent } from '../../../chat/chat.component';
 import Swal from 'sweetalert2';
-
 @Component({
   selector: 'app-task-list',
   template: `
@@ -401,6 +400,10 @@ export class TaskListComponent implements OnInit {
 
   createNewTask(): void {
     this.router.navigate(['/tasks/new']); 
+  }
+
+  navigateToCalendar(): void {
+    this.router.navigate(['/calendar']);
   }
 
   editTask(taskId: number): void {

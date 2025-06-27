@@ -4,6 +4,7 @@ import { authGuard } from '../app/core/guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
+    // cambiar antes de lanzar a landing 
     redirectTo: 'landing',
     pathMatch: 'full'
   },
@@ -43,6 +44,10 @@ export const routes: Routes = [
     path: 'chat',
     loadChildren: () =>
       import('./features/chat/chat.routes').then((m) => m.chatRoutes)
+  },
+  {
+    path: 'calendar',
+    loadChildren: () => import('./features/calendar/calendar.router').then(m => m.calendarRoutes)
   },{
     path: 'recover',
     loadComponent: () =>
@@ -52,6 +57,5 @@ export const routes: Routes = [
     path: 'reset/:token',
     loadComponent: () =>
       import('./features/auth/pages/recover/reset-password.component').then(m => m.ResetPasswordComponent)
-  },
-  
+  }  
 ];
