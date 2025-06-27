@@ -122,8 +122,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
       nowIndicator: true,
       scrollTime: '06:00:00',
       // Interacciones
-      editable: true,
-      selectable: true,
+      editable: false, // Deshabilitar edición de eventos
+      selectable: false, // Deshabilitar selección
       selectMirror: false,
       selectConstraint: {
         start: '06:00:00',
@@ -136,8 +136,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
       eventClick: this.handleEventClick.bind(this),
       dateClick: this.handleDateClick.bind(this),
       select: this.handleDateSelect.bind(this),
-      eventDrop: this.handleEventDrop.bind(this),
-      eventResize: this.handleEventResize.bind(this),
       datesSet: (info) => {
         this.calendarApi = info.view.calendar;
       }
@@ -266,129 +264,21 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.closePrintModal();
     }
 
-    // Crear recordatorio (necesita activityId)
+    // Crear recordatorio (función deshabilitada)
     createActivity(): void {
-      if (this.activities.length === 0) {
-        alert('No hay actividades disponibles. Primero cree una actividad.');
-        return;
-      }
-
-      let activityOptions = 'Seleccione una actividad:\n\n';
-      this.activities.forEach((activity, index) => {
-        const dueDateText = activity.finishedAt ? 
-          ` (Fecha límite: ${new Date(activity.finishedAt).toLocaleDateString()})` : 
-          ' (Sin fecha límite)';
-        activityOptions += `${index + 1}. ${activity.title}${dueDateText}\n`;
-      });
-      
-      const selection = prompt(activityOptions + '\nIngrese el número de la actividad:');
-      if (selection) {
-        const index = parseInt(selection) - 1;
-        if (index >= 0 && index < this.activities.length) {
-          const selectedActivity = this.activities[index];
-          let dateTime: string;
-          
-          if (selectedActivity.finishedAt) {
-            // Usar la fecha límite de la actividad
-            dateTime = selectedActivity.finishedAt;
-          } else {
-            // Si no hay fecha límite, usar fecha actual + 1 día
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            dateTime = new Date(tomorrow.setHours(9, 0, 0, 0)).toISOString();
-          }
-          
-          this.createNewReminder(selectedActivity.id, dateTime);
-        } else {
-          alert('Selección inválida');
-        }
-      }
+      // Función deshabilitada - no permite crear actividades desde el calendario
+      console.log('Función de crear actividad deshabilitada');
     }
 
-    // Crear un nuevo recordatorio
-    private createNewReminder(activityId: number, dateTime: string): void {
-      this.calendarService.createReminder(activityId, dateTime).subscribe({
-        next: (event) => {
-          this.calendarService.addEvent(event);
-          console.log('Recordatorio creado:', event);
-          // Recargar todos los eventos para asegurar sincronización
-          this.loadEvents();
-        },
-        error: (error) => {
-          console.error('Error creating reminder:', error);
-          alert('Error al crear el recordatorio');
-        }
-      });
-    }
-
-    // Manejar click en evento
+    // Manejar click en evento (función deshabilitada)
     handleEventClick(clickInfo: EventClickArg): void {
       const event = clickInfo.event;
-      const action = confirm(
+      // Función deshabilitada - solo mostrar información del evento
+      alert(
         `Recordatorio: ${event.title}\n` +
         `Fecha: ${event.start?.toLocaleString()}\n\n` +
-        `¿Desea eliminar este recordatorio?`
+        `(Funciones de edición deshabilitadas)`
       );
-
-      if (action && event.id) {
-        this.deleteReminder(event.id);
-      }
-    }
-
-    // Eliminar recordatorio
-    private deleteReminder(reminderId: string): void {
-      this.calendarService.deleteReminder(reminderId).subscribe({
-        next: () => {
-          this.calendarService.removeEventFromSubject(reminderId);
-          console.log('Recordatorio eliminado:', reminderId);
-          // Recargar todos los eventos para asegurar sincronización
-          this.loadEvents();
-        },
-        error: (error) => {
-          console.error('Error deleting reminder:', error);
-          alert('Error al eliminar el recordatorio');
-        }
-      });
-    }
-
-    // Manejar arrastrar y soltar evento
-    handleEventDrop(dropInfo: any): void {
-      const event = dropInfo.event;
-      if (event.id) {
-        this.moveReminder(event.id, event.startStr);
-      }
-    }
-
-    // Manejar redimensionar evento
-    handleEventResize(resizeInfo: any): void {
-      const event = resizeInfo.event;
-      if (event.id) {
-        this.moveReminder(event.id, event.startStr);
-      }
-    }
-
-    // Mover recordatorio (cambiar fecha/hora)
-    private moveReminder(reminderId: string, newDateTime: string): void {
-      try {
-        this.calendarService.moveReminder(reminderId, newDateTime).subscribe({
-          next: (updatedEvent) => {
-            this.calendarService.updateEventInSubject(updatedEvent);
-            console.log('Recordatorio movido:', updatedEvent);
-            // Recargar todos los eventos para asegurar sincronización
-            this.loadEvents();
-          },
-          error: (error) => {
-            console.error('Error moving reminder:', error);
-            alert('Error al mover el recordatorio');
-            // Revertir cambios en la UI
-            this.loadEvents();
-          }
-        });
-      } catch (error) {
-        console.error('Error moving reminder:', error);
-        alert('Error al mover el recordatorio');
-        this.loadEvents();
-      }
     }
 
     changeView(view: string): void {
@@ -425,52 +315,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
       console.log(`Vista cambiada a: ${view} (${newCalendarView})`);
     }
 
-    // Manejar click en fecha (día)
+    // Manejar click en fecha (función deshabilitada)
     handleDateClick(dateClickInfo: any): void {
-      if (this.activities.length === 0) {
-        alert('No hay actividades disponibles. Primero cree una actividad.');
-        return;
-      }
-
-      const clickedDate = dateClickInfo.dateStr;
-      let activityOptions = 'Seleccione una actividad para el recordatorio:\n\n';
-      this.activities.forEach((activity, index) => {
-        const dueDateText = activity.finishedAt ? 
-          ` (Fecha límite: ${new Date(activity.finishedAt).toLocaleDateString()})` : 
-          ' (Sin fecha límite)';
-        activityOptions += `${index + 1}. ${activity.title}${dueDateText}\n`;
-      });
-      
-      const selection = prompt(activityOptions + '\nIngrese el número de la actividad:');
-      if (selection) {
-        const index = parseInt(selection) - 1;
-        if (index >= 0 && index < this.activities.length) {
-          const selectedActivity = this.activities[index];
-          let dateTime: string;
-          
-          // Preguntar si quiere usar la fecha clickeada o la fecha límite de la actividad
-          if (selectedActivity.finishedAt) {
-            const useActivityDate = confirm(
-              `¿Desea usar la fecha límite de la actividad (${new Date(selectedActivity.finishedAt).toLocaleDateString()}) ` +
-              `o la fecha clickeada (${new Date(clickedDate).toLocaleDateString()})?` +
-              `\n\nOK = Fecha límite de actividad\nCancelar = Fecha clickeada`
-            );
-            
-            if (useActivityDate) {
-              dateTime = selectedActivity.finishedAt;
-            } else {
-              dateTime = new Date(clickedDate + 'T09:00:00').toISOString();
-            }
-          } else {
-            // Si no hay fecha límite, usar la fecha clickeada
-            dateTime = new Date(clickedDate + 'T09:00:00').toISOString();
-          }
-          
-          this.createNewReminder(selectedActivity.id, dateTime);
-        } else {
-          alert('Selección inválida');
-        }
-      }
+      // Función deshabilitada - no permite crear actividades desde clicks en fechas
+      console.log('Click en fecha detectado pero función deshabilitada:', dateClickInfo.dateStr);
     }
 
     // Obtener la API del calendario después de que se inicialice
@@ -504,48 +352,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
       return this.events;
     }
 
-    // Manejar selección de celda específica
     handleDateSelect(selectInfo: any): void {
-      const start = selectInfo.start;
-      const end = selectInfo.end;
-      
-      // Verificar que solo se seleccione una hora (evitar selección de rango)
-      const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60); // Duración en horas
-      
-      if (duration > 1) {
-        // Si se selecciona más de una hora, mostrar mensaje
-        alert('Por favor, selecciona solo una celda de tiempo (1 hora).');
-        selectInfo.view.calendar.unselect();
-        return;
-      }
-
-      if (this.activities.length === 0) {
-        alert('No hay actividades disponibles. Primero cree una actividad.');
-        selectInfo.view.calendar.unselect();
-        return;
-      }
-
-      const selectedDateTime = start.toISOString();
-      let activityOptions = 'Seleccione una actividad para el recordatorio:\n\n';
-      this.activities.forEach((activity, index) => {
-        const dueDateText = activity.finishedAt ? 
-          ` (Fecha límite: ${new Date(activity.finishedAt).toLocaleDateString()})` : 
-          ' (Sin fecha límite)';
-        activityOptions += `${index + 1}. ${activity.title}${dueDateText}\n`;
-      });
-      
-      const selection = prompt(activityOptions + '\nIngrese el número de la actividad:');
-      if (selection) {
-        const index = parseInt(selection) - 1;
-        if (index >= 0 && index < this.activities.length) {
-          const selectedActivity = this.activities[index];
-          this.createNewReminder(selectedActivity.id, selectedDateTime);
-        } else {
-          alert('Selección inválida');
-        }
-      }
-      
-      // Limpiar la selección
+      console.log('Selección de celda detectada pero función deshabilitada');
       selectInfo.view.calendar.unselect();
     }
 }

@@ -161,42 +161,57 @@
 }
 
 .action-btn {
-    background-color: #fff;
-    border: 2px solid #333;
-    padding: 10px 20px;
-    border-radius: 5px;
+    background: #8b5cf6;
+    color: white;
+    font-weight: 500;
+    border: none;
+    font-size: 14px;
+    border-radius: 6px;
+    padding: 8px 12px;
     cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     min-width: 100px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     justify-content: center;
-    font-size: 14px;
+    white-space: nowrap;
 }
 
 .action-btn:hover {
-    background-color: #333;
-    color: #fff;
+    background: #7c3aed;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.print-btn { 
+    background: #8b5cf6;
 }
 
 .print-btn:hover {
-    background-color: #28a745;
-    border-color: #28a745;
-    color: #fff;
+    background: #7c3aed;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-btn {
+    background: #a855f7;
 }
 
 .pdf-btn:hover {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    color: #fff;
+    background: #9333ea;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cancel-btn {
+    background: #6b7280;
 }
 
 .cancel-btn:hover {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color: #fff;
+    background: #4b5563;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */
