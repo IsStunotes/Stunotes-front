@@ -43,6 +43,15 @@ export const routes: Routes = [
     path: 'chat',
     loadChildren: () =>
       import('./features/chat/chat.routes').then((m) => m.chatRoutes)
-  }
+  },{
+    path: 'recover',
+    loadComponent: () =>
+      import('./features/auth/pages/recover/recover.component').then(m => m.RecoverComponent)
+  },
+  {
+    path: 'reset/:token',
+    loadComponent: () =>
+      import('./features/auth/pages/recover/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
   
 ];

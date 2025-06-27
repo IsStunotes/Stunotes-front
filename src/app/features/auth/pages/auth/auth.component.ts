@@ -100,6 +100,6 @@ export class AuthComponent {
   }
 
   goToForgot(): void {
-    this.router.navigate(['/auth/recover']);
+    this.router.navigate(['/recover']);
   }
 }
