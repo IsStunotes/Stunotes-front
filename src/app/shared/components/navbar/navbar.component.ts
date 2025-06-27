@@ -1,3 +1,5 @@
+
+
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -9,12 +11,12 @@ import { CommonModule } from '@angular/common';
   template: `
     <header class="navbar">
       <h1 class="logo">StuNotes</h1>
+
       <div *ngIf="user" class="user-info">
         <i class="fa fa-user user-icon"></i>
         <span class="user-name">{{ user.name }}</span>
         <button class="btn-purple" (click)="logout()">Cerrar Sesión</button>
       </div>
-    </header>
   `,
   styleUrls: ['./navbar.component.css']
 })

@@ -80,7 +80,6 @@ import { Subscription } from 'rxjs';
           </app-calendar-print-modal>
         </div>
       </div>
-      <app-footer></app-footer>
     </div>
   `,
 })
