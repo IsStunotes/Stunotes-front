@@ -4,6 +4,8 @@
   margin: 0 auto;
   background: #f8f9fa;
   min-height: 100vh;
+  font-family: "Font Awesome 6 Brand", sans-serif; 
+  line-height: 1;
 }
 
 .task-header {
@@ -49,6 +51,30 @@
   color: white;
 }
 
+.clear-filters-btn {
+  grid-area: 2px;
+  padding: 6px 20px;
+  border: none;
+  background: #7c3aed;
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clear-all-filters {
+  grid-area: 2px;
+  padding: 5px 20px;
+  border: none;
+  background: #7c3aed;
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
 .new-task-btn:hover {
   background: #6d28d9;
   transform: translateY(-2px);
@@ -65,13 +91,14 @@
 }
 
 .search-container {
+  padding-right: 7px;
   position: relative;
   width: 300px;
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 40px 12px 16px;
+  padding: 12px 1px 12px 11px;
   border: 2px solid #e5e7eb;
   border-radius: 25px;
   font-size: 14px;
@@ -154,6 +181,18 @@
 .active-task {
   border-left: 5px solid #7c3aed;
   box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+}
+
+.active-filters {
+  display: flex;
+  gap: 15px;
+}
+
+.remove-filter {
+  border: none;
+  background: #28242f;
+  color: white;
+  border-radius: 8px;
 }
 
 .completed-task {
@@ -326,6 +365,59 @@
   font-size: 12px;
 }
 
+/* Estilos para el contenedor de ordenamiento */
+.sort-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sort-select, .sort-direction-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.sort-select:focus, .sort-direction-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.sort-select:hover, .sort-direction-select:hover {
+  border-color: #007bff;
+}
+
+/* Actualizar el contenedor de filtros de búsqueda */
+.search-filters {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .search-filters {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .sort-container {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .sort-select, .sort-direction-select {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
 @media (max-width: 768px) {
   .task-container {
     padding: 10px;
@@ -342,6 +434,7 @@
   }
   
   .search-container {
+    padding: 4px 22px;
     width: 100%;
   }
   

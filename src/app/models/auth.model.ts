@@ -11,6 +11,7 @@ export interface LoginRequest {
   }
   
   export interface AuthResponse {
+    userId(arg0: string, userId: any): unknown;
     id: number;
     email: string;
     token: string;
