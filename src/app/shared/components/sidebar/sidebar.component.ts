@@ -9,11 +9,6 @@ import { filter } from 'rxjs/operators';
     imports: [CommonModule, RouterLink],
     template: `
       <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">
-          </div>
-        </div>
-        
         <nav class="sidebar-nav">    
           <ul class="nav-list">
             <li class="nav-item" [class.active]="isActiveRoute('/profile')">
@@ -55,20 +50,18 @@ import { filter } from 'rxjs/operators';
           </ul>
         </nav>
       </aside>
-
     `,
     styleUrls: ['./sidebar.component.css']
 })
+
 export class SidebarComponent implements OnInit {
   currentRoute: string = '';
   
   constructor(private router: Router) {}
 
   ngOnInit() {
-    // Obtener la ruta actual al inicializar
     this.currentRoute = this.router.url;
     
-    // Suscribirse a cambios de ruta
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -77,6 +70,6 @@ export class SidebarComponent implements OnInit {
   }
 
   isActiveRoute(route: string): boolean {
-    return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
+    return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
   }
 }

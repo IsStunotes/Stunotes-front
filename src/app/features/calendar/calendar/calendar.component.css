@@ -1,86 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;500;600;700&display=swap');
 
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-  font-family: 'Lato', sans-serif;
-}
-
-.app-body {
-  display: flex;
-  margin-top: 64px;
-  padding-bottom: 80px;
-  overflow: hidden;
-}
-
-.app-layout {
+.content-container {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  margin-left: 180px; /* Width of the sidebar */
+  height: 100%;
+}
+
+.action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
   background-color: #ffffff;
+  border-bottom: 1px solid #f3f4f6;
+  flex-shrink: 0;
+  min-height: 60px;
+  position: relative;
+  z-index: 10;
 }
 
 
-
-
-
-app-navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1001;
-  height: 64px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-
-app-sidebar {
-  flex: 0 0 180px; /* ancho fijo */
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 64px;
-  min-height: calc(100vh - 64px); /* altura menos el navbar */
-  background-color: #ffffff;
-  border-right: 1px solid #e5e7eb;
-}
-
-
-.main-content {
-  flex: 1;
-  margin-left: 180px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background-color: #ffffff;
-  padding-bottom: 1rem;
-}
-
-/* ✅ FOOTER 100% ancho fijo */
-app-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%; /* ✅ importante */
-  height: 80px;
-  z-index: 999;
-  background-color: #111827;
-  color: #fff;
+.action-buttons {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-/* ========== CALENDARIO Y SECCIONES INTERNAS ========== */
+
 .calendar-container {
   flex: 1;
   padding: 0;
@@ -101,26 +51,6 @@ app-footer {
   width: 100%;
 }
 
-/* Estilos generales de botones y cabeceras */
-.action-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 20px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #f3f4f6;
-  flex-shrink: 0;
-  min-height: 60px;
-  position: relative;
-  z-index: 10;
-}
-
-.action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
 
 .calendar-header {
   display: flex;
@@ -231,7 +161,7 @@ app-footer {
   white-space: nowrap;
 }
 
-/* ========== FULLCALENDAR ========== */
+/* FULLCALENDAR */
 .fc,
 .fc-toolbar,
 .fc-button,
@@ -309,8 +239,6 @@ app-footer {
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
-  app-sidebar { display: none; }
-
   .main-content {
     margin-left: 0;
     height: auto;

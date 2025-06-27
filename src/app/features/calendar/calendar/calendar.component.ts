@@ -19,66 +19,55 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
-  imports: [FullCalendarModule, CalendarPrintModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent, FooterComponent],
+  imports: [FullCalendarModule, CalendarPrintModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent],
   styleUrls: ['./calendar.component.css'],
   encapsulation: ViewEncapsulation.None, 
   template: `
-  
-    <div class="app-layout">
-      <app-navbar></app-navbar>
-      <div class="app-body">
-        
-        
-        <div class="main-content">
-          <app-sidebar></app-sidebar>
-          <div class="calendar-container">
-              <div class="action-header">
-                  <button class="nav-btn" (click)="goBack()">
-                      &lt; Back
-                  </button>
-                  <div class="action-buttons">
-                      <button class="action-btn print-btn" (click)="openPrintModal()">
-                          Imprimir Calendario
-                      </button>
-                      <button class="action-btn create-btn" (click)="createActivity()">
-                          Crear Actividad
-                      </button>
-                  </div>
-              </div>
-              
-              <!-- Fila inferior con controles de navegación y vista -->
-              <div class="calendar-header">
-                  <div class="nav-controls">
-                      <button class="nav-btn" (click)="previousPeriod()">&lt;</button>
-                      <button class="nav-btn today-btn" (click)="goToToday()">Today</button>
-                      <button class="nav-btn" (click)="nextPeriod()">&gt;</button>
-                  </div>
-                  
-                  <div class="view-selector">
-                      <button class="view-btn" [class.active]="currentView === 'day'" (click)="changeView('day')">Day</button>
-                      <button class="view-btn" [class.active]="currentView === 'week'" (click)="changeView('week')">Week</button>
-                      <button class="view-btn" [class.active]="currentView === 'month'" (click)="changeView('month')">Month</button>
-                  </div>
-              </div>
-              
-              <div *ngIf="error" class="error-message">
-                {{ error }}
-              </div>
-              
-              <div class="calendar-view">
-                  <full-calendar [options]="calendarOptions"></full-calendar>
-              </div>
+    <app-navbar></app-navbar>
+
+    <div class="main-container">
+      <app-sidebar></app-sidebar>
+      <div class ="content-container">
+
+        <div class="action-header">
+          <button class="nav-btn" (click)="goBack()"> &lt; Back </button>
+            <div class="action-buttons">
+              <button class="action-btn print-btn" (click)="openPrintModal()"> Imprimir Calendario </button>
+              <button class="action-btn create-btn" (click)="createActivity()"> Crear Actividad </button>
+            </div>
+        </div>      
+    
+        <div class="calendar-header">
+          <div class="nav-controls">
+            <button class="nav-btn" (click)="previousPeriod()">&lt;</button>
+            <button class="nav-btn today-btn" (click)="goToToday()">Today</button>
+            <button class="nav-btn" (click)="nextPeriod()">&gt;</button>
           </div>
+                  
+          <div class="view-selector">
+            <button class="view-btn" [class.active]="currentView === 'day'" (click)="changeView('day')">Day</button>
+            <button class="view-btn" [class.active]="currentView === 'week'" (click)="changeView('week')">Week</button>
+            <button class="view-btn" [class.active]="currentView === 'month'" (click)="changeView('month')">Month</button>
+          </div>
+        </div>
+              
+        <div *ngIf="error" class="error-message">
+          {{ error }}
+        </div>
+              
+        <div class="calendar-view">
+          <full-calendar [options]="calendarOptions"></full-calendar>
+        </div>
 
           <!-- Modal de Impresión -->
-          <app-calendar-print-modal
+        <app-calendar-print-modal
             [isVisible]="showPrintModal"
             [events]="calendarEvents"
             (closeModal)="closePrintModal()"
             (printCalendar)="handlePrint()"
             (savePDF)="handleSavePDF()">
-          </app-calendar-print-modal>
-        </div>
+        </app-calendar-print-modal>
+
       </div>
     </div>
   `,
