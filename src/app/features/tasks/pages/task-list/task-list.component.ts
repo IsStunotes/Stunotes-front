@@ -176,7 +176,7 @@ import Swal from 'sweetalert2';
               </div>
               
               <h3 class="task-title">{{ task.title }}</h3>
-              <p class="task-description">{{ task.description }}</p>
+              <p class="task-description">{{ task.description || 'Sin descripción' }}</p>
               
               <div class="task-meta">
                 <span class="task-category" *ngIf="task.category">
