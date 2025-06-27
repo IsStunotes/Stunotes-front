@@ -12,6 +12,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/landing/landing.routes').then(m => m.landingRoutes)
   },
   {
+    path: 'home',
+    canActivate: [authGuard],
+    loadComponent: () => import('./shared/homepage/homepage.component').then(m => m.HomeComponent)
+  },
+  {
     path: 'auth',
     loadChildren: () => import('./features/auth/pages/auth.routes').then(m => m.authRoutes) 
   },
@@ -32,10 +37,7 @@ export const routes: Routes = [
 },
 {
   path: 'document/create',
-  loadComponent: () =>
-    import('./features/documents/document-create/document-create.component').then(
-      m => m.DocumentCreateComponent
-    )
+  loadComponent: () => import('./features/documents/document-create/document-create.component').then(m => m.DocumentCreateComponent)
 },
   {
     path: 'chat',

@@ -14,22 +14,31 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
   template: `
    <app-navbar></app-navbar>
 
-<div *ngIf="loading" class="loading">Cargando repositorios...</div>
+<div *ngIf="loading" class="loading" style="min-height: 600px;">Cargando repositorios...</div>
 <div *ngIf="error" class="error">{{ error }}</div>
 
 <div *ngIf="!loading">
-  <div class="top-bar">
-    <button class="back-btn" (click)="cancelar()">← Atrás</button>
-
-    <button class="create-btn" (click)="crearRepositorio()">
-      + Crear nuevo repositorio
-    </button>
-
-    <div class="search-container">
-      <input type="text" placeholder="Buscar..." />
-      <span class="search-icon">🔍</span>
-    </div>
+  <div class="task-header">
+        <div class="header-left">
+          <button class="back-btn" (click)="cancelar()">
+            <i class="fas fa-arrow-left"></i> Atrás
+          </button>
+          <button class="new-task-btn" (click)="crearRepositorio()">
+            <i class="fas fa-plus"></i> Nuevo Repositorio
+          </button>
+        </div>
+        
+        <div class="search-filters">
+          <div class="search-container">
+            <input type="text" placeholder="Buscar..." />
+            <span class="search-icon">🔍</span>
+          </div>          
+        </div>
   </div>
+  <div *ngIf="repositories.length === 0 && !loading" class="no-repos-msg">
+    Aún no se ha creado un repositorio
+  </div>
+
   <ng-container *ngFor="let repo of repositories">
     <h2>Repositorio {{ repo.id }}</h2>
     <div class="repo-actions">
@@ -59,9 +68,11 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
       </div>
     </div>
   </ng-container>
-  <app-footer></app-footer>
-</div>
-  `,
+  </div>
+  
+<app-footer></app-footer>
+
+`,
   imports: [CommonModule, RouterModule,NavbarLoggedComponent, FooterComponent],
   styleUrls: ['repository-list.component.css']
 

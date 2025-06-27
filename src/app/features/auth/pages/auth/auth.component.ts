@@ -71,13 +71,13 @@ export class AuthComponent {
 
           switch (response.role) {
             case 'STUDENT':
-              this.router.navigate(['/tasks']);
+              this.router.navigate(['/home']);
               break;
             case 'TEACHER':
-              this.router.navigate(['/tasks']);
+              this.router.navigate(['/home']);
               break;
             case 'ADMIN':
-              this.router.navigate(['/admin']);
+              this.router.navigate(['/home']);
               break;
             default:
               this.router.navigate(['/']);
