@@ -9,6 +9,7 @@ import { DocumentService } from '../../services/document.service';
 import { DocumentResponse } from '../../models/document.model';
 import { RepositoryService } from '../../services/repository.service';
 import { RepositoryResponse } from '../../models/repository.model';
+import { ChatComponent } from '../../features/chat/chat.component';
 
 @Component({
   selector: 'app-home',
@@ -86,13 +87,13 @@ import { RepositoryResponse } from '../../models/repository.model';
     </ng-template>
   </section>
 </div>
-
+<app-floating-chat></app-floating-chat>
 <app-footer></app-footer>
 
   `,
   styleUrls: ['./homepage.component.css'],
   standalone: true,
-  imports: [CommonModule, NavbarLoggedComponent, FooterComponent]
+  imports: [CommonModule, NavbarLoggedComponent, FooterComponent, ChatComponent]
 })
 export class HomeComponent implements OnInit {
   user: any = null;
