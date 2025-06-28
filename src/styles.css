@@ -1,3 +1,6 @@
+/* Global font imports - centralized to avoid duplication */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap');
+
 .swal2-container{
     font-family: "Font Awesome 6 Brand", sans-serif; 
 }

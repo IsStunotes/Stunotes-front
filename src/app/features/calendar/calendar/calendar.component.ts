@@ -1,15 +1,9 @@
-
-/*import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CalendarOptions, EventClickArg }  from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ViewEncapsulation } from '@angular/core';
 import { Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavbarLoggedComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
-import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarPrintModalComponent } from '../calendar-print-modal/calendar-print-modal.component';
 import { CreateReminderModalComponent } from '../create-reminder-modal/create-reminder-modal.component';
 import { CalendarService } from '../../../services/calendar.service';
@@ -18,7 +12,7 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
-  imports: [FullCalendarModule, CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent],
+  imports: [CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent],
   styleUrls: ['./calendar.component.css'],
   encapsulation: ViewEncapsulation.None, 
   template: `
@@ -42,6 +36,10 @@ import { Subscription } from 'rxjs';
             <button class="nav-btn today-btn" (click)="goToToday()">Today</button>
             <button class="nav-btn" (click)="nextPeriod()">&gt;</button>
           </div>
+          
+          <div class="calendar-title">
+            <h2>{{ getCurrentTitle() }}</h2>
+          </div>
                   
           <div class="view-selector">
             <button class="view-btn" [class.active]="currentView === 'day'" (click)="changeView('day')">Day</button>
@@ -55,12 +53,87 @@ import { Subscription } from 'rxjs';
         </div>
               
         <div class="calendar-view">
-          <full-calendar [options]="calendarOptions"></full-calendar>
+          <!-- Vista Mensual -->
+          <div *ngIf="currentView === 'month'" class="month-view">
+            <div class="month-header">
+              <div *ngFor="let day of weekDays" class="day-header">{{ day }}</div>
+            </div>
+            <div class="month-grid">
+              <div *ngFor="let week of calendarDays" class="week-row">
+                <div *ngFor="let day of week" 
+                     class="day-cell" 
+                     [class.other-month]="!day.isCurrentMonth"
+                     [class.today]="day.isToday"
+                     (click)="onDateClick(day)">
+                  <div class="day-number">{{ day.date.getDate() }}</div>
+                  <div class="day-events">
+                    <div *ngFor="let event of day.events | slice:0:3" 
+                         class="event-item-month"
+                         (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                      {{ $any(event).title }}
+                    </div>
+                    <div *ngIf="day.events.length > 3" class="more-events">
+                      +{{ day.events.length - 3 }} más
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista Semanal -->
+          <div *ngIf="currentView === 'week'" class="week-view">
+            <div class="week-header">
+              <div class="time-column-header"></div>
+              <div *ngFor="let day of calendarDays" 
+                   class="day-header-week"
+                   [class.today]="day.isToday">
+                <div class="day-name">{{ weekDays[day.date.getDay()] }}</div>
+                <div class="day-number">{{ day.date.getDate() }}</div>
+              </div>
+            </div>
+            <div class="week-grid">
+              <div *ngFor="let timeSlot of timeSlots" class="time-row">
+                <div class="time-label">{{ timeSlot }}</div>
+                <div *ngFor="let day of calendarDays" 
+                     class="time-slot"
+                     (click)="onTimeSlotClick(day, timeSlot)">
+                  <div *ngFor="let event of getEventsForTimeSlot(day, timeSlot)" 
+                       class="event-item-week"
+                       (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                    {{ $any(event).title }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista Diaria -->
+          <div *ngIf="currentView === 'day'" class="day-view">
+            <div class="day-header-single">
+              <div class="day-title">
+                {{ calendarDays[0]?.date | date:'EEEE, d MMMM y':'es-ES' }}
+              </div>
+            </div>
+            <div class="day-grid">
+              <div *ngFor="let timeSlot of timeSlots" class="time-row-day">
+                <div class="time-label-day">{{ timeSlot }}</div>
+                <div class="time-slot-day" (click)="onTimeSlotClick(calendarDays[0], timeSlot)">
+                  <div *ngFor="let event of getEventsForTimeSlot(calendarDays[0], timeSlot)" 
+                       class="event-item-day"
+                       (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                    {{ $any(event).title }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <app-calendar-print-modal
             [isVisible]="showPrintModal"
             [events]="calendarEvents"
+            [currentDate]="currentDate"
             (closeModal)="closePrintModal()"
             (printCalendar)="handlePrint()"
             (savePDF)="handleSavePDF()">
@@ -87,64 +160,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
     selectedDate: string = '';
     selectedTime: string = '';
     private eventsSubscription?: Subscription;
-    private calendarApi: any;
     
-    calendarOptions: CalendarOptions = {
-      plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-      initialView: 'timeGridWeek', 
-      height: 'auto',
-      contentHeight: 'auto',
-      aspectRatio: 1.35,
-      events: [],
-      locale: 'es',
-      firstDay: 1, 
-      headerToolbar: false, 
-
-      slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: true },
-      slotLabelContent: (arg) => {
-        const [hour, minute] = arg.text.split(':');
-        const ampm = minute.slice(3);
-        return `${hour}\n${ampm}`;
-      },
-
-      dayHeaderFormat: { weekday: 'short', day: 'numeric' },
-      dayHeaderContent: (arg) => {
-        const date = arg.date;
-        const dayNames = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
-        const dayName = dayNames[date.getDay()];
-        const dayNumber = date.getDate();
-        return { 
-          html: 
-            `<div class="day-header">
-              <div class="day-name">${dayName}</div>
-              <div class="day-number">${dayNumber}</div>
-            </div>` 
-          };
-      }, 
-      
-      slotMinTime: '06:00:00',
-      slotMaxTime: '23:00:00',
-      slotDuration: '01:00:00',
-      slotLabelInterval: '01:00:00',
-      allDaySlot: false,
-      nowIndicator: true,
-      scrollTime: '06:00:00',
-      editable: false, 
-      selectable: false,
-      selectMirror: false,
-      selectConstraint: {
-        start: '06:00:00',
-        end: '23:00:00'
-      },
-      selectMinDistance: 0,
-      dayMaxEvents: true,
-      weekends: true,
-      eventClick: this.handleEventClick.bind(this),
-      dateClick: this.handleDateClick.bind(this),
-      datesSet: (info) => {
-        this.calendarApi = info.view.calendar;
-      }
-    };
+    // Calendar properties
+    currentDate: Date = new Date();
+    calendarDays: any[] = [];
+    weekDays: string[] = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+    months: string[] = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    timeSlots: string[] = [];
+    weekStart: Date = new Date();
+    weekEnd: Date = new Date();
 
     constructor(
       private router: Router,
@@ -152,6 +179,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
+      this.generateTimeSlots();
+      this.updateCalendarView();
       this.loadEvents();
       this.subscribeToEvents();
     }
@@ -196,15 +225,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     private updateCalendarEvents(): void {
-      if (this.calendarApi) {
-        this.calendarApi.removeAllEvents();
-        this.calendarApi.addEventSource(this.events);
-      } else {
-        this.calendarOptions = {
-          ...this.calendarOptions,
-          events: this.events
-        };
-      }
+      // Update calendar view when events change
+      this.updateCalendarView();
+      console.log('Events updated:', this.events.length);
     }
 
     private loadSampleEvents(): void {
@@ -218,6 +241,126 @@ export class CalendarComponent implements OnInit, OnDestroy {
       ];
       this.updateCalendarEvents();
     } 
+
+    private generateTimeSlots(): void {
+      this.timeSlots = [];
+      for (let hour = 6; hour <= 22; hour++) {
+        this.timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+      }
+    }
+
+    private updateCalendarView(): void {
+      switch (this.currentView) {
+        case 'month':
+          this.generateMonthView();
+          break;
+        case 'week':
+          this.generateWeekView();
+          break;
+        case 'day':
+          this.generateDayView();
+          break;
+      }
+    }
+
+    private generateMonthView(): void {
+      const year = this.currentDate.getFullYear();
+      const month = this.currentDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDate = new Date(firstDay);
+      startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+      this.calendarDays = [];
+      const current = new Date(startDate);
+
+      for (let week = 0; week < 6; week++) {
+        const weekDays = [];
+        for (let day = 0; day < 7; day++) {
+          const dayEvents = this.getEventsForDate(current);
+          weekDays.push({
+            date: new Date(current),
+            isCurrentMonth: current.getMonth() === month,
+            isToday: this.isToday(current),
+            events: dayEvents
+          });
+          current.setDate(current.getDate() + 1);
+        }
+        this.calendarDays.push(weekDays);
+      }
+    }
+
+    private generateWeekView(): void {
+      const startOfWeek = new Date(this.currentDate);
+      const day = startOfWeek.getDay();
+      const diff = startOfWeek.getDate() - day;
+      startOfWeek.setDate(diff);
+      
+      this.weekStart = new Date(startOfWeek);
+      this.weekEnd = new Date(startOfWeek);
+      this.weekEnd.setDate(this.weekEnd.getDate() + 6);
+
+      this.calendarDays = [];
+      const current = new Date(startOfWeek);
+      
+      for (let i = 0; i < 7; i++) {
+        const dayEvents = this.getEventsForDate(current);
+        this.calendarDays.push({
+          date: new Date(current),
+          isToday: this.isToday(current),
+          events: dayEvents
+        });
+        current.setDate(current.getDate() + 1);
+      }
+    }
+
+    private generateDayView(): void {
+      const dayEvents = this.getEventsForDate(this.currentDate);
+      this.calendarDays = [{
+        date: new Date(this.currentDate),
+        isToday: this.isToday(this.currentDate),
+        events: dayEvents
+      }];
+    }
+
+    private getEventsForDate(date: Date): CalendarEvent[] {
+      return this.events.filter(event => {
+        const eventDate = new Date(event.start);
+        return eventDate.toDateString() === date.toDateString();
+      });
+    }
+
+    private isToday(date: Date): boolean {
+      const today = new Date();
+      return date.toDateString() === today.toDateString();
+    }
+
+    private isSameDay(date1: Date, date2: Date): boolean {
+      return date1.toDateString() === date2.toDateString();
+    }
+
+    getEventsForTimeSlot(day: any, timeSlot: string): CalendarEvent[] {
+      if (!day.events) return [];
+      
+      return day.events.filter((event: CalendarEvent) => {
+        const eventDate = new Date(event.start);
+        const eventHour = eventDate.getHours();
+        const slotHour = parseInt(timeSlot.split(':')[0]);
+        return eventHour === slotHour;
+      });
+    }
+
+    onDateClick(day: any): void {
+      this.selectedDate = day.date.toISOString().split('T')[0];
+      this.selectedTime = '09:00';
+      this.openCreateReminderModal();
+    }
+
+    onTimeSlotClick(day: any, timeSlot: string): void {
+      this.selectedDate = day.date.toISOString().split('T')[0];
+      this.selectedTime = timeSlot;
+      this.openCreateReminderModal();
+    }
 
     goBack(): void {
       this.router.navigate(['/tasks']);
@@ -291,12 +434,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
       });
     }
 
-    handleEventClick(clickInfo: EventClickArg): void {
-      const event = clickInfo.event;
+    handleEventClick(event: CalendarEvent): void {
       const confirmed = confirm(
         `¿Deseas eliminar este recordatorio?\n\n` +
         `Título: ${event.title}\n` +
-        `Fecha: ${event.start?.toLocaleString()}\n\n` +
+        `Fecha: ${this.formatEventDate(event.start)}\n\n` +
         `Esta acción no se puede deshacer.`
       );
       
@@ -305,37 +447,22 @@ export class CalendarComponent implements OnInit, OnDestroy {
       }
     }
 
+    formatEventDate(dateString: string): string {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
     changeView(view: string): void {
       this.currentView = view;
-      let newCalendarView = 'timeGridWeek';
-      
-      switch(view) {
-        case 'day':
-          newCalendarView = 'timeGridDay';
-          break;
-        case 'week':
-          newCalendarView = 'timeGridWeek';
-          break;
-        case 'month':
-          newCalendarView = 'dayGridMonth';
-          break;
-      }
-      
-      if (this.calendarApi) {
-        this.calendarApi.changeView(newCalendarView);
-        
-        this.calendarApi.setOption('height', 'auto');
-        this.calendarApi.setOption('aspectRatio', 1.35);
-        this.calendarApi.setOption('dayMaxEvents', true);
-      } else {
-
-        this.calendarOptions = {
-          ...this.calendarOptions,
-          initialView: newCalendarView
-        };
-      }
-      
-      console.log(`Vista cambiada a: ${view} (${newCalendarView})`);
+      this.updateCalendarView();
+      console.log(`Vista cambiada a: ${view}`);
     }
 
     handleDateClick(dateClickInfo: any): void {
@@ -344,14 +471,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
       let selectedDate: string;
       let selectedTime: string;
       
-      if (dateClickInfo.dateStr.includes('T')) {
-
+      if (dateClickInfo.dateStr && dateClickInfo.dateStr.includes('T')) {
         const [date, time] = dateClickInfo.dateStr.split('T');
         selectedDate = date;
         selectedTime = time.substring(0, 5); 
       } else {
-
-        selectedDate = dateClickInfo.dateStr;
+        selectedDate = dateClickInfo.dateStr || new Date().toISOString().split('T')[0];
         selectedTime = '09:00'; 
       }
       
@@ -361,25 +486,69 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     previousPeriod(): void {
-      if (this.calendarApi) {
-        this.calendarApi.prev();
+      switch (this.currentView) {
+        case 'month':
+          this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+          break;
+        case 'week':
+          this.currentDate.setDate(this.currentDate.getDate() - 7);
+          break;
+        case 'day':
+          this.currentDate.setDate(this.currentDate.getDate() - 1);
+          break;
       }
+      this.updateCalendarView();
+      console.log('Navegando al período anterior');
     }
 
     nextPeriod(): void {
-      if (this.calendarApi) {
-        this.calendarApi.next();
+      switch (this.currentView) {
+        case 'month':
+          this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+          break;
+        case 'week':
+          this.currentDate.setDate(this.currentDate.getDate() + 7);
+          break;
+        case 'day':
+          this.currentDate.setDate(this.currentDate.getDate() + 1);
+          break;
       }
+      this.updateCalendarView();
+      console.log('Navegando al siguiente período');
     }
 
     goToToday(): void {
-      if (this.calendarApi) {
-        this.calendarApi.today();
-      }
+      this.currentDate = new Date();
+      this.updateCalendarView();
+      console.log('Navegando a hoy');
     }
 
     get calendarEvents(): CalendarEvent[] {
       return this.events;
+    }
+
+    getCurrentTitle(): string {
+      switch (this.currentView) {
+        case 'month':
+          return `${this.months[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
+        case 'week':
+          const startDate = this.weekStart.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+          const endDate = this.weekEnd.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+          return `${startDate} - ${endDate}`;
+        case 'day':
+          return this.currentDate.toLocaleDateString('es-ES', { 
+            weekday: 'long', 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric' 
+          });
+        default:
+          return '';
+      }
+    }
+
+    trackByEventId(index: number, event: CalendarEvent): string {
+      return event.id || index.toString();
     }
 }
 */
