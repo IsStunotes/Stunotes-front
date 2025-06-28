@@ -113,12 +113,13 @@ import { SidebarComponent } from "../components/sidebar/sidebar.component";
     </ng-template>
   </section>
 </div>
+<app-floating-chat></app-floating-chat>
 <app-footer></app-footer>
 
   `,
   styleUrls: ['./homepage.component.css'],
   standalone: true,
-  imports: [CommonModule, NavbarLoggedComponent, FooterComponent, SidebarComponent]
+  imports: [CommonModule, NavbarLoggedComponent, FooterComponent, SidebarComponent,ChatComponent]
 })
 export class HomeComponent implements OnInit {
   user: any = null;

@@ -1,27 +1,22 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../enviroments/enviroment';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private apiUrl = `${environment.apiUrl}/chat`;
+  private apiUrl = 'https://stunotes-api-latest.onrender.com/api/v1/chat'; // URL del backend
 
   constructor(private http: HttpClient) {}
 
-  sendMessage(message: string): Observable<any> {
-    const token = localStorage.getItem('token');
-      const prompt = `${message}. Responde en máximo 20 palabras.`;
-    return this.http.post(`${environment.apiUrl}/chat`, { message: prompt }, {
-      headers: { Authorization: `Bearer ${token}` },
-      responseType: 'text'
-    });
+  sendMessage(prompt: string): Observable<string> {
+    return this.http.post<any>(this.apiUrl, { prompt }).pipe(
+      map((res) => res.choices[0].message.content) // Extraer solo el contenido del mensaje
+    );
   }
-    
 }
-
 
 
 

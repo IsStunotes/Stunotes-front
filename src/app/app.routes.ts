@@ -1,3 +1,4 @@
+import { provideRouter, withHashLocation } from '@angular/router';
 import { Routes } from '@angular/router';
 import { authGuard } from '../app/core/guards/auth.guard';
 
@@ -48,13 +49,11 @@ export const routes: Routes = [
     path: 'notes',
     canActivate: [authGuard],
     loadChildren: () => import('./features/notes/notes.routes').then(m => m.notesRoutes)
-  },
-  /*,
-  {
+  },  {
   
     path: 'calendar',
     loadChildren: () => import('./features/calendar/calendar.router').then(m => m.calendarRoutes)
-}*/
+},
 {path: 'recover',
     loadComponent: () =>
       import('./features/auth/pages/recover/recover.component').then(m => m.RecoverComponent)
@@ -64,4 +63,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/pages/recover/reset-password.component').then(m => m.ResetPasswordComponent)
   }  
+];
+
+export const appConfig = [
+  provideRouter(routes, withHashLocation())
 ];
