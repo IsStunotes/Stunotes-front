@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;500;600;700&display=swap');
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -208,6 +206,202 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Estilos para la vista de impresión del calendario semanal */
+
+.print-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.print-header h2 {
+  margin: 0 0 5px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.print-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.weekly-calendar-preview {
+  width: 100%;
+  font-size: 12px;
+}
+
+.week-header-print {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  background-color: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-bottom: none;
+}
+
+.time-column-header-print {
+  padding: 10px 5px;
+  border-right: 1px solid #e5e7eb;
+  background-color: #f1f5f9;
+}
+
+.day-header-print {
+  padding: 10px 5px;
+  text-align: center;
+  border-right: 1px solid #e5e7eb;
+  background-color: #f8fafc;
+}
+
+.day-header-print:last-child {
+  border-right: none;
+}
+
+.day-name-print {
+  font-weight: 600;
+  color: #374151;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.day-date-print {
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.week-grid-print {
+  border: 1px solid #e5e7eb;
+  border-top: none;
+}
+
+.time-row-print {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  min-height: 50px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.time-row-print:last-child {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.time-label-print {
+  padding: 8px 5px;
+  text-align: center;
+  font-size: 11px;
+  color: #6b7280;
+  border-right: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.time-slot-print {
+  border-right: 1px solid #e5e7eb;
+  padding: 4px;
+  position: relative;
+  min-height: 50px;
+}
+
+.time-slot-print:last-child {
+  border-right: none;
+}
+
+.event-item-print {
+  background-color: #3b82f6;
+  color: white;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  margin-bottom: 2px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+/* Estilos para impresión */
+@media print {
+  .modal-overlay {
+    position: static;
+    background: none;
+    backdrop-filter: none;
+    z-index: auto;
+  }
+  
+  .modal-content {
+    box-shadow: none;
+    border-radius: 0;
+    max-width: none;
+    max-height: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .modal-body {
+    padding: 0;
+    margin: 0;
+  }
+  
+  .preview-container {
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Ocultar elementos que no deben imprimirse */
+  .no-print,
+  .modal-footer {
+    display: none !important;
+  }
+  
+  /* Optimizar el calendario para impresión */
+  .weekly-calendar-preview {
+    page-break-inside: avoid;
+  }
+  
+  .print-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+  }
+  
+  .print-header h2 {
+    font-size: 20px;
+  }
+  
+  .print-header h3 {
+    font-size: 14px;
+  }
+  
+  .time-row-print {
+    page-break-inside: avoid;
+    min-height: 40px;
+  }
+  
+  .event-item-print {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+  
+  .time-label-print {
+    font-size: 10px;
+  }
+  
+  .day-name-print {
+    font-size: 10px;
+  }
+  
+  .day-date-print {
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .modal-content {
     width: 95%;
@@ -288,5 +482,33 @@
 
   .preview-container {
     min-height: 250px;
+  }
+}
+
+/* Mejoras adicionales para el modal */
+.preview-container {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Ajustes para mejor visualización en el modal */
+@media screen {
+  .modal-content {
+    max-height: 95vh;
+  }
+  
+  .weekly-calendar-preview {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .week-header-print {
+    background-color: #f8fafc;
+  }
+  
+  .time-slot-print:nth-child(even) {
+    background-color: #fafafa;
   }
 }

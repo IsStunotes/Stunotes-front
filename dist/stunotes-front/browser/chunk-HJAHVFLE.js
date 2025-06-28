@@ -1,1 +1,0 @@
-import"./chunk-EQDQRRRY.js";var t=[{path:"list",loadComponent:()=>import("./chunk-EPVDRVEM.js").then(o=>o.RepositoryListComponent)},{path:":id",loadComponent:()=>import("./chunk-ADQ2U3QV.js").then(o=>o.RepositoryDetailComponent)},{path:"**",redirectTo:"",pathMatch:"full"}];export{t as repositoryRoutes};
