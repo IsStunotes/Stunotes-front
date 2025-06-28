@@ -1,1 +1,0 @@
-import"./chunk-EQDQRRRY.js";var t=[{path:"",loadComponent:()=>import("./chunk-XMKKD4RN.js").then(o=>o.TaskListComponent)},{path:"new",loadComponent:()=>import("./chunk-OGT4WDEI.js").then(o=>o.TaskFormComponent)},{path:":id/edit",loadComponent:()=>import("./chunk-OGT4WDEI.js").then(o=>o.TaskFormComponent)},{path:"**",redirectTo:"",pathMatch:"full"}];export{t as tasksRoutes};
