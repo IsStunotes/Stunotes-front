@@ -10,13 +10,14 @@ import { NavbarLoggedComponent } from '../../../../shared/components/navbar/navb
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 import { ChatComponent } from '../../../chat/chat.component';
 import Swal from 'sweetalert2';
-
+import { SidebarComponent } from "../../../../shared/components/sidebar/sidebar.component";
 @Component({
   selector: 'app-task-list',
   template: `
-    <div class="task-container">
-      <app-navbar></app-navbar>
-      <div class="task-header">
+    <app-navbar></app-navbar>
+    <app-sidebar></app-sidebar> 
+    <div class="task-container">     
+    <div class="task-header">
         <div class="header-left">
           <button class="back-btn" (click)="goBack()">
             <i class="fas fa-arrow-left"></i> Atrás
@@ -221,7 +222,7 @@ import Swal from 'sweetalert2';
     <app-footer></app-footer>
  `,
   styleUrls: ['./task-list.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NavbarLoggedComponent, FooterComponent, ChatComponent]
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NavbarLoggedComponent, FooterComponent, ChatComponent, SidebarComponent]
 })
 export class TaskListComponent implements OnInit {
   activeTasks: TaskResponse[] = [];
@@ -401,6 +402,10 @@ export class TaskListComponent implements OnInit {
 
   createNewTask(): void {
     this.router.navigate(['/tasks/new']); 
+  }
+
+  navigateToCalendar(): void {
+    this.router.navigate(['/calendar']);
   }
 
   editTask(taskId: number): void {
