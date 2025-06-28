@@ -44,11 +44,11 @@ export const routes: Routes = [
     path: 'chat',
     loadChildren: () =>
       import('./features/chat/chat.routes').then((m) => m.chatRoutes)
-  },
+  }/*,
   {
     path: 'calendar',
     loadChildren: () => import('./features/calendar/calendar.router').then(m => m.calendarRoutes)
-  },{
+  }*/,{
     path: 'recover',
     loadComponent: () =>
       import('./features/auth/pages/recover/recover.component').then(m => m.RecoverComponent)

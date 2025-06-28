@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CalendarOptions, EventClickArg }  from '@fullcalendar/core';
+//import { CalendarOptions, EventClickArg }  from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -14,7 +14,7 @@ import { CreateReminderModalComponent } from '../create-reminder-modal/create-re
 import { CalendarService } from '../../../services/calendar.service';
 import { CalendarEvent } from '../../../models/reminder.model';
 import { Subscription } from 'rxjs';
-
+/*
 @Component({
   selector: 'app-calendar',
   imports: [FullCalendarModule, CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent],
@@ -381,3 +381,4 @@ export class CalendarComponent implements OnInit, OnDestroy {
       return this.events;
     }
 }
+*/
