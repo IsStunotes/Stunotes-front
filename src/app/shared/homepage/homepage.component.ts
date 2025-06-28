@@ -10,12 +10,13 @@ import { DocumentResponse } from '../../models/document.model';
 import { RepositoryService } from '../../services/repository.service';
 import { RepositoryResponse } from '../../models/repository.model';
 import { ChatComponent } from '../../features/chat/chat.component';
+import { SidebarComponent } from "../components/sidebar/sidebar.component";
 
 @Component({
   selector: 'app-home',
   template: `
    <app-navbar></app-navbar>
-
+   <app-sidebar></app-sidebar>
 <div class="dashboard-wrapper">
   <div class="welcome-section animate-fade">
     <h1 class="animate-drop">{{saludo}}, <span class="username">{{ user.name }}</span></h1>
@@ -67,7 +68,7 @@ import { ChatComponent } from '../../features/chat/chat.component';
   </ng-template>
 </section>
 
-  <section class="task-section animate-fade">
+  <section class="task-section">
     <div class="task-section-header">
       <h2>📄 Documentos creados</h2>
     </div>
@@ -87,13 +88,12 @@ import { ChatComponent } from '../../features/chat/chat.component';
     </ng-template>
   </section>
 </div>
-<app-floating-chat></app-floating-chat>
 <app-footer></app-footer>
 
   `,
   styleUrls: ['./homepage.component.css'],
   standalone: true,
-  imports: [CommonModule, NavbarLoggedComponent, FooterComponent, ChatComponent]
+  imports: [CommonModule, NavbarLoggedComponent, FooterComponent, SidebarComponent]
 })
 export class HomeComponent implements OnInit {
   user: any = null;

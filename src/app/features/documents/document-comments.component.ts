@@ -11,14 +11,15 @@ import { CommentRequest } from '../../models/comment.model';
 import { UserService } from '../../services/user.service';
 import { NavbarLoggedComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { SidebarComponent } from "../../shared/components/sidebar/sidebar.component";
 
 @Component({
   standalone: true,
   selector: 'app-document-comments',
-  imports: [CommonModule, FormsModule, NavbarLoggedComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, NavbarLoggedComponent, FooterComponent, SidebarComponent],
   template: `
-    <app-navbar></app-navbar> 
-
+  <app-navbar></app-navbar>
+  <app-sidebar></app-sidebar> 
     <button class="btn-volver" (click)="volver()">⬅ Volver</button>
 
     <div class="container">

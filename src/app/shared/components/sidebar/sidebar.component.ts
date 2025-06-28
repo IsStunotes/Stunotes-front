@@ -41,8 +41,8 @@ import { filter } from 'rxjs/operators';
                 <span>Tareas</span>
               </a>
             </li>
-            <li class="nav-item" [class.active]="isActiveRoute('/documents')">
-              <a routerLink="/documents" class="nav-link">
+            <li class="nav-item" [class.active]="isActiveRoute('/repositorios/list')">
+              <a routerLink="/repositorios/list" class="nav-link">
                 <i class="fas fa-file-alt"></i>
                 <span>Trabajos</span>
               </a>
