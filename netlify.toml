@@ -3,7 +3,7 @@
   publish = "dist/stunotes-front/browser"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
 
 [[redirects]]
   from = "/*"
