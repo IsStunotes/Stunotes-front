@@ -551,3 +551,4 @@ export class CalendarComponent implements OnInit, OnDestroy {
       return event.id || index.toString();
     }
 }
+*/

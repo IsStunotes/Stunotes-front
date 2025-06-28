@@ -1,4 +1,4 @@
 export const environment = {
-    production: false,
+    production: true,
     apiUrl: 'https://stunotes-api-latest.onrender.com/api/v1'
   }; 

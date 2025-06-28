@@ -50,12 +50,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadChildren: () => import('./features/notes/notes.routes').then(m => m.notesRoutes)
   },
+  /*,
   {
   
     path: 'calendar',
     loadChildren: () => import('./features/calendar/calendar.router').then(m => m.calendarRoutes)
-  },{
-    path: 'recover',
+}*/
+{path: 'recover',
     loadComponent: () =>
       import('./features/auth/pages/recover/recover.component').then(m => m.RecoverComponent)
   },
