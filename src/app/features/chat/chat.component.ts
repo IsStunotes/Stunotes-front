@@ -22,8 +22,11 @@ import { ChatService } from '../../services/chat.service';
           <div *ngFor="let msg of messages" [ngClass]="msg.role">
             {{ msg.content }}
           </div>
-          <div *ngIf="loading" class="assistant">Escribiendo...</div>
-        </div>
+        <div *ngIf="loading" class="assistant typing">
+        <span>.</span><span>.</span><span>.</span>
+      </div>
+    </div>
+
   
         <form class="chat-input" (ngSubmit)="send()" autocomplete="off">
           <input
@@ -142,7 +145,22 @@ import { ChatService } from '../../services/chat.service';
         font-size: 16px;
         border-radius: 4px;
       }
-  
+      
+      .typing span {
+        animation: blink 1s infinite;
+        margin-right: 2px;
+      }
+      .typing span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes blink {
+        0%, 80%, 100% { opacity: 0; }
+        40% { opacity: 1; }
+      }
+
       @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
@@ -164,17 +182,16 @@ import { ChatService } from '../../services/chat.service';
     send() {
       const userMsg = this.input.trim();
       if (!userMsg) return;
-  
+    
       this.messages.push({ role: 'user', content: userMsg });
       this.input = '';
       this.loading = true;
-  
+    
       this.chatService.sendMessage(userMsg).subscribe({
-        next: (res) => {
-          const reply = res.choices[0]?.message?.content || 'Sin respuesta.';
-          this.messages.push({ role: 'assistant', content: reply });
+        next: (res: string) => {
+          this.messages.push({ role: 'assistant', content: res });
           this.loading = false;
-        },
+        },        
         error: (err) => {
           this.messages.push({ role: 'assistant', content: '⚠️ Error al responder.' });
           console.error(err);
@@ -182,4 +199,5 @@ import { ChatService } from '../../services/chat.service';
         }
       });
     }
+    
   }
