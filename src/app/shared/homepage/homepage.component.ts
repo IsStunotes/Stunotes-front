@@ -9,6 +9,8 @@ import { DocumentService } from '../../services/document.service';
 import { DocumentResponse } from '../../models/document.model';
 import { RepositoryService } from '../../services/repository.service';
 import { RepositoryResponse } from '../../models/repository.model';
+import { NoteService } from '../../services/note.service';
+import { NoteResponse } from '../../models/note.model';
 
 @Component({
   selector: 'app-home',
@@ -85,6 +87,29 @@ import { RepositoryResponse } from '../../models/repository.model';
       <p class="no-task-msg">No tienes documentos creados.</p>
     </ng-template>
   </section>
+  
+  <section class="task-section">
+    <div class="task-section-header">
+      <h2>📌 Mis Notas</h2>
+      <button class="create-task-btn" (click)="newNote()">
+        <span class="plus-icon">+</span> Nueva Nota
+      </button>
+    </div>
+
+    <div *ngIf="notes.length > 0; else noNotes">
+      <div *ngFor="let note of notes" class="task-card" (click)="irADetalleNote(note.id)">
+        <div class="task-info">
+          <h3 class="task-title">{{ note.title }}</h3>
+          <p class="task-date">Creado: {{ note.createdAt | date:'dd/MM/yyyy' }}</p>
+        </div>
+        <i class="fas fa-chevron-right arrow-icon"></i>
+      </div>
+    </div>
+
+    <ng-template #noNotes>
+      <p class="no-task-msg">No tienes notas creadas.</p>
+    </ng-template>
+  </section>
 </div>
 
 <app-footer></app-footer>
@@ -100,12 +125,14 @@ export class HomeComponent implements OnInit {
   nextTasks: TaskResponse[] = [];
   documentos: DocumentResponse[] = [];
   repositorios: RepositoryResponse[] = [];
+  notes: NoteResponse[] = [];
 
   constructor(
     private taskService: TaskService,
     private documentService: DocumentService,
     private repositoryService: RepositoryService,
-    private router: Router
+    private router: Router,
+    private noteService: NoteService
   ) {}
 
   ngOnInit(): void {
@@ -118,6 +145,7 @@ export class HomeComponent implements OnInit {
     this.obtenerTareasProximas();
     this.obtenerDocumentos();
     this.obtenerRepositorios();
+    this.getNotes();
   }
 
   generarSaludo(): void {
@@ -180,5 +208,25 @@ export class HomeComponent implements OnInit {
 
   irADetalleRepositorio(repoId: number): void {
     this.router.navigate([`/repositories/${repoId}`]);
+  }
+
+  newNote(): void {
+    this.router.navigate(['/notes/createNote']);
+  }
+  irADetalleNote(noteId: number): void {
+    this.router.navigate(['/notes', noteId, 'edit']); 
+  }
+
+  getNotes():void {
+    this.noteService.getNotes(0, 5,undefined,undefined, 'createdAt', 'asc').subscribe({
+        next: (res) => {
+          this.notes = res.content
+            .filter((note: NoteResponse) => note.createdAt)
+            .slice(0, 5);
+        },
+        error: (err) => {
+          console.error('Error al cargar las notas:', err);
+        }
+    });    
   }
 }
