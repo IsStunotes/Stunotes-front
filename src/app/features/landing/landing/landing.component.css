@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:host {
+  font-family: 'Poppins', sans-serif;
+  display: block;
+  background: #fdfdfd;
+}
+
+.navbar {
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.navbar button {
+  margin-left: 0.75rem;
+}
+
+.hero {
+  background: #f5f3ff;
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.highlight {
+  color: #7c3aed;
+}
+
+.hero p {
+  color: #6b7280;
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-purple {
+  background-color: #7c3aed;
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-purple:hover {
+  background-color: #5b21b6;
+  scale: 1.05;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid #7c3aed;
+  color: #7c3aed;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background-color: #ede9fe;
+  color: #5b21b6;
+  scale: 1.05;
+}
+
+.benefits {
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.benefits h2 {
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
+
+.benefits p {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.icon-wrapper {
+  background-color: #ede9fe;
+  border-radius: 50%;
+  padding: 1rem;
+  margin: 0 auto 1rem;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+::ng-deep lucide-icon.icon svg {
+  width: 48px;
+  height: 48px;
+  stroke: #7c3aed;
+}
+
+.stats {
+  background: linear-gradient(to right, #7c3aed, #6d28d9);
+  color: white;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.stats h2 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stats p {
+  color: #e9d5ff;
+  margin-bottom: 2rem;
+  font-size: 1.125rem;
+}
+
+.stat-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3rem;
+  font-size: 1.5rem;
+}
+
+.stat-grid div h3 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.stat-grid div p {
+  font-size: 1rem;
+}

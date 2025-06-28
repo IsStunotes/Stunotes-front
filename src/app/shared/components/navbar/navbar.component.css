@@ -1,0 +1,70 @@
+:host {
+  font-family: 'Poppins', sans-serif;
+  background: #fdfdfd;
+}
+.navbar {
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #7c3aed;
+  }
+
+  .navbar button {
+    margin-left: 0.75rem;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+  }
+
+  .user-icon {
+    font-size: 20px;
+    color: #7c3aed;
+    margin-right: 8px;
+  }
+
+  .user-name {
+    margin-right: 1rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #4b5563;
+  }
+
+  .btn-outline {
+    border: 2px solid #7c3aed;
+    background: transparent;
+    color: #7c3aed;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .btn-outline:hover {
+    background-color: #ede9fe;
+  }
+
+  .btn-purple {
+    background-color: #7c3aed;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-purple:hover {
+    background-color: #5b21b6;
+    scale: 1.05;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+  }
