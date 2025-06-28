@@ -1,6 +1,6 @@
-/*
-import { Component, OnInit, OnDestroy } from '@angular/core';
-//import { CalendarOptions, EventClickArg }  from '@fullcalendar/core';
+
+/*import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CalendarOptions, EventClickArg }  from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';

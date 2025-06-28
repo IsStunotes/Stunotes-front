@@ -44,18 +44,19 @@ export const routes: Routes = [
     path: 'chat',
     loadChildren: () =>
       import('./features/chat/chat.routes').then((m) => m.chatRoutes)
-  }/*,
+  },
   {
     path: 'notes',
     canActivate: [authGuard],
     loadChildren: () => import('./features/notes/notes.routes').then(m => m.notesRoutes)
   },
+  /*,
   {
   
     path: 'calendar',
     loadChildren: () => import('./features/calendar/calendar.router').then(m => m.calendarRoutes)
-  }*/,{
-    path: 'recover',
+}*/
+{path: 'recover',
     loadComponent: () =>
       import('./features/auth/pages/recover/recover.component').then(m => m.RecoverComponent)
   },
