@@ -163,9 +163,6 @@ import { SidebarComponent } from "../../../../shared/components/sidebar/sidebar.
           <div *ngFor="let task of completedTasks" class="task-card completed-task">
             <div class="task-content">
               <div class="task-actions">
-                <button class="view-btn" (click)="editTask(task.id)" title="Ver detalles">
-                  <i class="fas fa-eye"></i>
-                </button>
                 <button class="delete-btn" (click)="deleteTask(task.id)" title="Eliminar">
                   <i class="fas fa-trash"></i>
                 </button>

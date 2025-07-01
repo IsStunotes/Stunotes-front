@@ -24,7 +24,7 @@
   gap: 15px;
 }
 
-.back-btn, .new-task-btn, .calendar-btn {
+.back-btn, .new-task-btn, .calendar-btn, .create-task-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -46,7 +46,7 @@
   transform: translateY(-2px);
 }
 
-.new-task-btn {
+.new-task-btn, .create-task-btn {
   background: #7c3aed;
   color: white;
 }
@@ -162,6 +162,10 @@
   padding: 40px;
   color: #9ca3af;
   font-style: italic;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }
 
 .task-card {
@@ -216,7 +220,6 @@
   padding: 20px;
   position: relative;
 }
-
 .task-actions {
   position: absolute;
   top: 15px;
@@ -272,11 +275,6 @@
 .complete-btn:hover {
   background: #059669;
   transform: scale(1.1);
-}
-
-.view-btn {
-  background: #6366f1;
-  color: white;
 }
 
 .view-btn:hover {
