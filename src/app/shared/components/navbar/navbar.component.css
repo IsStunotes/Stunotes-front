@@ -2,11 +2,19 @@
   font-family: 'Poppins', sans-serif;
   background: #fdfdfd;
 }
-.navbar {
+
+  .navbar {
+    position: fixed;
+    width: calc(100% - 4rem);
+    height: 4rem;
+    top: 0;
+    left: 0;
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    z-index: 1000;
+    background-color: white;
   }
 
   .logo {

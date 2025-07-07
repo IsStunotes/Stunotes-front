@@ -1,3 +1,21 @@
+.container {
+   margin-top: 6rem;    /* espacio para navbar */
+   margin-left: 11rem;  /* espacio para sidebar */
+   height: calc(100vh - 4rem); /* altura menos el navbar */
+   overflow-y: auto; /* habilita scroll solo en esta área */
+   background-color: #f4f4f4;
+}
+
+.form-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  background: #f8f9fa;
+  min-height: 100vh;
+  font-family: "Font Awesome 6 Brand", sans-serif; 
+  line-height: 1;
+}
+/*
 .form-container {
   max-width: 700px;
   margin: 0 auto;
@@ -6,6 +24,7 @@
   min-height: 100vh;
   font-family: "Font Awesome 6 Brand", sans-serif; 
 }
+*/
 
 .form-header {
   display: flex;
@@ -151,62 +170,6 @@
   margin-top: 4px;
 }
 
-.priority-options {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.priority-option {
-  display: flex;
-  align-items: center;
-}
-
-.priority-radio {
-  display: none;
-}
-
-.priority-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  user-select: none;
-}
-
-.priority-label:hover {
-  border-color: #d1d5db;
-}
-
-.priority-radio:checked + .priority-label {
-  border-color: currentColor;
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.05);
-}
-
-.priority-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.priority-high {
-  color: #dc2626;
-}
-
-.priority-medium {
-  color: #d97706;
-}
-
-.priority-low {
-  color: #16a34a;
-}
 
 .form-actions {
   display: flex;
@@ -266,6 +229,26 @@
   animation: spin 1s linear infinite;
 }
 
+.toggle-btn-container {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.toggle-btn {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background-color: #0b5ed7;
+}
+
+
 @media (max-width: 768px) {
   .form-container {
     padding: 10px;
@@ -283,14 +266,6 @@
 
   .form-content {
     padding: 20px;
-  }
-
-  .priority-options {
-    flex-direction: column;
-  }
-
-  .priority-label {
-    justify-content: center;
   }
 
   .form-actions {

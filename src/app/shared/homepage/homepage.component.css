@@ -7,9 +7,11 @@
 }
 
 .dashboard-wrapper {
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 0 20px;
+  margin-top: 6rem;    /* espacio para navbar */
+  margin-left: 11rem;  /* espacio para sidebar */
+  height: calc(100vh - 4rem); /* altura menos el navbar */
+  overflow-y: auto; /* habilita scroll solo en esta área */
+  padding: 0 2rem;
 }
 
 .welcome-section {
@@ -54,7 +56,7 @@
   margin: 0;
 }
 
-.task-card {
+.task-card{
   background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -258,4 +260,82 @@
   animation: fade 0.5s ease-out forwards;
 }
 
+.note-section {
+  background: linear-gradient(to right, #ede9fe, #f3f0ff);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+  margin-bottom: 40px;
+}
 
+.note-title {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.note-title h2 {
+  font-size: 22px;
+  color: #7c3aed;
+}
+
+.note-new-btn{
+  background-color: #7c3aed;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.3s ease;
+  height: 40px;
+}
+
+.note-cards{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+}
+
+.note-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #8b5cf6;
+  margin: 0;
+}
+
+.note-card{
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  width: calc((100%/3) - 55px);
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+
+.note-content {
+  font-size: 14px;
+  color: black;
+  margin: 0;
+}
+
+@media (max-width: 1200px) {
+  .note-card {
+    width: calc((100%/2) - 60px);
+  }
+  
+}
+@media (max-width: 900px) {
+  .note-card {
+    width: calc((100%/1) - 60px);
+  }
+}

@@ -23,7 +23,8 @@ export interface NoteResponse {
    content: string;
    createdAt: string;
    updatedAt?: string;
-   collection: Collection;
+   collectionId: number;
+   collectionName?: string; // Optional, used for displaying collection name in UI
 }
 
 export interface PagedResponse<T> {
