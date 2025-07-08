@@ -3,15 +3,27 @@
   background: #fdfdfd;
   display: block;
 }
+
+.main-content {
+  width: calc(100% - 220px); /* ya que tienes un sidebar de 220px */
+  max-width: 100%;
+  margin-left: 220px; /* Espacio para que el sidebar no se sobreponga */
+}
+
 .loading, .error {
   text-align: center;
   margin-top: 20px;
   font-weight: bold;
 }
 
+.repo-block {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
 h2 {
-  margin-top: 3rem;
-  margin-bottom: 1rem;
+  margin-top: 0.5rem; /* antes: 3rem */
+  margin-bottom: 1px; /* antes: 1rem */
   color: #5f03ff;
   font-size: 1.3rem;
   font-weight: 600;
@@ -31,7 +43,7 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
-  margin-bottom: 4rem;
+  margin-bottom: 1rem; /* antes: 4rem */
   align-items: flex-start;
   justify-content: flex-start;
   min-height: 500px;
@@ -39,7 +51,7 @@ h2 {
 }
 
 .card {
-  width: 220px;
+  width: 400px;
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 12px;
@@ -212,7 +224,7 @@ h2 {
 .repo-actions {
   display: flex;
   gap: 12px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem; /* antes: 1rem */
   flex-wrap: wrap;
   padding: 0 2rem;
 }
@@ -245,4 +257,57 @@ h2 {
   .document-grid {
     justify-content: center;
   }
+}
+.search-filters {
+  display: flex;
+  justify-content: flex-start; /* 👈 antes: flex-end */
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding: 21px; /* puedes ajustar si es muy ancho */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.search-input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  width: 180px;
+  transition: border 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.search-btn,
+.clear-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+}
+
+.clear-btn {
+  background-color: #dc3545;
+}
+
+.search-btn:hover {
+  background-color: #0056b3;
+}
+
+.clear-btn:hover {
+  background-color: #c82333;
 }

@@ -12,6 +12,7 @@ import { UserService } from '../../services/user.service';
 import { NavbarLoggedComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { SidebarComponent } from "../../shared/components/sidebar/sidebar.component";
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -25,7 +26,7 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
     <div class="container">
       <div class="document" *ngIf="documento">
         <h2>{{ documento.title }}</h2>
-        <p>{{ documento.description }}</p>
+       <p class="texto-descripcion">{{ documento.description }}</p>
         <p><strong>Versión {{ documento.version }}</strong></p>
       </div>
 
@@ -42,6 +43,11 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
               <span>{{ comentario.username || comentario.userId }}</span>
               <div class="avatar"></div>
             </div>
+            <div class="comment-actions">
+              <button *ngIf="esProfesor" class="btn-delete" (click)="eliminarComentario(comentario.id)">
+               X
+              </button>
+            </div>
           </div>
         </div>
 
@@ -53,6 +59,7 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
         <div *ngIf="esProfesor" class="new-comment">
           <input type="text" [(ngModel)]="nuevoComentario" placeholder="Escribe un comentario..." />
           <button (click)="crearComentario()">Enviar</button>
+          
         </div>
 
       </div>
@@ -67,8 +74,8 @@ export class DocumentCommentsComponent implements OnInit {
   comentarios: CommentResponse[] = [];
   nuevoComentario: string = '';
   documento!: DocumentResponse;
-  esProfesor = false; // ✅ para mostrar/ocultar la barra de comentarios
-
+  esProfesor = false; 
+  usuarioActual: any = null;
   constructor(
     private route: ActivatedRoute,
     private commentService: CommentService,
@@ -84,12 +91,13 @@ export class DocumentCommentsComponent implements OnInit {
   }
 
   verificarRolUsuario(): void {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      this.esProfesor = user.role === 'TEACHER' || user.roleId === 2;
-    }
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    const user = JSON.parse(storedUser);
+    this.usuarioActual = user;
+    this.esProfesor = user.role === 'TEACHER' || user.roleId === 2;
   }
+}
 
   cargarComentarios(): void {
     this.commentService.getCommentsByDocumentId(this.documentId).subscribe({
@@ -155,4 +163,43 @@ export class DocumentCommentsComponent implements OnInit {
   volver(): void {
     history.back();
   }
+  eliminarComentario(idComentario: number): void {
+  Swal.fire({
+    title: '¿Eliminar comentario?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#aaa',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.commentService.deleteComment(idComentario).subscribe({
+        next: () => {
+          this.comentarios = this.comentarios.filter(c => c.id !== idComentario);
+
+          // Mostrar confirmación
+          Swal.fire({
+            icon: 'success',
+            title: 'Comentario eliminado',
+            text: 'El comentario fue borrado correctamente.',
+            confirmButtonText: 'OK',
+            width: '70%',
+          });
+        },
+        error: (err) => {
+          console.error('Error al eliminar comentario:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar el comentario.',
+            confirmButtonText: 'Cerrar'
+          });
+        }
+      });
+    }
+  });
+}
+
 }
