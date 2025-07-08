@@ -12,26 +12,22 @@ export class CollectionService {
    
    constructor(private http: HttpClient) {}
    
-   getCollections(): Observable<CollectionResponse[]> {
-      return this.http.get<CollectionResponse[]>(this.apiUrl);
+   getCollections(userId:number): Observable<CollectionResponse[]> {
+      return this.http.get<CollectionResponse[]>(`${this.apiUrl}/user/${userId}`);
    }
    
    getCollectionsWithPagination(
-      page: number = 0, 
+      /*page: number = 0, 
       size: number = 5, 
       sortBy: string = 'name', 
-      sortDir: string = 'asc'
+      sortDir: string = 'asc'*/
+      userId: number
    ): Observable<PagedResponse<CollectionResponse>> {
-      let params = new HttpParams()
-         .set('page', page.toString())
-         .set('size', size.toString())
-         .set('sortBy', sortBy)
-         .set('sortDir', sortDir);
-   
-      return this.http.get<PagedResponse<CollectionResponse>>(`${this.apiUrl}/page`, { params });
+     
+      return this.http.get<PagedResponse<CollectionResponse>>(`${this.apiUrl}/user/${userId}/paginated`);
    }
-   getAllCollections(): Observable<CollectionResponse[]> {
-      return this.http.get<CollectionResponse[]>(this.apiUrl);
+   getAllCollections( userId: number ): Observable<CollectionResponse[]> {
+      return this.http.get<CollectionResponse[]>(`${this.apiUrl}/user/${userId}`);
    }
 
    getCollectionById(id: number): Observable<CollectionResponse> {
