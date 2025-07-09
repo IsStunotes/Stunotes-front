@@ -12,11 +12,12 @@ export class NoteService {
 
    constructor(private http: HttpClient) {}
 
-   getNotes(
-      page: number = 0, 
-      size: number = 15,
+   getNotes( //Con paginación y ordenamiento
+      userId?: number,
       collectionId?: number,
       searchTerm?: string,
+      page: number = 0, 
+      size: number = 15,
       sortBy?: string,
       sortDirection?: 'asc' | 'desc'
    ): Observable<PagedResponse<NoteResponse>> {
@@ -25,17 +26,19 @@ export class NoteService {
          .set('size', size.toString());
       
       if (collectionId){
-         params = params.set('collectionName', collectionId.toString());
+         params = params.set('collectionId', collectionId.toString());
       }
       if (searchTerm && searchTerm.trim()) {
-         params = params.set('collectionName', searchTerm.trim());
+         params = params.set('searchTerm', searchTerm.trim());
       }
-
+      if (userId) {
+         params = params.set('user_id', userId.toString());
+      }
       if (sortBy) {
          const sortParam = sortDirection ? `${sortBy},${sortDirection}` : sortBy;
          params = params.set('sort', sortParam);
       }
-
+      console.log('Obteniendo notas con parámetros:', params.toString());  
       return this.http.get<PagedResponse<NoteResponse>>(this.apiUrl, { params });
    }
 
@@ -68,10 +71,9 @@ export class NoteService {
       return this.http.post<NoteResponse>(this.apiUrl, note);
    }
    updateNote(id: number, note: NoteRequest): Observable<NoteResponse> {
-      return this.http.put<NoteResponse>(`${this.apiUrl}/${id}`, note);
+      return this.http.patch<NoteResponse>(`${this.apiUrl}/${id}`, note);
    }
    deleteNote(id: number): Observable<void> {
       return this.http.delete<void>(`${this.apiUrl}/${id}`);
    }
 }
-

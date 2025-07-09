@@ -29,10 +29,10 @@ import { filter } from 'rxjs/operators';
                 <span>Calendario</span>
               </a>
             </li>
-            <li class="nav-item" [class.active]="isActiveRoute('/activities')">
-              <a routerLink="/activities" class="nav-link">
+            <li class="nav-item" [class.active]="isActiveRoute('/notes')">
+              <a routerLink="/notes" class="nav-link">
                 <i class="fas fa-list-ul"></i>
-                <span>Actividades</span>
+                <span>Notas</span>
               </a>
             </li>
             <li class="nav-item" [class.active]="isActiveRoute('/tasks')">

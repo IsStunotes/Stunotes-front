@@ -90,19 +90,20 @@ import { SidebarComponent } from "../components/sidebar/sidebar.component";
     </ng-template>
   </section>
   
-  <section class="task-section">
-    <div class="task-section-header">
+  <section class="note-section">
+    <div class="note-title">
       <h2>📌 Mis Notas</h2>
-      <button class="create-task-btn" (click)="newNote()">
+      <button class="note-new-btn" (click)="newNote()">
         <span class="plus-icon">+</span> Nueva Nota
       </button>
     </div>
 
-    <div *ngIf="notes.length > 0; else noNotes">
-      <div *ngFor="let note of notes" class="task-card" (click)="irADetalleNote(note.id)">
-        <div class="task-info">
-          <h3 class="task-title">{{ note.title }}</h3>
-          <p class="task-date">Creado: {{ note.createdAt | date:'dd/MM/yyyy' }}</p>
+    <div class="note-cards" *ngIf="notes.length > 0; else noNotes">
+      <div *ngFor="let note of notes" class="note-card" (click)="irADetalleNote(note.id)">
+        <div class="">
+          <h3 class="note-title">{{ note.title }}</h3>
+          <p class="note-content">Creado: {{ note.content }}</p>
+          <p class="task-date">Actualizado: {{ note.updatedAt | date:'dd/MM/yyyy hh:MM' }}</p>
         </div>
         <i class="fas fa-chevron-right arrow-icon"></i>
       </div>
@@ -119,7 +120,7 @@ import { SidebarComponent } from "../components/sidebar/sidebar.component";
   `,
   styleUrls: ['./homepage.component.css'],
   standalone: true,
-  imports: [CommonModule, NavbarLoggedComponent, FooterComponent, SidebarComponent,ChatComponent]
+  imports: [CommonModule, NavbarLoggedComponent, FooterComponent, SidebarComponent, ChatComponent]
 })
 export class HomeComponent implements OnInit {
   user: any = null;
@@ -192,6 +193,7 @@ export class HomeComponent implements OnInit {
 
   obtenerDocumentos(): void {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+    console.log('Usuario actual:', user);
     if (user && user.id) {
       this.documentService.getDocumentsByUserId(user.id).subscribe({
         next: (docs) => this.documentos = docs.slice(0, 5),
@@ -220,7 +222,8 @@ export class HomeComponent implements OnInit {
   }
 
   getNotes():void {
-    this.noteService.getNotes(0, 5,undefined,undefined, 'createdAt', 'asc').subscribe({
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.noteService.getNotes(Number(user.id), undefined,undefined, 0, 5, 'createdAt', 'asc').subscribe({
         next: (res) => {
           this.notes = res.content
             .filter((note: NoteResponse) => note.createdAt)

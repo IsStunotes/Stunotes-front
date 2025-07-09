@@ -10,107 +10,114 @@ import { NoteService } from '../../../../services/note.service';
 import { CollectionResponse } from '../../../../models/collection.model';
 import { CollectionService } from '../../../../services/collection.service';
 
+import { SidebarComponent } from '../../../../shared/components/sidebar/sidebar.component';
+import { NavbarLoggedComponent } from '../../../../shared/components/navbar/navbar.component';
+
 @Component({
   selector: 'app-note-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SidebarComponent, NavbarLoggedComponent],
   template: `
-   <div class="form-container">
-  <div class="form-header">
-    <h1 class="form-title">
-      <i class="fas fa-sticky-note"></i>
-      {{ isEditMode ? 'Editar Nota' : 'Nueva Nota' }}
-    </h1>
-    <button class="back-btn" (click)="onCancel()" type="button">
-      <i class="fas fa-arrow-left"></i>
-      Volver
-    </button>
-  </div>
+   <app-navbar></app-navbar>
+   <app-sidebar></app-sidebar>
+   <div class="container">
+      <div class="form-container">
+         <div class="form-header">
+            <h1 class="form-title">
+               <i class="fas fa-sticky-note"></i>
+               {{ isEditMode ? 'Editar Nota' : 'Nueva Nota' }}
+            </h1>
+            <button class="back-btn" (click)="onCancel()" type="button">
+               <i class="fas fa-arrow-left"></i>
+               Volver
+            </button>
+         </div>
 
-  <div *ngIf="loading" class="loading-container">
-    <div class="loading-spinner"></div>
-    <p>Cargando nota...</p>
-  </div>
-
-  <div *ngIf="!loading" class="form-content">
-    <form [formGroup]="noteForm" (ngSubmit)="onSubmit()" class="note-form">
-
-      <div class="form-group">
-        <label for="title" class="form-label">
-          <i class="fas fa-heading"></i>
-          Título *
-        </label>
-        <input
-          type="text"
-          id="title"
-          formControlName="title"
-          class="form-input"
-          [class.error]="isFieldInvalid('title')"
-          placeholder="Ingresa el título de la nota">
-        <div *ngIf="isFieldInvalid('title')" class="error-message">
-          {{ getFieldError('title') }}
-        </div>
+      <div *ngIf="loading" class="loading-container">
+         <div class="loading-spinner"></div>
+         <p>Cargando nota...</p>
       </div>
 
-      <div class="form-group">
-        <label for="content" class="form-label">
-          <i class="fas fa-align-left"></i>
-          Contenido *
-        </label>
-        <textarea
-          id="content"
-          formControlName="content"
-          class="form-textarea"
-          [class.error]="isFieldInvalid('content')"
-          placeholder="Escribe el contenido de la nota..."
-          rows="6">
-        </textarea>
-        <div *ngIf="isFieldInvalid('content')" class="error-message">
-          {{ getFieldError('content') }}
-        </div>
-      </div>
+      <div *ngIf="!loading" class="form-content">
+         <form [formGroup]="noteForm" (ngSubmit)="onSubmit()" class="note-form">
 
-      <div class="form-group">
-        <label for="collectionId" class="form-label">
-          <i class="fas fa-folder-open"></i>
-          Colección *
-        </label>
-        <select
-          id="collectionId"
-          formControlName="collectionId"
-          class="form-select"
-          [class.error]="isFieldInvalid('collectionId')">
-          <option value="">Selecciona una colección</option>
-          <option *ngFor="let collection of collections" [value]="collection.id">
-            {{ collection.name }}
-          </option>
-        </select>
-        <div *ngIf="isFieldInvalid('collectionId')" class="error-message">
-          {{ getFieldError('collectionId') }}
-        </div>
-      </div>
-      <div class="form-actions">
-        <button
-          type="button"
-          class="btn btn-cancel"
-          (click)="onCancel()"
-          [disabled]="submitting">
-          <i class="fas fa-times"></i>
-          Cancelar
-        </button>
+            <div class="form-group">
+            <label for="title" class="form-label">
+               <i class="fas fa-heading"></i>
+               Título *
+            </label>
+            <input
+               type="text"
+               id="title"
+               formControlName="title"
+               class="form-input"
+               [class.error]="isFieldInvalid('title')"
+               placeholder="Ingresa el título de la nota">
+            <div *ngIf="isFieldInvalid('title')" class="error-message">
+               {{ getFieldError('title') }}
+            </div>
+            </div>
 
-        <button
-          type="submit"
-          class="btn btn-primary"
-          [disabled]="noteForm.invalid || submitting">
-          <div *ngIf="submitting" class="btn-spinner"></div>
-          <i *ngIf="!submitting" class="fas fa-save"></i>
-          {{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar Nota' : 'Crear Nota') }}
-        </button>
-      </div>
+            <div class="form-group">
+            <label for="content" class="form-label">
+               <i class="fas fa-align-left"></i>
+               Contenido *
+            </label>
+            <textarea
+               id="content"
+               formControlName="content"
+               class="form-textarea"
+               [class.error]="isFieldInvalid('content')"
+               placeholder="Escribe el contenido de la nota..."
+               rows="6">
+            </textarea>
+            <div *ngIf="isFieldInvalid('content')" class="error-message">
+               {{ getFieldError('content') }}
+            </div>
+            </div>
 
-    </form>
-  </div>
+            <div class="form-group">
+            <label for="collectionId" class="form-label">
+               <i class="fas fa-folder-open"></i>
+               Colección *
+            </label>
+            <select
+               id="collectionId"
+               formControlName="collectionId"
+               class="form-select"
+               [class.error]="isFieldInvalid('collectionId')">
+               <option value="">Selecciona una colección</option>
+               <option *ngFor="let collection of collections" [value]="collection.id">
+                  {{ collection.name }}
+               </option>
+            </select>
+            <div *ngIf="isFieldInvalid('collectionId')" class="error-message">
+               {{ getFieldError('collectionId') }}
+            </div>
+            </div>
+            <div class="form-actions">
+            <button
+               type="button"
+               class="btn btn-cancel"
+               (click)="onCancel()"
+               [disabled]="submitting">
+               <i class="fas fa-times"></i>
+               Cancelar
+            </button>
+
+            <button
+               type="submit"
+               class="btn btn-primary"
+               [disabled]="noteForm.invalid || submitting">
+               <div *ngIf="submitting" class="btn-spinner"></div>
+               <i *ngIf="!submitting" class="fas fa-save"></i>
+               {{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar Nota' : 'Crear Nota') }}
+            </button>
+            </div>
+
+         </form>
+      </div>
+   </div>
 </div>
   `,
   styleUrls: ['./note-form.component.css']
@@ -122,6 +129,7 @@ export class NoteFormComponent implements OnInit {
   noteId: number | null = null;
   loading = false;
   submitting = false;
+  user = JSON.parse(localStorage.getItem('user') || '{}'); // Obtener el usuario del localStorage
 
   constructor(
     private fb: FormBuilder,
@@ -134,6 +142,7 @@ export class NoteFormComponent implements OnInit {
    };
 
    ngOnInit(): void {
+
       this.noteId = this.route.snapshot.params['id'] ? +this.route.snapshot.params['id'] : null;
       this.isEditMode = !!this.noteId;
 
@@ -154,7 +163,7 @@ export class NoteFormComponent implements OnInit {
    }
 
    loadCollections(callback: () => void): void {
-      this.collectionService.getCollections().subscribe({
+      this.collectionService.getCollections(this.user.id).subscribe({
          next: (collections: CollectionResponse[]) => {
             this.collections = collections;
             if (callback) callback();
@@ -173,7 +182,7 @@ export class NoteFormComponent implements OnInit {
             this.noteForm.patchValue({
                title: note.title,
                content: note.content,
-               collectionId: note.collection?.id
+               collectionId: note.collectionId
             });
             this.loading = false;
          },
@@ -202,6 +211,7 @@ export class NoteFormComponent implements OnInit {
          };
 
          if (this.isEditMode && this.noteId) {
+            console.log('note-form.component.ts -> Actualizando nota con ID:', this.noteId, noteData);
             this.noteService.updateNote(this.noteId, noteData).subscribe({
                next: () => {
                   Swal.fire('Éxito', 'Nota actualizada correctamente.', 'success');
