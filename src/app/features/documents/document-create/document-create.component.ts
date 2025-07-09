@@ -1,67 +1,85 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DocumentService } from '../../../services/document.service';
 import { DocumentRequest } from '../../../models/document.model';
-
-
+import { NavbarLoggedComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
+import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
+import { RepositoryService } from '../../../services/repository.service';
+import Swal from 'sweetalert2';
 @Component({
   standalone: true,
   selector: 'app-document-create',
   template: `
+    <app-sidebar></app-sidebar>
+
     <div class="form-container">
-      <h2 class="form-title">📄 Crear Nuevo Documento</h2>
+      <app-navbar></app-navbar>
 
-      <form (ngSubmit)="guardarDocumento()" #docForm="ngForm">
-        <label>
-          Título:
-          <input type="text" [(ngModel)]="documento.title" name="title" required />
-        </label>
+      <div class="form-wrapper">
+        <h2 class="form-title">📄 Crear Nuevo Documento</h2>
 
-        <label>
-          Descripción:
-          <textarea [(ngModel)]="documento.description" name="description"></textarea>
-        </label>
+        <form (ngSubmit)="guardarDocumento()" #docForm="ngForm">
+          <label>
+            Título:
+            <input type="text" [(ngModel)]="documento.title" name="title" required />
+          </label>
 
-        <label>
-          Versión:
-          <input type="number" [(ngModel)]="documento.version" name="version" required min="1" />
-        </label>
+          <label>
+            Contenido:
+            <textarea [(ngModel)]="documento.description" name="description"></textarea>
+          </label>
 
-        <label>
-          ID del Repositorio:
-          <input type="number" [(ngModel)]="documento.repositoryId" name="repositoryId" required min="1" />
-        </label>
+          <label>
+            Versión:
+            <input type="number" [(ngModel)]="documento.version" name="version" required min="1" />
+          </label>
+          <label>
+  Selecciona Repositorio:
+  <select [(ngModel)]="documento.repositoryId" name="repositoryId" required>
+    <option *ngFor="let repo of listaRepositorios" [value]="repo.id">
+      Repositorio {{ repo.id }}
+    </option>
+  </select>
+</label>
+          <div class="buttons">
+            <button class="btn btn-primary" type="submit" [disabled]="docForm.invalid">Guardar</button>
+            <button class="btn btn-danger" type="button" (click)="cancelar()">Cancelar</button>
+          </div>
+        </form>
+      </div>
 
-        <div class="buttons">
-          <button class="btn btn-primary" type="submit" [disabled]="docForm.invalid">Guardar</button>
-          <button class="btn btn-danger" type="button" (click)="cancelar()">Cancelar</button>
-        </div>
-      </form>
+      <app-footer></app-footer>
     </div>
   `,
   styles: [`
     :host {
       background: rgba(240, 240, 240, 0.7);
       font-family: 'Poppins', sans-serif;
-      backdrop-filter: blur(5px);
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
+      align-items: start;
+      justify-content: flex-start;
+      padding: 2rem;
     }
 
     .form-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-wrapper {
+      margin: 2rem auto;
       padding: 2rem;
       max-width: 600px;
       width: 100%;
-      margin: 2rem auto;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
       background: #ffffff;
+      border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e5e7eb;
     }
 
     .form-title {
@@ -137,9 +155,9 @@ import { DocumentRequest } from '../../../models/document.model';
       background-color: #dc2626;
     }
   `],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, NavbarLoggedComponent, FooterComponent, SidebarComponent]
 })
-export class DocumentCreateComponent {
+export class DocumentCreateComponent implements OnInit {
   documento: DocumentRequest = {
     title: '',
     description: '',
@@ -151,45 +169,69 @@ export class DocumentCreateComponent {
   constructor(
     private documentService: DocumentService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private repositoryService: RepositoryService
   ) {}
-
-ngOnInit(): void {
+  listaRepositorios: any[] = [];
+  ngOnInit(): void {
+  // Obtener el ID del repositorio desde los queryParams
   this.route.queryParams.subscribe(params => {
     const repoId = Number(params['repositoryId']);
-    if (repoId) {
+    if (!isNaN(repoId) && repoId > 0) {
       this.documento.repositoryId = repoId;
     }
   });
+
+  // Obtener lista de repositorios del usuario logueado
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    const user = JSON.parse(storedUser);
+    this.repositoryService.getRepositoriesByUsuarioId(user.id).subscribe({
+      next: (repos) => {
+        this.listaRepositorios = repos;
+      },
+      error: (err) => {
+        console.error('Error al obtener repositorios del usuario', err);
+      }
+    });
+  }
 }
 
   guardarDocumento(): void {
-  const storedUser = localStorage.getItem('user');
-  if (!storedUser) {
-    alert('No hay usuario autenticado. No se puede crear el documento.');
-    return;
-  }
-
-  const user = JSON.parse(storedUser);
-
-  if (!user.id) {
-    alert('El usuario no tiene un ID válido.');
-    return;
-  }
-
-  this.documento.userId = user.id;
-
-  this.documentService.createDocument(this.documento).subscribe({
-    next: () => {
-      alert('Documento creado correctamente');
-      history.back();
-    },
-    error: (err) => {
-      console.error('Error al crear documento:', err);
-      alert('Ocurrió un error al crear el documento');
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      alert('No hay usuario autenticado. No se puede crear el documento.');
+      return;
     }
-  });
-}
+
+    try {
+      const user = JSON.parse(storedUser);
+      if (!user?.id) throw new Error();
+
+      this.documento.userId = user.id;
+
+      this.documentService.createDocument(this.documento).subscribe({
+        next: () => {
+          Swal.fire({
+  icon: 'success',
+  title: 'Documento creado correctamente',
+  text: 'Puedes verlo ahora en el repositorio.',
+  confirmButtonText: '¡A verlo!',
+  width: '80%'
+}).then(() => {
+  history.back(); // solo vuelve cuando el usuario confirme
+});
+
+        },
+        error: (err) => {
+          console.error('Error al crear documento:', err);
+          alert('Ocurrió un error al crear el documento');
+        }
+      });
+    } catch {
+      alert('Error al obtener datos del usuario');
+    }
+  }
 
   cancelar(): void {
     history.back();
