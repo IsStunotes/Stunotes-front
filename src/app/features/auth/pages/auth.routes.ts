@@ -21,6 +21,10 @@ export const authRoutes: Routes = [
     {
       path: 'register/student',
       loadComponent: () => import('./register-student/register-student.component').then(m => m.RegisterStudentComponent)
+    },
+    {
+      path: 'profile',
+      loadComponent: () => import('./update/update.component').then(m => m.UserUpdateComponent)
     }
 
   ];

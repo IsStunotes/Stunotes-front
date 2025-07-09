@@ -11,8 +11,8 @@ import { filter } from 'rxjs/operators';
       <aside class="sidebar">
         <nav class="sidebar-nav">    
           <ul class="nav-list">
-            <li class="nav-item" [class.active]="isActiveRoute('/profile')">
-              <a routerLink="/profile" class="nav-link">
+            <li class="nav-item" [class.active]="isActiveRoute('/auth/profile')">
+              <a routerLink="/auth/profile" class="nav-link">
                 <i class="fas fa-user"></i>
                 <span>Perfil</span>
               </a>
