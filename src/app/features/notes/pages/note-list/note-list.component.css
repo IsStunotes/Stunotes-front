@@ -1,13 +1,12 @@
 .container {
-  padding-top: 80px;     /* deja espacio al navbar */
-  padding-left: 200px; 
-   height: calc(100vh - 200px); /* altura menos el navbar */
-   overflow-y: auto; /* habilita scroll solo en esta área */
-   background-color: #f8f9fa;
+  padding-top: 95px;    
+  padding-left: 150px; 
+  height: calc(100vh - 200px); 
+  overflow-y: auto; /* habilita scroll solo en esta área */
+  background-color: #f8f9fa;
 }
 
 .note-container {
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
   background: #f8f9fa;
