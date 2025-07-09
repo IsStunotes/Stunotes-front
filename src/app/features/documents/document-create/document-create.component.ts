@@ -51,24 +51,25 @@ import Swal from 'sweetalert2';
         </form>
       </div>
 
-      <app-footer></app-footer>
     </div>
-  `,
+    <app-footer></app-footer>
+`,
   styles: [`
     :host {
       background: rgba(240, 240, 240, 0.7);
       font-family: 'Poppins', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: start;
-      justify-content: flex-start;
-      padding: 2rem;
     }
 
     .form-container {
       flex: 1;
-      display: flex;
+      padding-top: 95px;     /* deja espacio al navbar */
+      padding-left: 100px; 
+      height: calc(100vh - 200px); /* altura menos el navbar */      display: flex;
       flex-direction: column;
+      display: flex;
+      align-items: start;
+      justify-content: flex-start;
+
     }
 
     .form-wrapper {

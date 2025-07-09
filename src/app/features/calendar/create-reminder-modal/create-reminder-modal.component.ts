@@ -83,6 +83,7 @@ import { CalendarEvent } from '../../../models/reminder.model';
   `,
   styles: [`
     .modal-overlay {
+      font-family: 'Poppins', sans-serif;
       position: fixed;
       top: 0;
       left: 0;

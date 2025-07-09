@@ -1,9 +1,9 @@
 .container {
-   margin-top: 6rem;    /* espacio para navbar */
-   margin-left: 11rem;  /* espacio para sidebar */
-   height: calc(100vh - 4rem); /* altura menos el navbar */
+  padding-top: 80px;     /* deja espacio al navbar */
+  padding-left: 200px; 
+   height: calc(100vh - 200px); /* altura menos el navbar */
    overflow-y: auto; /* habilita scroll solo en esta área */
-   background-color: #f4f4f4;
+   background-color: #f8f9fa;
 }
 
 .note-container {
@@ -11,7 +11,6 @@
   max-width: 1200px;
   margin: 0 auto;
   background: #f8f9fa;
-  min-height: 100vh;
   font-family: "Font Awesome 6 Brand", sans-serif; 
   line-height: 1;
 }
@@ -609,7 +608,7 @@
     width: calc(100% - 15px); /* ocupar todo el ancho menos el gap */
   }
   .sort-container {
-    width: calc(100% -1.5rem);
+    width: calc(100% - 1.5rem);
     justify-content: flex-start;
   }
   

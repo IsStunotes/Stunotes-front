@@ -9,10 +9,11 @@ import { CreateReminderModalComponent } from '../create-reminder-modal/create-re
 import { CalendarService } from '../../../services/calendar.service';
 import { CalendarEvent } from '../../../models/reminder.model';
 import { Subscription } from 'rxjs';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-calendar',
-  imports: [CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent],
+  imports: [CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent, FooterComponent],
   styleUrls: ['./calendar.component.css'],
   encapsulation: ViewEncapsulation.None, 
   template: `
@@ -149,6 +150,7 @@ import { Subscription } from 'rxjs';
 
       </div>
     </div>
+    <app-footer></app-footer>
   `,
 })
 export class CalendarComponent implements OnInit, OnDestroy {

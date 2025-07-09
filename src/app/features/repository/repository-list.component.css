@@ -7,7 +7,9 @@
 .main-content {
   width: calc(100% - 220px); /* ya que tienes un sidebar de 220px */
   max-width: 100%;
-  margin-left: 220px; /* Espacio para que el sidebar no se sobreponga */
+  margin-left: 200px; /* Espacio para que el sidebar no se sobreponga */
+  padding-top: 95px;   
+  height: calc(100vh - 200px); /* altura menos el navbar */ 
 }
 
 .loading, .error {

@@ -1,14 +1,14 @@
-
 :host{
-  font-family: 'Lato', sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 .content-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 180px; 
+  margin-left: 150px; 
   height: 100%;
+  padding-top: 80px;    
 }
 
 .action-header {
@@ -43,6 +43,7 @@
 }
 
 .calendar-view {
+  font-family: 'Poppins', sans-serif;
   flex: 1;
   min-height: 0;
   overflow: auto;
@@ -55,6 +56,7 @@
 
 
 .calendar-header {
+  font-family: 'Poppins', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;

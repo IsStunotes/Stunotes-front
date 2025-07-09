@@ -8,11 +8,16 @@ import { CategoryService } from '../../../../services/category.service';
 import { TaskRequest, TaskResponse } from '../../../../models/task.model';
 import { CategoryResponse } from '../../../../models/category.model';
 import Swal from 'sweetalert2';
+import { NavbarLoggedComponent } from '../../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { SidebarComponent } from '../../../../shared/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-task-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule,NavbarLoggedComponent,FooterComponent,SidebarComponent],
   template: `
+  <app-navbar></app-navbar>
+  <app-sidebar></app-sidebar>
   <div class="form-container">
   <div class="form-header">
     <h1 class="form-title">
@@ -138,6 +143,7 @@ import Swal from 'sweetalert2';
     </form>
   </div>
 </div>
+<app-footer></app-footer>
   `,
   styleUrls: ['./task-form.component.css']
 })

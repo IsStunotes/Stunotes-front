@@ -81,10 +81,10 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
     </div>
   </div>
 </ng-container>
-  <app-footer></app-footer>
 </div>
 </div>
-  `,
+<app-footer></app-footer>
+`,
   imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent, FormsModule],
   styleUrls: ['repository-list.component.css']
 

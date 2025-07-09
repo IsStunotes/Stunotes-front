@@ -3,7 +3,9 @@
   gap: 2rem;
   padding: 2rem;
   font-family: Arial, sans-serif;
-  margin-left: 220px; /* Espacio para que el sidebar no se sobreponga */
+  padding-top: 95px;     /* deja espacio al navbar */
+  padding-left: 200px; 
+  height: calc(100vh - 200px); /* altura menos el navbar */
 }
 
 .document {

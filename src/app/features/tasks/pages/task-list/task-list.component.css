@@ -3,9 +3,11 @@
   max-width: 1200px;
   margin: 0 auto;
   background: #f8f9fa;
-  min-height: 100vh;
   font-family: "Font Awesome 6 Brand", sans-serif; 
   line-height: 1;
+  padding-top: 95px;    
+  padding-left: 150px; 
+  height: calc(100vh - 200px); /* altura menos el navbar */
 }
 
 .task-header {
