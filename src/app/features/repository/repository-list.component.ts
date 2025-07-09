@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { DocumentService } from '../../services/document.service';
 import { HttpHeaders } from '@angular/common/http';
+import Swal from 'sweetalert2';
+import { FormsModule } from '@angular/forms';
 import { NavbarLoggedComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { SidebarComponent } from "../../shared/components/sidebar/sidebar.component";
@@ -15,6 +17,8 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
   template: `
    <app-navbar></app-navbar>
    <app-sidebar></app-sidebar>
+<div class="main-content">
+
 <div *ngIf="loading" class="loading">Cargando repositorios...</div>
 <div *ngIf="error" class="error">{{ error }}</div>
 
@@ -27,31 +31,38 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
           <button class="new-task-btn" (click)="crearRepositorio()">
             <i class="fas fa-plus"></i> Nuevo Repositorio
           </button>
-        </div>
+      
+  <div class="search-filters">
+  <div class="search-container">
+    <input
+      type="number"
+      placeholder="Buscar por ID de repositorio"
+      [(ngModel)]="filtroId"
+      class="search-input"
+    />
+    <button (click)="buscarPorId()" class="search-btn">🔍</button>
+    <button (click)="limpiarFiltro()" *ngIf="filtroId" class="clear-btn">❌</button>
+  </div>
+</div>
+</div>
         
-        <div class="search-filters">
-          <div class="search-container">
-            <input type="text" placeholder="Buscar..." />
-            <span class="search-icon">🔍</span>
-          </div>          
-        </div>
+        
   </div>
   <div *ngIf="repositories.length === 0 && !loading" class="no-repos-msg">
     Aún no se ha creado un repositorio
   </div>
 
   <ng-container *ngFor="let repo of repositories">
+  <div class="repo-block">
     <h2>Repositorio {{ repo.id }}</h2>
     <div class="repo-actions">
       <button class="create-btn" (click)="crearDocumento(repo.id)">
         + Crear nuevo documento
       </button>
-
       <button class="delete-btn" (click)="eliminarRepositorio(repo.id)">
         🗑️ Eliminar repositorio
       </button>
     </div>
-
     <div class="document-grid">
       <div *ngFor="let doc of repo.documents" class="document-card-wrapper">
         <a class="card-link" [routerLink]="['/document', doc.id, 'comments']">
@@ -68,11 +79,13 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
         </button>
       </div>
     </div>
-  </ng-container>
+  </div>
+</ng-container>
   <app-footer></app-footer>
 </div>
+</div>
   `,
-  imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent],
+  imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent, FormsModule],
   styleUrls: ['repository-list.component.css']
 
 })
@@ -80,6 +93,7 @@ export class RepositoryListComponent implements OnInit {
   repositories: RepositoryResponse[] = [];
   loading = false;
   error = '';
+  filtroId: number | null = null;
 
   constructor(
     private repositoryService: RepositoryService,
@@ -91,6 +105,7 @@ ngOnInit(): void {
   this.loadRepositories();
 }
 
+repositoriosOriginales: RepositoryResponse[] = [];
 loadRepositories(): void {
   this.loading = true;
 
@@ -103,13 +118,15 @@ loadRepositories(): void {
 
   const user = JSON.parse(storedUser);
 
+  const handler = (repos: RepositoryResponse[]) => {
+    this.repositories = repos;
+    this.repositoriosOriginales = repos; // <-- almacenamos una copia original
+    this.loading = false;
+  };
+
   if (user.role === 'TEACHER' || user.roleId === 2) {
-    // Si es profesor, obtener todos los repositorios de todos los estudiantes
     this.repositoryService.getAllRepositories().subscribe({
-      next: (repos) => {
-        this.repositories = repos;
-        this.loading = false;
-      },
+      next: handler,
       error: (err) => {
         console.error('Error al obtener todos los repositorios:', err);
         this.error = 'Error al cargar todos los repositorios';
@@ -117,12 +134,8 @@ loadRepositories(): void {
       }
     });
   } else {
-    // Si es estudiante, obtener solo sus repositorios
     this.repositoryService.getRepositoriesByUsuarioId(user.id).subscribe({
-      next: (repos) => {
-        this.repositories = repos;
-        this.loading = false;
-      },
+      next: handler,
       error: (err) => {
         console.error('Error al obtener repositorios del usuario:', err);
         this.error = 'Error al cargar repositorios del usuario';
@@ -132,6 +145,16 @@ loadRepositories(): void {
   }
 }
 
+buscarPorId(): void {
+  if (!this.filtroId) return;
+
+  this.repositories = this.repositoriosOriginales.filter(repo => repo.id === this.filtroId);
+}
+
+limpiarFiltro(): void {
+  this.filtroId = null;
+  this.repositories = [...this.repositoriosOriginales];
+}
 crearDocumento(repositoryId: number): void {
   this.router.navigate(['/document/create'], {
     queryParams: { repositoryId }
@@ -155,9 +178,16 @@ crearRepositorio(): void {
   console.log('Payload enviado al backend:', nuevoRepo);
   this.repositoryService.saveRepository(nuevoRepo).subscribe({
     next: (createdRepo) => {
+  this.repositories.push(createdRepo);
 
-      this.repositories.push(createdRepo);
-    },
+ Swal.fire({
+  icon: 'success',
+  title: 'Repositorio creado debajo',
+  text: 'Puedes empezar a agregar documentos.',
+  confirmButtonText: '¡Perfecto!',
+  width: '80%'
+});
+},
     error: (err) => {
       console.error('Error al crear repositorio:', err);
       alert('Error al crear repositorio');
@@ -166,20 +196,40 @@ crearRepositorio(): void {
 }
 
 eliminarRepositorio(repoId: number): void {
-  if (!confirm('¿Estás seguro de que quieres eliminar este repositorio?')) {
-    return;
-  }
-
-  this.repositoryService.deleteRepository(repoId).subscribe({
-    next: () => {
-      this.repositories = this.repositories.filter(repo => repo.id !== repoId);
-    },
-    error: (err) => {
-      console.error('Error al eliminar repositorio:', err);
-      alert('No se pudo eliminar el repositorio');
+  Swal.fire({
+    title: '¿Eliminar repositorio?',
+    text: 'Se eliminará junto con todos sus documentos.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#aaa',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.repositoryService.deleteRepository(repoId).subscribe({
+        next: () => {
+          this.repositories = this.repositories.filter(repo => repo.id !== repoId);
+          Swal.fire({
+            icon: 'success',
+            title: 'Repositorio eliminado',
+            text: 'El repositorio fue eliminado correctamente.',
+            confirmButtonText: 'OK',
+            width: '70%',
+          });
+        },
+        error: (err) => {
+          console.error('Error al eliminar repositorio:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar el repositorio porque tiene documentos con COMENTARIOS .',
+            confirmButtonText: 'Cerrar'
+          });
+        }
+      });
     }
   });
-  
 }
 eliminarDocumento(documentId: number, repositoryId: number): void {
   if (!confirm('¿Deseas eliminar este documento?')) {

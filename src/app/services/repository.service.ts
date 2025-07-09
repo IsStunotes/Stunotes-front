@@ -20,11 +20,11 @@ export class RepositoryService {
     });
   }
 
- getAllRepositories(headers?: HttpHeaders): Observable<RepositoryResponse[]> {
-  return this.http.get<RepositoryResponse[]>('http://localhost:8080/api/v1/repositories', {
-    headers: headers
-  });
-}
+ getAllRepositories(): Observable<RepositoryResponse[]> {
+    return this.http.get<RepositoryResponse[]>(this.apiUrl, {
+      headers: this.getAuthHeaders()
+    });
+  }
 
   saveRepository(request: RepositoryRequest): Observable<RepositoryResponse> {
     return this.http.post<RepositoryResponse>(this.apiUrl, request, {

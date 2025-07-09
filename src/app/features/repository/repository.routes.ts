@@ -7,7 +7,7 @@ export const repositoryRoutes: Routes = [
       .then(m => m.RepositoryListComponent)
   },
   {
-  path: ':id',
+  path: 'repositories/:id',
   loadComponent: () => import('./repository-details/repository-detail.component')
     .then(m => m.RepositoryDetailComponent)
 },
