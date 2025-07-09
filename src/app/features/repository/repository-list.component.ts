@@ -23,16 +23,15 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
 <div *ngIf="error" class="error">{{ error }}</div>
 
 <div *ngIf="!loading">
-  <div class="task-header">
-        <div class="header-left">
-          <button class="back-btn" (click)="cancelar()">
-            <i class="fas fa-arrow-left"></i> Atrás
-          </button>
-          <button class="new-task-btn" (click)="crearRepositorio()">
-            <i class="fas fa-plus"></i> Nuevo Repositorio
-          </button>
-      
-  <div class="search-filters">
+<div class="task-header">
+  <div class="header-left">
+    <button class="back-btn" (click)="cancelar()">
+      <i class="fas fa-arrow-left"></i> Atrás
+    </button>
+    <button class="new-task-btn" (click)="crearRepositorio()">
+      <i class="fas fa-plus"></i> Nuevo Repositorio
+    </button>
+  </div>
   <div class="search-container">
     <input
       type="number"
@@ -44,11 +43,8 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
     <button (click)="limpiarFiltro()" *ngIf="filtroId" class="clear-btn">❌</button>
   </div>
 </div>
-</div>
-        
-        
-  </div>
-  <div *ngIf="repositories.length === 0 && !loading" class="no-repos-msg">
+
+      <div *ngIf="repositories.length === 0 && !loading" class="no-repos-msg">
     Aún no se ha creado un repositorio
   </div>
 
@@ -83,6 +79,7 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
 </ng-container>
 </div>
 </div>
+
 <app-footer></app-footer>
 `,
   imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent, FormsModule],

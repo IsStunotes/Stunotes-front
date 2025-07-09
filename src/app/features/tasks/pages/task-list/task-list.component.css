@@ -1,13 +1,13 @@
 .task-container {
-  padding: 20px;
-  max-width: 1200px;
   margin: 0 auto;
-  background: #f8f9fa;
+  background: #fdfdfdfd;
   font-family: "Font Awesome 6 Brand", sans-serif; 
   line-height: 1;
+  padding: 20px;
+  max-width: 1800px;
   padding-top: 95px;    
   padding-left: 150px; 
-  height: calc(100vh - 200px); 
+  min-height: calc(100vh - 100px);
 }
 
 .task-header {
@@ -31,6 +31,7 @@
   border: none;
   border-radius: 8px;
   font-weight: 500;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
