@@ -10,6 +10,7 @@ import { CalendarService } from '../../../services/calendar.service';
 import { CalendarEvent } from '../../../models/reminder.model';
 import { Subscription } from 'rxjs';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-calendar',
@@ -400,7 +401,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     onDateClick(day: any): void {
       // Validar que la fecha no sea anterior a hoy
       if (!this.isValidFutureDate(day.date)) {
-        alert('No puedes crear recordatorios en fechas pasadas.');
+        Swal.fire('Error', 'No puedes crear recordatorios en fechas pasadas.', 'error');
         return;
       }
 
@@ -419,13 +420,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     onTimeSlotClick(day: any, timeSlot: string): void {
       // Validar que la fecha no sea anterior a hoy
       if (!this.isValidFutureDate(day.date)) {
-        alert('No puedes crear recordatorios en fechas pasadas.');
+        Swal.fire('Error', 'No puedes crear recordatorios en fechas pasadas.', 'error');
         return;
       }
 
       // Validar que la hora no sea anterior a la actual si es hoy
       if (this.isToday(day.date) && !this.isValidTimeForToday(timeSlot)) {
-        alert('No puedes crear recordatorios en horas pasadas.');
+        Swal.fire('Error', 'No puedes crear recordatorios en horas pasadas.', 'error');
         return;
       }
 
@@ -483,6 +484,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
       this.calendarService.addEvent(event);
       console.log('Recordatorio creado exitosamente:', event);
+      
+      Swal.fire('Éxito', 'Recordatorio creado correctamente.', 'success');
 
       this.closeCreateReminderModal();
     }
@@ -490,6 +493,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     onReminderUpdated(event: CalendarEvent): void {
       this.calendarService.updateEventInSubject(event);
       console.log('Recordatorio actualizado exitosamente:', event);
+      
+      Swal.fire('Éxito', 'Recordatorio actualizado correctamente.', 'success');
       
       this.closeCreateReminderModal();
     }
@@ -503,7 +508,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
           this.calendarService.removeEventFromSubject(reminderId);
           console.log('Recordatorio eliminado exitosamente');
           
-          alert('Recordatorio eliminado exitosamente');
+          Swal.fire('Éxito', 'Recordatorio eliminado correctamente.', 'success');
         },
         error: (error) => {
           console.error('Error eliminando recordatorio:', error);
@@ -516,7 +521,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
             errorMessage += ` ${error.error.message}`;
           }
           
-          alert(errorMessage);
+          Swal.fire('Error', errorMessage, 'error');
         }
       });
     }
@@ -559,17 +564,28 @@ export class CalendarComponent implements OnInit, OnDestroy {
     confirmDeleteReminder(): void {
       if (!this.selectedEvent) return;
       
-      const confirmed = confirm(
-        `¿Estás seguro de que deseas eliminar este recordatorio?\n\n` +
-        `Título: ${this.selectedEvent.title}\n` +
-        `Fecha: ${this.formatEventDate(this.selectedEvent.start)}\n\n` +
-        `Esta acción no se puede deshacer.`
-      );
-      
-      if (confirmed && this.selectedEvent.id) {
-        this.deleteReminder(this.selectedEvent.id);
-        this.closeEventOptionsModal();
-      }
+      Swal.fire({
+        title: '¿Estás seguro?',
+        html: `
+          <p>¿Deseas eliminar este recordatorio?</p>
+          <br>
+          <strong>Título:</strong> ${this.selectedEvent.title}<br>
+          <strong>Fecha:</strong> ${this.formatEventDate(this.selectedEvent.start)}<br>
+          <br>
+          <em>Esta acción no se puede deshacer.</em>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed && this.selectedEvent?.id) {
+          this.deleteReminder(this.selectedEvent.id);
+          this.closeEventOptionsModal();
+        }
+      });
     }
 
     formatEventDate(dateString: string): string {
