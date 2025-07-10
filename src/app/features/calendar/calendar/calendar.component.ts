@@ -65,12 +65,14 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
                      class="day-cell" 
                      [class.other-month]="!day.isCurrentMonth"
                      [class.today]="day.isToday"
-                     (click)="onDateClick(day)">
+                     [class.past-date]="!isValidFutureDate(day.date)"
+                     [class.clickable]="isValidFutureDate(day.date)"
+                     (click)="isValidFutureDate(day.date) ? onDateClick(day) : null">
                   <div class="day-number">{{ day.date.getDate() }}</div>
                   <div class="day-events">
                     <div *ngFor="let event of day.events | slice:0:3" 
                          class="event-item-month"
-                         (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                         (click)="$event.stopPropagation(); handleEventClick($any(event), $event)">
                       {{ $any(event).title }}
                     </div>
                     <div *ngIf="day.events.length > 3" class="more-events">
@@ -98,10 +100,12 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
                 <div class="time-label">{{ timeSlot }}</div>
                 <div *ngFor="let day of calendarDays" 
                      class="time-slot"
-                     (click)="onTimeSlotClick(day, timeSlot)">
+                     [class.past-time]="!isValidTimeSlot(day, timeSlot)"
+                     [class.clickable]="isValidTimeSlot(day, timeSlot)"
+                     (click)="isValidTimeSlot(day, timeSlot) ? onTimeSlotClick(day, timeSlot) : null">
                   <div *ngFor="let event of getEventsForTimeSlot(day, timeSlot)" 
                        class="event-item-week"
-                       (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                       (click)="$event.stopPropagation(); handleEventClick($any(event), $event)">
                     {{ $any(event).title }}
                   </div>
                 </div>
@@ -119,10 +123,13 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
             <div class="day-grid">
               <div *ngFor="let timeSlot of timeSlots" class="time-row-day">
                 <div class="time-label-day">{{ timeSlot }}</div>
-                <div class="time-slot-day" (click)="onTimeSlotClick(calendarDays[0], timeSlot)">
+                <div class="time-slot-day" 
+                     [class.past-time]="!isValidTimeSlot(calendarDays[0], timeSlot)"
+                     [class.clickable]="isValidTimeSlot(calendarDays[0], timeSlot)"
+                     (click)="isValidTimeSlot(calendarDays[0], timeSlot) ? onTimeSlotClick(calendarDays[0], timeSlot) : null">
                   <div *ngFor="let event of getEventsForTimeSlot(calendarDays[0], timeSlot)" 
                        class="event-item-day"
-                       (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                       (click)="$event.stopPropagation(); handleEventClick($any(event), $event)">
                     {{ $any(event).title }}
                   </div>
                 </div>
@@ -148,6 +155,36 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
             (reminderCreated)="onReminderCreated($event)">
         </app-create-reminder-modal>
 
+        <!-- Modal de opciones de evento -->
+        <div *ngIf="showEventOptionsModal" 
+             class="event-options-modal"
+             [style.left.px]="modalPosition.x"
+             [style.top.px]="modalPosition.y">
+          <div class="event-options-content">
+            <div class="event-info">
+              <h4>{{ selectedEvent?.title }}</h4>
+              <p>{{ formatEventDate(selectedEvent?.start || '') }}</p>
+            </div>
+            <div class="event-options-buttons">
+              <button class="option-btn update-btn" (click)="updateReminder()">
+                <i class="fas fa-edit"></i> Actualizar
+              </button>
+              <button class="option-btn delete-btn" (click)="confirmDeleteReminder()">
+                <i class="fas fa-trash"></i> Eliminar
+              </button>
+              <button class="option-btn cancel-btn" (click)="closeEventOptionsModal()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overlay para cerrar el modal -->
+        <div *ngIf="showEventOptionsModal" 
+             class="event-options-overlay" 
+             (click)="closeEventOptionsModal()">
+        </div>
+
       </div>
     </div>
     <app-footer></app-footer>
@@ -157,6 +194,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
     currentView: string = 'week';
     showPrintModal: boolean = false;
     showCreateReminderModal: boolean = false;
+    showEventOptionsModal: boolean = false;
+    selectedEvent: CalendarEvent | null = null;
+    modalPosition = { x: 0, y: 0 };
     events: CalendarEvent[] = [];
     error: string = '';
     selectedDate: string = '';
@@ -353,12 +393,37 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     onDateClick(day: any): void {
+      // Validar que la fecha no sea anterior a hoy
+      if (!this.isValidFutureDate(day.date)) {
+        alert('No puedes crear recordatorios en fechas pasadas.');
+        return;
+      }
+
       this.selectedDate = day.date.toISOString().split('T')[0];
-      this.selectedTime = '09:00';
+      
+      // Si es hoy, validar que la hora no sea anterior a la actual
+      if (this.isToday(day.date)) {
+        this.selectedTime = this.getValidTimeForToday();
+      } else {
+        this.selectedTime = '09:00';
+      }
+      
       this.openCreateReminderModal();
     }
 
     onTimeSlotClick(day: any, timeSlot: string): void {
+      // Validar que la fecha no sea anterior a hoy
+      if (!this.isValidFutureDate(day.date)) {
+        alert('No puedes crear recordatorios en fechas pasadas.');
+        return;
+      }
+
+      // Validar que la hora no sea anterior a la actual si es hoy
+      if (this.isToday(day.date) && !this.isValidTimeForToday(timeSlot)) {
+        alert('No puedes crear recordatorios en horas pasadas.');
+        return;
+      }
+
       this.selectedDate = day.date.toISOString().split('T')[0];
       this.selectedTime = timeSlot;
       this.openCreateReminderModal();
@@ -390,7 +455,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
       if (!this.selectedDate) {
         const today = new Date();
         this.selectedDate = today.toISOString().split('T')[0];
-        this.selectedTime = '09:00';
+        
+        // Si es hoy, usar una hora válida
+        if (this.isToday(today)) {
+          this.selectedTime = this.getValidTimeForToday();
+        } else {
+          this.selectedTime = '09:00';
+        }
       }
       this.showCreateReminderModal = true;
     }
@@ -436,16 +507,49 @@ export class CalendarComponent implements OnInit, OnDestroy {
       });
     }
 
-    handleEventClick(event: CalendarEvent): void {
+    handleEventClick(event: CalendarEvent, mouseEvent?: MouseEvent): void {
+      this.selectedEvent = event;
+      
+      // Calcular posición del modal basada en la posición del mouse
+      if (mouseEvent) {
+        this.modalPosition.x = mouseEvent.clientX;
+        this.modalPosition.y = mouseEvent.clientY;
+      } else {
+        // Posición por defecto si no hay evento de mouse
+        this.modalPosition.x = window.innerWidth / 2 - 150;
+        this.modalPosition.y = window.innerHeight / 2 - 100;
+      }
+      
+      this.showEventOptionsModal = true;
+    }
+
+    closeEventOptionsModal(): void {
+      this.showEventOptionsModal = false;
+      this.selectedEvent = null;
+    }
+
+    updateReminder(): void {
+      if (!this.selectedEvent) return;
+      
+      // TODO: Implementar funcionalidad de actualización
+      alert(`Funcionalidad de actualización para "${this.selectedEvent.title}" será implementada próximamente.`);
+      console.log('Actualizar recordatorio:', this.selectedEvent);
+      this.closeEventOptionsModal();
+    }
+
+    confirmDeleteReminder(): void {
+      if (!this.selectedEvent) return;
+      
       const confirmed = confirm(
-        `¿Deseas eliminar este recordatorio?\n\n` +
-        `Título: ${event.title}\n` +
-        `Fecha: ${this.formatEventDate(event.start)}\n\n` +
+        `¿Estás seguro de que deseas eliminar este recordatorio?\n\n` +
+        `Título: ${this.selectedEvent.title}\n` +
+        `Fecha: ${this.formatEventDate(this.selectedEvent.start)}\n\n` +
         `Esta acción no se puede deshacer.`
       );
       
-      if (confirmed && event.id) {
-        this.deleteReminder(event.id);
+      if (confirmed && this.selectedEvent.id) {
+        this.deleteReminder(this.selectedEvent.id);
+        this.closeEventOptionsModal();
       }
     }
 
@@ -551,5 +655,68 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     trackByEventId(index: number, event: CalendarEvent): string {
       return event.id || index.toString();
+    }
+
+    // Validation methods
+    isValidFutureDate(date: Date): boolean {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day
+      const checkDate = new Date(date);
+      checkDate.setHours(0, 0, 0, 0); // Reset time to start of day
+      return checkDate >= today;
+    }
+
+    isValidTimeForToday(timeSlot: string): boolean {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      
+      const [slotHour, slotMinute] = timeSlot.split(':').map(Number);
+      
+      // Crear fechas completas para comparar con precisión
+      const currentDateTime = new Date();
+      currentDateTime.setHours(currentHour, currentMinute, 0, 0);
+      
+      const slotDateTime = new Date();
+      slotDateTime.setHours(slotHour, slotMinute, 0, 0);
+      
+      // Permitir si la hora del slot es posterior a la actual
+      return slotDateTime > currentDateTime;
+    }
+
+    private getValidTimeForToday(): string {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      
+      // Usar la próxima hora completa si ya pasamos algunos minutos
+      let nextHour = currentHour;
+      if (currentMinute >= 30) { // Si han pasado más de 30 minutos, usar la siguiente hora
+        nextHour += 1;
+      }
+      
+      // Asegurar que esté dentro del rango de timeSlots (6-22)
+      if (nextHour < 6) {
+        nextHour = 6;
+      } else if (nextHour > 22) {
+        nextHour = 22;
+      }
+      
+      return `${nextHour.toString().padStart(2, '0')}:00`;
+    }
+
+    isValidTimeSlot(day: any, timeSlot: string): boolean {
+      // Primero validar que la fecha sea válida
+      if (!this.isValidFutureDate(day.date)) {
+        return false;
+      }
+      
+      // Si es hoy, validar que la hora sea válida
+      if (this.isToday(day.date)) {
+        return this.isValidTimeForToday(timeSlot);
+      }
+      
+      // Si es una fecha futura, todas las horas son válidas
+      return true;
     }
 }
