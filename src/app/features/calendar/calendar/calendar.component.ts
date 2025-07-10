@@ -151,8 +151,11 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
             [isVisible]="showCreateReminderModal"
             [preselectedDate]="selectedDate"
             [preselectedTime]="selectedTime"
+            [isEditMode]="isEditMode"
+            [reminderToEdit]="reminderToEdit"
             (close)="closeCreateReminderModal()"
-            (reminderCreated)="onReminderCreated($event)">
+            (reminderCreated)="onReminderCreated($event)"
+            (reminderUpdated)="onReminderUpdated($event)">
         </app-create-reminder-modal>
 
         <!-- Modal de opciones de evento -->
@@ -201,6 +204,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     error: string = '';
     selectedDate: string = '';
     selectedTime: string = '';
+    isEditMode: boolean = false;
+    reminderToEdit: CalendarEvent | null = null;
     private eventsSubscription?: Subscription;
     
     // Calendar properties
@@ -470,6 +475,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.showCreateReminderModal = false;
       this.selectedDate = '';
       this.selectedTime = '';
+      this.isEditMode = false;
+      this.reminderToEdit = null;
     }
 
     onReminderCreated(event: CalendarEvent): void {
@@ -477,6 +484,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.calendarService.addEvent(event);
       console.log('Recordatorio creado exitosamente:', event);
 
+      this.closeCreateReminderModal();
+    }
+
+    onReminderUpdated(event: CalendarEvent): void {
+      this.calendarService.updateEventInSubject(event);
+      console.log('Recordatorio actualizado exitosamente:', event);
+      
       this.closeCreateReminderModal();
     }
 
@@ -531,9 +545,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
     updateReminder(): void {
       if (!this.selectedEvent) return;
       
-      // TODO: Implementar funcionalidad de actualización
-      alert(`Funcionalidad de actualización para "${this.selectedEvent.title}" será implementada próximamente.`);
-      console.log('Actualizar recordatorio:', this.selectedEvent);
+      // Configurar el modal para modo edición
+      this.isEditMode = true;
+      this.reminderToEdit = this.selectedEvent;
+      this.selectedDate = '';
+      this.selectedTime = '';
+      
+      // Abrir el modal
+      this.showCreateReminderModal = true;
       this.closeEventOptionsModal();
     }
 

@@ -12,7 +12,7 @@ import { CalendarEvent } from '../../../models/reminder.model';
     <div class="modal-overlay" *ngIf="isVisible" (click)="onClose()">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>Crear Recordatorio</h3>
+          <h3>{{ isEditMode ? 'Actualizar Recordatorio' : 'Crear Recordatorio' }}</h3>
           <button class="close-btn" (click)="onClose()">&times;</button>
         </div>
         
@@ -26,6 +26,8 @@ import { CalendarEvent } from '../../../models/reminder.model';
               placeholder="Ingrese el título del recordatorio"
               class="form-control"
               [class.is-invalid]="reminderForm.get('titulo')?.invalid && reminderForm.get('titulo')?.touched"
+              [readonly]="isEditMode"
+              [class.readonly]="isEditMode"
             >
             <div class="error-message" *ngIf="reminderForm.get('titulo')?.invalid && reminderForm.get('titulo')?.touched">
               El título es obligatorio
@@ -73,8 +75,8 @@ import { CalendarEvent } from '../../../models/reminder.model';
               class="btn btn-primary" 
               [disabled]="reminderForm.invalid || isSubmitting"
             >
-              <span *ngIf="isSubmitting">Creando...</span>
-              <span *ngIf="!isSubmitting">Crear Recordatorio</span>
+              <span *ngIf="isSubmitting">{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+              <span *ngIf="!isSubmitting">{{ isEditMode ? 'Actualizar Recordatorio' : 'Crear Recordatorio' }}</span>
             </button>
           </div>
         </form>
@@ -176,6 +178,12 @@ import { CalendarEvent } from '../../../models/reminder.model';
       border-color: #dc3545;
     }
 
+    .form-control.readonly {
+      background-color: #f8f9fa;
+      color: #6c757d;
+      cursor: not-allowed;
+    }
+
     .error-message {
       color: #dc3545;
       font-size: 12px;
@@ -235,8 +243,11 @@ export class CreateReminderModalComponent implements OnChanges {
   @Input() isVisible = false;
   @Input() preselectedDate: string = '';
   @Input() preselectedTime: string = '';
+  @Input() isEditMode = false;
+  @Input() reminderToEdit: CalendarEvent | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() reminderCreated = new EventEmitter<CalendarEvent>();
+  @Output() reminderUpdated = new EventEmitter<CalendarEvent>();
 
   reminderForm: FormGroup;
   isSubmitting = false;
@@ -276,7 +287,14 @@ export class CreateReminderModalComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['preselectedDate']?.currentValue) {
+    // Manejar cambios en el modo de edición
+    if (changes['isEditMode'] || changes['reminderToEdit']) {
+      if (this.isEditMode && this.reminderToEdit) {
+        this.populateFormForEdit();
+      }
+    }
+
+    if (changes['preselectedDate']?.currentValue && !this.isEditMode) {
       this.reminderForm.patchValue({ fecha: this.preselectedDate });
       
       // Si la fecha preseleccionada es hoy, usar una hora válida
@@ -294,13 +312,17 @@ export class CreateReminderModalComponent implements OnChanges {
         this.reminderForm.get('hora')?.updateValueAndValidity();
       }, 0);
     }
-    if (changes['preselectedTime']?.currentValue) {
+    if (changes['preselectedTime']?.currentValue && !this.isEditMode) {
       this.reminderForm.patchValue({ hora: this.preselectedTime });
     }
     
     if (changes['isVisible']?.currentValue && (this.preselectedDate || this.preselectedTime)) {
       setTimeout(() => {
-        document.getElementById('titulo')?.focus();
+        if (!this.isEditMode) {
+          document.getElementById('titulo')?.focus();
+        } else {
+          document.getElementById('fecha')?.focus();
+        }
       }, 100);
     }
   }
@@ -374,24 +396,47 @@ export class CreateReminderModalComponent implements OnChanges {
         }
       }
 
-      this.calendarService.createReminder(formValue.titulo, dateTime).subscribe({
-        next: (event) => {
-          this.reminderCreated.emit(event);
-          this.onClose();
-          this.isSubmitting = false;
-        },
-        error: (error) => {
-          console.error('Error creating reminder:', error);
-          if (error.message.includes('autenticado')) {
-            this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
-          } else if (error.message.includes('fecha')) {
-            this.errorMessage = 'La fecha del recordatorio debe ser futura.';
-          } else {
-            this.errorMessage = 'Error al crear el recordatorio. Por favor, intenta nuevamente.';
+      if (this.isEditMode && this.reminderToEdit?.id) {
+        // Actualizar recordatorio existente
+        this.calendarService.updateReminder(this.reminderToEdit.id, formValue.titulo, dateTime).subscribe({
+          next: (event) => {
+            this.reminderUpdated.emit(event);
+            this.onClose();
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            console.error('Error updating reminder:', error);
+            if (error.message.includes('autenticado')) {
+              this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+            } else if (error.message.includes('fecha')) {
+              this.errorMessage = 'La fecha del recordatorio debe ser futura.';
+            } else {
+              this.errorMessage = 'Error al actualizar el recordatorio. Por favor, intenta nuevamente.';
+            }
+            this.isSubmitting = false;
           }
-          this.isSubmitting = false;
-        }
-      });
+        });
+      } else {
+        // Crear nuevo recordatorio
+        this.calendarService.createReminder(formValue.titulo, dateTime).subscribe({
+          next: (event) => {
+            this.reminderCreated.emit(event);
+            this.onClose();
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            console.error('Error creating reminder:', error);
+            if (error.message.includes('autenticado')) {
+              this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+            } else if (error.message.includes('fecha')) {
+              this.errorMessage = 'La fecha del recordatorio debe ser futura.';
+            } else {
+              this.errorMessage = 'Error al crear el recordatorio. Por favor, intenta nuevamente.';
+            }
+            this.isSubmitting = false;
+          }
+        });
+      }
     }
   }
 
@@ -401,7 +446,9 @@ export class CreateReminderModalComponent implements OnChanges {
 
   private resetForm(): void {
     this.reminderForm.reset();
-    this.setMinDate();
+    if (!this.isEditMode) {
+      this.setMinDate();
+    }
     this.isSubmitting = false;
     this.errorMessage = '';
     
@@ -490,4 +537,25 @@ export class CreateReminderModalComponent implements OnChanges {
     
     return null;
   };
+
+  private populateFormForEdit(): void {
+    if (!this.reminderToEdit) return;
+    
+    // Extraer fecha y hora del datetime
+    const startDate = new Date(this.reminderToEdit.start);
+    const fecha = startDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    const hora = startDate.toTimeString().slice(0, 5); // HH:MM
+    
+    this.reminderForm.patchValue({
+      titulo: this.reminderToEdit.title,
+      fecha: fecha,
+      hora: hora
+    });
+    
+    // Revalidar después de poblar
+    setTimeout(() => {
+      this.reminderForm.get('fecha')?.updateValueAndValidity();
+      this.reminderForm.get('hora')?.updateValueAndValidity();
+    }, 0);
+  }
 }
