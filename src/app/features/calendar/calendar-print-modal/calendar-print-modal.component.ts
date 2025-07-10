@@ -67,11 +67,13 @@ export class CalendarPrintModalComponent implements OnChanges {
 
   weekDays: any[] = [];
   timeSlots: string[] = [];
-  weekDayNames: string[] = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
-  monthNames: string[] = [
+  private static readonly WEEK_DAY_NAMES = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+  private static readonly MONTH_NAMES = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
+  weekDayNames: string[] = CalendarPrintModalComponent.WEEK_DAY_NAMES;
+  monthNames: string[] = CalendarPrintModalComponent.MONTH_NAMES;
 
   ngOnChanges(): void {
     this.generateTimeSlots();
@@ -87,11 +89,7 @@ export class CalendarPrintModalComponent implements OnChanges {
   }
 
   private generateCurrentWeek(): void {
-    const startOfWeek = new Date(this.currentDate);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day;
-    startOfWeek.setDate(diff);
-
+    const startOfWeek = this.getStartOfWeek(this.currentDate);
     this.weekDays = [];
     const current = new Date(startOfWeek);
 
@@ -103,6 +101,14 @@ export class CalendarPrintModalComponent implements OnChanges {
       });
       current.setDate(current.getDate() + 1);
     }
+  }
+
+  private getStartOfWeek(date: Date): Date {
+    const startOfWeek = new Date(date);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day;
+    startOfWeek.setDate(diff);
+    return startOfWeek;
   }
 
   getCurrentWeekTitle(): string {
@@ -120,19 +126,20 @@ export class CalendarPrintModalComponent implements OnChanges {
   getEventsForDayAndTime(date: Date, timeSlot: string): any[] {
     if (!this.events || this.events.length === 0) return [];
     
-    const targetDate = new Date(date);
     const targetHour = parseInt(timeSlot.split(':')[0]);
     
     return this.events.filter(event => {
       const eventDate = new Date(event.start);
-      return eventDate.toDateString() === targetDate.toDateString() && 
-             eventDate.getHours() === targetHour;
+      return this.isSameDay(eventDate, date) && eventDate.getHours() === targetHour;
     });
   }
 
+  private isSameDay(date1: Date, date2: Date): boolean {
+    return date1.toDateString() === date2.toDateString();
+  }
+
   formatEventDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
+    return new Date(dateString).toLocaleDateString('es-ES', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',

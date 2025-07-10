@@ -212,11 +212,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // Calendar properties
     currentDate: Date = new Date();
     calendarDays: any[] = [];
-    weekDays: string[] = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
-    months: string[] = [
+    private static readonly WEEK_DAYS = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+    private static readonly MONTHS = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
+    weekDays: string[] = CalendarComponent.WEEK_DAYS;
+    months: string[] = CalendarComponent.MONTHS;
     timeSlots: string[] = [];
     weekStart: Date = new Date();
     weekEnd: Date = new Date();
@@ -339,10 +341,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     private generateWeekView(): void {
-      const startOfWeek = new Date(this.currentDate);
-      const day = startOfWeek.getDay();
-      const diff = startOfWeek.getDate() - day;
-      startOfWeek.setDate(diff);
+      const startOfWeek = this.getStartOfWeek(this.currentDate);
       
       this.weekStart = new Date(startOfWeek);
       this.weekEnd = new Date(startOfWeek);
@@ -362,6 +361,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
       }
     }
 
+    private getStartOfWeek(date: Date): Date {
+      const startOfWeek = new Date(date);
+      const day = startOfWeek.getDay();
+      const diff = startOfWeek.getDate() - day;
+      startOfWeek.setDate(diff);
+      return startOfWeek;
+    }
+
     private generateDayView(): void {
       const dayEvents = this.getEventsForDate(this.currentDate);
       this.calendarDays = [{
@@ -372,15 +379,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     private getEventsForDate(date: Date): CalendarEvent[] {
-      return this.events.filter(event => {
-        const eventDate = new Date(event.start);
-        return eventDate.toDateString() === date.toDateString();
-      });
+      return this.events.filter(event => 
+        this.isSameDay(new Date(event.start), date)
+      );
     }
 
     private isToday(date: Date): boolean {
-      const today = new Date();
-      return date.toDateString() === today.toDateString();
+      return this.isSameDay(date, new Date());
     }
 
     private isSameDay(date1: Date, date2: Date): boolean {
@@ -589,8 +594,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     formatEventDate(dateString: string): string {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', {
+      return new Date(dateString).toLocaleDateString('es-ES', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -695,63 +699,40 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // Validation methods
     isValidFutureDate(date: Date): boolean {
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Reset time to start of day
+      today.setHours(0, 0, 0, 0);
       const checkDate = new Date(date);
-      checkDate.setHours(0, 0, 0, 0); // Reset time to start of day
+      checkDate.setHours(0, 0, 0, 0);
       return checkDate >= today;
     }
 
     isValidTimeForToday(timeSlot: string): boolean {
       const now = new Date();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      
       const [slotHour, slotMinute] = timeSlot.split(':').map(Number);
       
-      // Crear fechas completas para comparar con precisión
       const currentDateTime = new Date();
-      currentDateTime.setHours(currentHour, currentMinute, 0, 0);
+      currentDateTime.setHours(now.getHours(), now.getMinutes(), 0, 0);
       
       const slotDateTime = new Date();
       slotDateTime.setHours(slotHour, slotMinute, 0, 0);
       
-      // Permitir si la hora del slot es posterior a la actual
       return slotDateTime > currentDateTime;
     }
 
     private getValidTimeForToday(): string {
       const now = new Date();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      
-      // Usar la próxima hora completa si ya pasamos algunos minutos
-      let nextHour = currentHour;
-      if (currentMinute >= 30) { // Si han pasado más de 30 minutos, usar la siguiente hora
+      let nextHour = now.getHours();
+      if (now.getMinutes() >= 30) {
         nextHour += 1;
       }
       
       // Asegurar que esté dentro del rango de timeSlots (6-22)
-      if (nextHour < 6) {
-        nextHour = 6;
-      } else if (nextHour > 22) {
-        nextHour = 22;
-      }
+      nextHour = Math.max(6, Math.min(22, nextHour));
       
       return `${nextHour.toString().padStart(2, '0')}:00`;
     }
 
     isValidTimeSlot(day: any, timeSlot: string): boolean {
-      // Primero validar que la fecha sea válida
-      if (!this.isValidFutureDate(day.date)) {
-        return false;
-      }
-      
-      // Si es hoy, validar que la hora sea válida
-      if (this.isToday(day.date)) {
-        return this.isValidTimeForToday(timeSlot);
-      }
-      
-      // Si es una fecha futura, todas las horas son válidas
-      return true;
+      return this.isValidFutureDate(day.date) && 
+             (!this.isToday(day.date) || this.isValidTimeForToday(timeSlot));
     }
 }

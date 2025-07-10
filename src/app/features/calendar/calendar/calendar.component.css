@@ -164,26 +164,11 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.print-btn { 
-  background: #8b5cf6;
-}
-
 .create-btn { 
   background: #a855f7;
 }
 
-.nav-btn {
-  border: 1px solid #d1d5db;
-  background: transparent;
-  color: #374151;
-  font-size: 14px;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-block;
-  white-space: nowrap;
-}
+
 
 /* Estilos para el calendario nativo de Angular */
 
@@ -592,34 +577,28 @@
 
 /* Disabled dates and time slots */
 .past-date {
-  opacity: 0.4;
+  opacity: 0.6;
   cursor: not-allowed !important;
-  background-color: #f9f9f9;
-  color: #9ca3af;
+  background-color: #e5e7eb !important;
+  color: #6b7280;
+  border: 1px solid #d1d5db !important;
 }
 
 .past-date:hover {
-  background-color: #f9f9f9 !important;
+  background-color: #e5e7eb !important;
   cursor: not-allowed !important;
-}
-
-.past-date .day-number {
-  color: #9ca3af;
-}
-
-.past-date .day-events {
-  opacity: 0.6;
 }
 
 .past-time {
-  opacity: 0.4;
+  opacity: 0.6;
   cursor: not-allowed !important;
-  background-color: #f9f9f9;
+  background-color: #e5e7eb !important;
   pointer-events: none;
+  border: 1px solid #d1d5db !important;
 }
 
 .past-time:hover {
-  background-color: #f9f9f9 !important;
+  background-color: #e5e7eb !important;
   cursor: not-allowed !important;
 }
 
@@ -643,26 +622,8 @@
 /* Style for time slots that are not selectable */
 .time-slot.past-time,
 .time-slot-day.past-time {
-  position: relative;
-}
-
-.time-slot.past-time::before,
-.time-slot-day.past-time::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 5px,
-    rgba(156, 163, 175, 0.1) 5px,
-    rgba(156, 163, 175, 0.1) 10px
-  );
-  pointer-events: none;
-  z-index: 1;
+  background-color: #e5e7eb !important;
+  border: 1px solid #d1d5db !important;
 }
 
 /* Responsive adjustments */

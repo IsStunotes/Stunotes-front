@@ -177,16 +177,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.print-btn { 
-    background: #8b5cf6;
-}
-
-.print-btn:hover {
-    background: #7c3aed;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
 .pdf-btn {
     background: #a855f7;
 }
