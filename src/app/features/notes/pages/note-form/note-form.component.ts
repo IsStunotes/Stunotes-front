@@ -169,12 +169,11 @@ export class NoteFormComponent implements OnInit {
             if (callback) callback();
          },
          error: (error) => {
-            console.log(error);
             if( error.status === 404) {
                Swal.fire('Error', 'No se encontraron colecciones. Debe crear una colección antes de crear una nota.', 'error');
                this.router.navigate(['/notes']);
             } else {
-               console.log('note-form.component.ts -> Error al cargar las colecciones:', 'error');
+               //console.log('note-form.component.ts -> Error al cargar las colecciones:', 'error');
                Swal.fire('Error', 'Error al cargar las colecciones, debe crear una colección antes de crear una nota', 'error');
             }
          }
