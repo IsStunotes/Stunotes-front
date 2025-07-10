@@ -267,7 +267,7 @@ export class NoteListComponent implements OnInit {
          },
          error: (error) => {
          console.error('Error al cargar colecciones:', error);
-         this.showError('Error al cargar las colecciones');
+         //this.showError('Error al cargar las colecciones');
          }
       });
       this.updateVisibleCollections();
