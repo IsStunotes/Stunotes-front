@@ -450,7 +450,6 @@
   background-color: #2563eb;
 }
 
-/* Event Options Modal */
 .event-options-overlay {
   position: fixed;
   top: 0;
@@ -561,7 +560,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Disabled dates and time slots */
 .past-date {
   opacity: 0.6;
   cursor: not-allowed !important;
@@ -596,7 +594,6 @@
   background-color: #f3f4f6;
 }
 
-/* Ensure events on past dates are still clickable */
 .past-date .event-item-month,
 .past-date .event-item-week,
 .past-date .event-item-day {
@@ -605,14 +602,12 @@
   opacity: 1;
 }
 
-/* Style for time slots that are not selectable */
 .time-slot.past-time,
 .time-slot-day.past-time {
   background-color: #e5e7eb !important;
   border: 1px solid #d1d5db !important;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .event-options-modal {
     min-width: 260px;

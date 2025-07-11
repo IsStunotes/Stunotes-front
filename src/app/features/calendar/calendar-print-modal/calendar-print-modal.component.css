@@ -103,8 +103,6 @@
     background: #4b5563;
 }
 
-/* Estilos para la vista de impresión del calendario semanal */
-
 .print-header {
   text-align: center;
   margin-bottom: 20px;
@@ -228,7 +226,6 @@
   line-height: 1.2;
 }
 
-/* Estilos para impresión */
 @page {
   size: A4 landscape;
   margin: 10mm;
@@ -265,13 +262,11 @@
     background: white;
   }
   
-  /* Ocultar elementos que no deben imprimirse */
   .no-print,
   .modal-footer {
     display: none !important;
   }
-  
-  /* Optimizar el calendario para impresión A4 horizontal */
+
   .weekly-calendar-preview {
     page-break-inside: avoid;
     width: 100%;
@@ -330,7 +325,6 @@
   }
 }
 
-/* Ajustes para mejor visualización en el modal */
 @media screen {
   .weekly-calendar-preview {
     border: 1px solid #e5e7eb;

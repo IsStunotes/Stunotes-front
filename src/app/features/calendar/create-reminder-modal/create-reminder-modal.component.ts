@@ -2,7 +2,7 @@ import { Component, Output, EventEmitter, Input, OnChanges, SimpleChanges } from
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CalendarService } from '../../../services/calendar.service';
-import { CalendarEvent } from '../../../models/reminder.model';
+import { CalendarEvent, ActivityResponse } from '../../../models/reminder.model';
 
 @Component({
   selector: 'app-create-reminder-modal',
@@ -63,6 +63,40 @@ import { CalendarEvent } from '../../../models/reminder.model';
             <div class="error-message" *ngIf="reminderForm.get('hora')?.invalid && reminderForm.get('hora')?.touched">
               <span *ngIf="reminderForm.get('hora')?.errors?.['required']">La hora es obligatoria</span>
               <span *ngIf="reminderForm.get('hora')?.errors?.['pastTime']">No puedes seleccionar una hora pasada</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="actividad">Tarea (Opcional)</label>
+            <select 
+              id="actividad" 
+              formControlName="activityId"
+              class="form-control"
+            >
+              <option value="">-- Seleccionar una tarea --</option>
+              <option 
+                *ngFor="let task of activities" 
+                [value]="task.id"
+              >
+                {{ task.title }} {{ getCategoryName(task) ? '(' + getCategoryName(task) + ')' : '' }}
+              </option>
+            </select>
+            <div class="no-tasks-message" *ngIf="activities.length === 0">
+              <small>No hay tareas activas disponibles</small>
+            </div>
+            <div class="activity-info" *ngIf="selectedActivity">
+              <div class="activity-detail">
+                <strong>Descripción:</strong> 
+                {{ selectedActivity.description || 'Sin descripción' }}
+              </div>
+              <div class="activity-detail">
+                <strong>Prioridad:</strong> 
+                {{ getPriorityText(selectedActivity.priority) }}
+              </div>
+              <div class="activity-detail">
+                <strong>Categoría:</strong> 
+                {{ getCategoryName(selectedActivity) }}
+              </div>
             </div>
           </div>
 
@@ -237,6 +271,68 @@ import { CalendarEvent } from '../../../models/reminder.model';
       border-radius: 4px;
       border: 1px solid #f5c6cb;
     }
+
+    .activity-info {
+      margin-top: 8px;
+      padding: 12px;
+      background-color: #f8f9fa !important;
+      border-radius: 4px;
+      border: 1px solid #e9ecef;
+      color: #495057 !important;
+    }
+
+    .activity-info * {
+      color: #495057 !important;
+    }
+
+    .activity-info strong {
+      color: #343a40 !important;
+      font-weight: 600;
+    }
+
+    .activity-info small {
+      color: #495057 !important;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .activity-info div {
+      color: #495057 !important;
+      margin-bottom: 4px;
+    }
+
+    .activity-info span {
+      color: #495057 !important;
+    }
+
+    .activity-detail {
+      margin-bottom: 6px;
+      font-size: 0.875rem;
+      color: #495057 !important;
+    }
+
+    .activity-detail:last-child {
+      margin-bottom: 0;
+    }
+
+    .no-tasks-message {
+      margin-top: 5px;
+      color: #6c757d;
+      font-style: italic;
+    }
+
+    .no-tasks-message small {
+      color: #6c757d;
+    }
+
+    select.form-control {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 8px center;
+      background-repeat: no-repeat;
+      background-size: 16px;
+      padding-right: 40px;
+      appearance: none;
+    }
   `]
 })
 export class CreateReminderModalComponent implements OnChanges {
@@ -252,6 +348,8 @@ export class CreateReminderModalComponent implements OnChanges {
   reminderForm: FormGroup;
   isSubmitting = false;
   errorMessage = '';
+  activities: ActivityResponse[] = [];
+  selectedActivity: ActivityResponse | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -260,12 +358,12 @@ export class CreateReminderModalComponent implements OnChanges {
     this.reminderForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(1)]],
       fecha: ['', [Validators.required, this.pastDateValidator]],
-      hora: ['', [Validators.required, this.pastTimeValidator]]
+      hora: ['', [Validators.required, this.pastTimeValidator]],
+      activityId: [{value: '', disabled: false}]
     });
 
     this.setMinDate();
     
-    // Listener para revalidar la hora cuando cambie la fecha
     this.reminderForm.get('fecha')?.valueChanges.subscribe((selectedDate) => {
       if (selectedDate && this.isToday(selectedDate)) {
         const defaultTime = this.getDefaultTimeForToday();
@@ -276,13 +374,56 @@ export class CreateReminderModalComponent implements OnChanges {
         this.reminderForm.get('hora')?.updateValueAndValidity();
       }, 0);
     });
+
+    this.reminderForm.get('activityId')?.valueChanges.subscribe((activityId) => {
+      if (activityId && this.activities.length > 0) {
+        this.selectedActivity = this.activities.find(a => a.id.toString() === activityId.toString()) || null;
+      } else {
+        this.selectedActivity = null;
+      }
+    });
+  }
+
+  private loadActivities(): void {
+    this.calendarService.getActiveUserActivities().subscribe({
+      next: (activities: ActivityResponse[]) => {
+        this.activities = activities;
+        
+        const activityControl = this.reminderForm.get('activityId');
+        if (this.activities.length === 0) {
+          activityControl?.disable();
+        } else {
+          activityControl?.enable();
+        }
+      },
+      error: () => {
+        this.activities = [];
+        this.reminderForm.get('activityId')?.disable();
+      }
+    });
+  }
+
+  getPriorityText(priority: number): string {
+    const priorities = { 1: 'Baja', 2: 'Media', 3: 'Alta' };
+    return priorities[priority as keyof typeof priorities] || 'Sin prioridad';
+  }
+
+  getCategoryName(activity: ActivityResponse | any): string {
+    if (!activity) return 'Sin categoría';
+    return activity.categoryName || activity.category?.name || 'Sin categoría';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Manejar cambios en el modo de edición
+    if (changes['isVisible']?.currentValue && !changes['isVisible']?.previousValue) {
+      this.loadActivities();
+    }
+
     if (changes['isEditMode'] || changes['reminderToEdit']) {
       if (this.isEditMode && this.reminderToEdit) {
-        this.populateFormForEdit();
+        this.loadActivities();
+        setTimeout(() => {
+          this.populateFormForEdit();
+        }, 100);
       }
     }
 
@@ -315,33 +456,23 @@ export class CreateReminderModalComponent implements OnChanges {
 
   private setMinDate(): void {
     const today = new Date();
-    const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const day = today.getDate().toString().padStart(2, '0');
-    const minDate = `${year}-${month}-${day}`;
+    const minDate = today.toISOString().split('T')[0];
     
-    // Establecer la fecha de hoy por defecto
-    this.reminderForm.patchValue({ fecha: minDate }, { emitEvent: false });
+    this.reminderForm.patchValue({ 
+      fecha: minDate,
+      hora: this.getDefaultTimeForToday()
+    }, { emitEvent: false });
     
-    // Establecer una hora por defecto que sea válida (1 hora después de la actual)
-    const defaultTime = this.getDefaultTimeForToday();
-    this.reminderForm.patchValue({ hora: defaultTime }, { emitEvent: false });
-    
-    // Marcar como no tocado para evitar errores de validación iniciales
     this.reminderForm.markAsUntouched();
     this.reminderForm.markAsPristine();
   }
 
   private getDefaultTimeForToday(): string {
     const now = new Date();
-    const nextHour = now.getHours() + 1; // 1 hora después de la actual
-    const minutes = '00'; // Redondear a la hora completa
+    const nextHour = Math.min(now.getHours() + 1, 23);
+    const minutes = nextHour === 23 ? '59' : '00';
     
-    // Asegurar que no exceda las 23:59
-    const finalHour = nextHour > 23 ? 23 : nextHour;
-    const finalMinutes = nextHour > 23 ? '59' : minutes;
-    
-    return `${finalHour.toString().padStart(2, '0')}:${finalMinutes}`;
+    return `${nextHour.toString().padStart(2, '0')}:${minutes}`;
   }
 
   onClose(): void {
@@ -384,7 +515,8 @@ export class CreateReminderModalComponent implements OnChanges {
 
       if (this.isEditMode && this.reminderToEdit?.id) {
         // Actualizar recordatorio existente
-        this.calendarService.updateReminder(this.reminderToEdit.id, formValue.titulo, dateTime).subscribe({
+        const activityId = formValue.activityId ? parseInt(formValue.activityId) : undefined;
+        this.calendarService.updateReminder(this.reminderToEdit.id, formValue.titulo, dateTime, activityId).subscribe({
           next: (event) => {
             this.reminderUpdated.emit(event);
             this.onClose();
@@ -403,8 +535,9 @@ export class CreateReminderModalComponent implements OnChanges {
           }
         });
       } else {
-        // Crear nuevo recordatorio
-        this.calendarService.createReminder(formValue.titulo, dateTime).subscribe({
+        // Crear nuevo recordatorio con actividad opcional
+        const activityId = formValue.activityId ? parseInt(formValue.activityId) : undefined;
+        this.calendarService.createReminder(formValue.titulo, dateTime, activityId).subscribe({
           next: (event) => {
             this.reminderCreated.emit(event);
             this.onClose();
@@ -437,30 +570,25 @@ export class CreateReminderModalComponent implements OnChanges {
     }
     this.isSubmitting = false;
     this.errorMessage = '';
+    this.selectedActivity = null;
+    this.activities = [];
     
-    // Limpiar todos los estados de validación
+    this.reminderForm.get('activityId')?.enable();
     Object.keys(this.reminderForm.controls).forEach(key => {
       this.reminderForm.get(key)?.setErrors(null);
     });
   }
 
-  // Validation methods
   getMinDate(): string {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const day = today.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return new Date().toISOString().split('T')[0];
   }
 
   getMinTime(): string | null {
     const selectedDate = this.reminderForm.get('fecha')?.value;
     if (!selectedDate || !this.isToday(selectedDate)) return null;
     
-    const today = new Date();
-    const nextHour = today.getHours() + 1;
-    
-    return nextHour > 23 ? '23:59' : `${nextHour.toString().padStart(2, '0')}:00`;
+    const nextHour = Math.min(new Date().getHours() + 1, 23);
+    return nextHour === 23 ? '23:59' : `${nextHour.toString().padStart(2, '0')}:00`;
   }
 
   pastDateValidator = (control: any) => {
@@ -484,25 +612,18 @@ export class CreateReminderModalComponent implements OnChanges {
   };
 
   private isToday(dateString: string): boolean {
-    const today = new Date();
+    const today = new Date().toDateString();
     const [year, month, day] = dateString.split('-').map(Number);
-    const selected = new Date(year, month - 1, day);
-    
-    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const selectedDateOnly = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
-    
-    return selectedDateOnly.getTime() === todayDateOnly.getTime();
+    const selected = new Date(year, month - 1, day).toDateString();
+    return selected === today;
   }
 
   private isPastDate(dateString: string): boolean {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const [year, month, day] = dateString.split('-').map(Number);
     const selected = new Date(year, month - 1, day);
-    
-    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const selectedDateOnly = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
-    
-    return selectedDateOnly < todayDateOnly;
+    return selected < today;
   }
 
   private populateFormForEdit(): void {
@@ -515,7 +636,8 @@ export class CreateReminderModalComponent implements OnChanges {
     this.reminderForm.patchValue({
       titulo: this.reminderToEdit.title,
       fecha: fecha,
-      hora: hora
+      hora: hora,
+      activityId: this.reminderToEdit.activityId?.toString() || ''
     });
     
     setTimeout(() => {

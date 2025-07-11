@@ -154,7 +154,6 @@ import Swal from 'sweetalert2';
             (reminderUpdated)="onReminderUpdated($event)">
         </app-create-reminder-modal>
 
-        <!-- Modal de opciones de evento -->
         <div *ngIf="showEventOptionsModal" 
              class="event-options-modal"
              [style.left.px]="modalPosition.x"
@@ -178,7 +177,6 @@ import Swal from 'sweetalert2';
           </div>
         </div>
 
-        <!-- Overlay para cerrar el modal -->
         <div *ngIf="showEventOptionsModal" 
              class="event-options-overlay" 
              (click)="closeEventOptionsModal()">
@@ -268,7 +266,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     private updateCalendarEvents(): void {
-      // Update calendar view when events change
       this.updateCalendarView();
       console.log('Events updated:', this.events.length);
     }
@@ -397,7 +394,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     onDateClick(day: any): void {
-      // Validar que la fecha no sea anterior a hoy
       if (!this.isValidFutureDate(day.date)) {
         Swal.fire('Error', 'No puedes crear recordatorios en fechas pasadas.', 'error');
         return;
@@ -405,7 +401,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
       this.selectedDate = day.date.toISOString().split('T')[0];
       
-      // Si es hoy, validar que la hora no sea anterior a la actual
       if (this.isToday(day.date)) {
         this.selectedTime = this.getValidTimeForToday();
       } else {
@@ -416,13 +411,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     onTimeSlotClick(day: any, timeSlot: string): void {
-      // Validar que la fecha no sea anterior a hoy
       if (!this.isValidFutureDate(day.date)) {
         Swal.fire('Error', 'No puedes crear recordatorios en fechas pasadas.', 'error');
         return;
       }
 
-      // Validar que la hora no sea anterior a la actual si es hoy
       if (this.isToday(day.date) && !this.isValidTimeForToday(timeSlot)) {
         Swal.fire('Error', 'No puedes crear recordatorios en horas pasadas.', 'error');
         return;
@@ -534,12 +527,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
     handleEventClick(event: CalendarEvent, mouseEvent?: MouseEvent): void {
       this.selectedEvent = event;
       
-      // Calcular posición del modal basada en la posición del mouse
       if (mouseEvent) {
         this.modalPosition.x = mouseEvent.clientX;
         this.modalPosition.y = mouseEvent.clientY;
       } else {
-        // Posición por defecto si no hay evento de mouse
         this.modalPosition.x = window.innerWidth / 2 - 150;
         this.modalPosition.y = window.innerHeight / 2 - 100;
       }
@@ -555,13 +546,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
     updateReminder(): void {
       if (!this.selectedEvent) return;
       
-      // Configurar el modal para modo edición
       this.isEditMode = true;
       this.reminderToEdit = this.selectedEvent;
       this.selectedDate = '';
       this.selectedTime = '';
       
-      // Abrir el modal
       this.showCreateReminderModal = true;
       this.closeEventOptionsModal();
     }
@@ -672,7 +661,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Validation methods
+
     isValidFutureDate(date: Date): boolean {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -701,7 +690,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
         nextHour += 1;
       }
       
-      // Asegurar que esté dentro del rango de timeSlots (6-22)
       nextHour = Math.max(6, Math.min(22, nextHour));
       
       return `${nextHour.toString().padStart(2, '0')}:00`;

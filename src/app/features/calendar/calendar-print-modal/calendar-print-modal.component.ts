@@ -19,7 +19,6 @@ import jsPDF from 'jspdf';
             </div>
             
             <div class="weekly-calendar-preview">
-              <!-- Header de días -->
               <div class="week-header-print">
                 <div class="time-column-header-print"></div>
                 <div *ngFor="let day of weekDays" class="day-header-print">
@@ -28,7 +27,6 @@ import jsPDF from 'jspdf';
                 </div>
               </div>
               
-              <!-- Grid de horarios -->
               <div class="week-grid-print">
                 <div *ngFor="let timeSlot of timeSlots" class="time-row-print">
                   <div class="time-label-print">{{ timeSlot }}</div>
@@ -78,7 +76,6 @@ export class CalendarPrintModalComponent implements OnChanges {
   ];
 
   constructor() {
-    // Inicializar las horas al crear el componente
     this.generateTimeSlots();
     this.generateCurrentWeek();
   }
@@ -137,14 +134,12 @@ export class CalendarPrintModalComponent implements OnChanges {
   getEventsForDayAndTime(date: Date, timeSlot: string): any[] {
     if (!this.events || this.events.length === 0) return [];
     
-    // Extraer la hora de inicio del rango (ej: "06:00-08:00" -> 6)
     const startHour = parseInt(timeSlot.split(':')[0]);
     const endHour = startHour + 2;
     
     return this.events.filter(event => {
       const eventDate = new Date(event.start);
       const eventHour = eventDate.getHours();
-      // Incluir eventos que estén en este rango de 2 horas
       return this.isSameDay(eventDate, date) && eventHour >= startHour && eventHour < endHour;
     });
   }
@@ -164,9 +159,8 @@ export class CalendarPrintModalComponent implements OnChanges {
       return;
     }
 
-    // Configurar opciones para html2canvas
     const options = {
-      scale: 1.2, // Escala optimizada
+      scale: 1.2, 
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
@@ -183,19 +177,16 @@ export class CalendarPrintModalComponent implements OnChanges {
     };
 
     html2canvas(element, options).then(canvas => {
-      // Crear un elemento de imagen temporal
       const img = document.createElement('img');
       img.src = canvas.toDataURL('image/png');
       img.style.width = '100%';
       img.style.height = 'auto';
 
-      // Crear un contenedor temporal para la impresión
       const printContainer = document.createElement('div');
       printContainer.style.display = 'none';
       printContainer.id = 'temp-print-container';
       printContainer.appendChild(img);
 
-      // Agregar estilos para impresión
       const printStyles = document.createElement('style');
       printStyles.innerHTML = `
         @page {
@@ -243,15 +234,13 @@ export class CalendarPrintModalComponent implements OnChanges {
         }
       `;
 
-      // Agregar elementos al DOM
+
       document.head.appendChild(printStyles);
       document.body.appendChild(printContainer);
 
-      // Ejecutar impresión
       setTimeout(() => {
         window.print();
         
-        // Limpiar elementos temporales después de imprimir
         setTimeout(() => {
           document.head.removeChild(printStyles);
           document.body.removeChild(printContainer);
@@ -273,9 +262,8 @@ export class CalendarPrintModalComponent implements OnChanges {
       return;
     }
 
-    // Configurar opciones para html2canvas
     const options = {
-      scale: 1.5, // Escala reducida para mejor captura
+      scale: 1.5, 
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
@@ -290,41 +278,33 @@ export class CalendarPrintModalComponent implements OnChanges {
     html2canvas(element, options).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       
-      // Crear el PDF
       const pdf = new jsPDF({
-        orientation: 'landscape', // Orientación horizontal
+        orientation: 'landscape', 
         unit: 'mm',
         format: 'a4'
       });
 
-      // Calcular dimensiones
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      
-      // Calcular la escala para ajustar la imagen al PDF
       const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
       const scaledWidth = imgWidth * ratio;
       const scaledHeight = imgHeight * ratio;
       
-      // Centrar la imagen en el PDF
       const x = (pdfWidth - scaledWidth) / 2;
       const y = (pdfHeight - scaledHeight) / 2;
 
-      // Agregar la imagen al PDF solo si tiene contenido válido
       if (scaledWidth > 0 && scaledHeight > 0) {
         pdf.addImage(imgData, 'PNG', x, y, scaledWidth, scaledHeight);
       }
       
-      // Generar nombre del archivo con formato: horario_fecha_inicio_fecha_final
       const startDate = this.weekDays[0].fullDate;
       const endDate = this.weekDays[6].fullDate;
-      const startDateString = startDate.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-      const endDateString = endDate.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+      const startDateString = startDate.toISOString().split('T')[0]; 
+      const endDateString = endDate.toISOString().split('T')[0]; 
       const fileName = `horario_${startDateString}_${endDateString}.pdf`;
       
-      // Guardar el PDF
       pdf.save(fileName);
     }).catch(error => {
       console.error('Error al generar el PDF:', error);
