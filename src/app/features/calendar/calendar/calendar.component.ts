@@ -687,15 +687,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
     isValidTimeForToday(timeSlot: string): boolean {
       const now = new Date();
       const [slotHour, slotMinute] = timeSlot.split(':').map(Number);
-      
-      const currentDateTime = new Date();
-      currentDateTime.setHours(now.getHours(), now.getMinutes(), 0, 0);
-      
-      const slotDateTime = new Date();
-      slotDateTime.setHours(slotHour, slotMinute, 0, 0);
-      
-      return slotDateTime > currentDateTime;
-    }
+    
+      const slotDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slotHour, slotMinute, 0, 0);
+    
+      return slotDateTime > now;
+    }      
 
     private getValidTimeForToday(): string {
       const now = new Date();

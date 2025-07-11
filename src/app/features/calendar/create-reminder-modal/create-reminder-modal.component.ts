@@ -49,6 +49,10 @@ import Swal from 'sweetalert2';
               <span *ngIf="reminderForm.get('fecha')?.errors?.['required']">La fecha es obligatoria</span>
               <span *ngIf="reminderForm.get('fecha')?.errors?.['pastDate']">No puedes seleccionar una fecha pasada</span>
             </div>
+            <div *ngIf="isSameDayTooClose" class="error-message">
+              No puede ser en el mismo día
+            </div>
+
           </div>
 
           <div class="form-group">
@@ -108,7 +112,7 @@ import Swal from 'sweetalert2';
             <button 
               type="submit" 
               class="btn btn-primary" 
-              [disabled]="reminderForm.invalid || isSubmitting"
+              [disabled]="reminderForm.invalid || isSubmitting || isSameDayTooClose"
             >
               <span *ngIf="isSubmitting">{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
               <span *ngIf="!isSubmitting">{{ isEditMode ? 'Actualizar Recordatorio' : 'Crear Recordatorio' }}</span>
@@ -334,6 +338,7 @@ import Swal from 'sweetalert2';
 })
 export class CreateReminderModalComponent implements OnChanges {
   @Input() isVisible = false;
+  @Input() isSameDayTooClose = false;
   @Input() preselectedDate: string = '';
   @Input() preselectedTime: string = '';
   @Input() isEditMode = false;
@@ -494,18 +499,18 @@ export class CreateReminderModalComponent implements OnChanges {
       const selectedDate = new Date(year, month - 1, day); // month es 0-indexado
       
       if (selectedDate.toDateString() === today.toDateString()) {
-        const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000); // 1 hora desde ahora
-        
-        if (selectedDateTime < oneHourFromNow) {
+        const fifteenMinutesFromNow = new Date(now.getTime() + 15 * 60 * 1000);
+        if (selectedDateTime < fifteenMinutesFromNow) {
           Swal.fire({
             icon: 'warning',
             title: 'Hora inválida',
-            text: 'Para recordatorios de hoy, la hora debe ser al menos 1 hora después de la actual.',
+            text: 'La hora debe ser al menos 15 minutos después de la actual.',
             confirmButtonColor: '#6C47FF'
           });
           this.isSubmitting = false;
           return;
-        }      
+        }
+     
       } else {
         // Para fechas futuras, solo verificar que no sea en el pasado
         if (selectedDateTime <= now) {
@@ -619,19 +624,31 @@ export class CreateReminderModalComponent implements OnChanges {
   };
 
   pastTimeValidator = (control: any) => {
-    if (!control.value) return null;
-    
     const selectedDate = this.reminderForm?.get('fecha')?.value;
-    if (!selectedDate || !this.isToday(selectedDate)) return null;
-    
-    const today = new Date();
-    const [selectedHour, selectedMinute] = control.value.split(':').map(Number);
-    const currentTimeInMinutes = today.getHours() * 60 + today.getMinutes();
-    const selectedTimeInMinutes = selectedHour * 60 + selectedMinute;
-    const oneHourLaterInMinutes = currentTimeInMinutes + 60;
-    
-    return selectedTimeInMinutes < oneHourLaterInMinutes ? { pastTime: true } : null;
-  };
+    const selectedTime = control.value;
+  
+    if (!selectedDate || !selectedTime) {
+      this.isSameDayTooClose = false;
+      return null;
+    }
+  
+    if (!this.isToday(selectedDate)) {
+      this.isSameDayTooClose = false;
+      return null;
+    }
+  
+    const now = new Date();
+    const [hour, minute] = selectedTime.split(':').map(Number);
+    const selectedDateTime = new Date(selectedDate);
+    selectedDateTime.setHours(hour, minute, 0, 0);
+  
+    const fifteenMinutesLater = new Date(now.getTime() + 15 * 60000);
+    const tooSoon = selectedDateTime.getTime() < fifteenMinutesLater.getTime();
+  
+    this.isSameDayTooClose = tooSoon;
+  
+    return tooSoon ? { pastTime: true } : null;
+  };   
 
   private isToday(dateString: string): boolean {
     const today = new Date().toDateString();

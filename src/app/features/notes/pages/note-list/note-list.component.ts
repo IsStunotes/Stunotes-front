@@ -1,5 +1,3 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -12,6 +10,8 @@ import { FooterComponent } from '../../../../shared/components/footer/footer.com
 import { ChatComponent } from '../../../chat/chat.component';
 import { SidebarComponent } from '../../../../shared/components/sidebar/sidebar.component';
 import Swal from 'sweetalert2';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-note-list',
@@ -123,7 +123,7 @@ import Swal from 'sweetalert2';
          <div *ngIf="collections.length === 0" class="no-tasks">
             <i class="fas fa-folder-open"></i>
             <p>No hay colecciones</p>
-            <button class="create-task-btn" (click)="createNewCollection()">
+            <button class="create-task-btn" (click)="openModal()">
                <i class="fas fa-plus"></i> Crear primera colección
             </button>
          </div>
@@ -243,7 +243,7 @@ export class NoteListComponent implements OnInit {
    showAll = false; 
    visibleCollections: CollectionResponse[] = [];
    editCol: boolean = false;
-   
+
    constructor(
       private noteService: NoteService,
       private collectionService: CollectionService,
@@ -260,7 +260,7 @@ export class NoteListComponent implements OnInit {
       this.updateVisibleCollections();
     });
   }
-  
+
 
    loadCollections(callback?: () => void): void {
       this.collectionService.getCollections(this.user.id).subscribe({
@@ -279,8 +279,6 @@ export class NoteListComponent implements OnInit {
    loadNotes(): void {
       this.loading = true;
       this.user = JSON.parse(localStorage.getItem('user') || '{}');
-      //console.log('_Usuario actual:', this.user);
-      
       this.noteService.getNotes(
          this.user.id,
          this.selectedCollectionId === 0 ? undefined : this.selectedCollectionId,
@@ -452,8 +450,10 @@ export class NoteListComponent implements OnInit {
    selectCollection(id: number): void {
       this.selectedCollectionId = id;
       this.newCollectionName = this.collections.find(c => c.id === id)?.name || '';
-      console.log('Colección seleccionada ID:', id, this.newCollectionName);
+
+
       this.loadNotes();
+   
       this.showAll = false;
       this.updateVisibleCollections();
    
@@ -466,7 +466,9 @@ export class NoteListComponent implements OnInit {
       }, 100);
    }
  
+
 openModal(editMode:boolean = false) {
+
    this.showModal = true;
    if (editMode && this.selectedCollectionId === 0) {
       Swal.fire('Advertencia', 'Por favor, selecciona una colección para editar', 'warning');
@@ -549,7 +551,7 @@ editCollection(){
    } else {
       this.showError('Por favor, selecciona una colección para editar');
    }  
-   
+
 }
 
 deleteCollection() {
