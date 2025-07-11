@@ -92,7 +92,7 @@ import Swal from 'sweetalert2';
               <div *ngFor="let day of calendarDays" 
                    class="day-header-week"
                    [class.today]="day.isToday">
-                <div class="day-name">{{ weekDays[day.date.getDay()] }}</div>
+                <div class="day-name">{{ getWeekDayName(day.date) }}</div>
                 <div class="day-number">{{ day.date.getDate() }}</div>
               </div>
             </div>
@@ -205,7 +205,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // Calendar properties
     currentDate: Date = new Date();
     calendarDays: any[] = [];
-    weekDays: string[] = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+    weekDays: string[] = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
     months: string[] = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -309,7 +309,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
       const startDate = new Date(firstDay);
-      startDate.setDate(startDate.getDate() - firstDay.getDay());
+      
+      const dayOfWeek = firstDay.getDay();
+      const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      startDate.setDate(startDate.getDate() - mondayOffset);
 
       this.calendarDays = [];
       const current = new Date(startDate);
@@ -354,9 +357,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private getStartOfWeek(date: Date): Date {
       const startOfWeek = new Date(date);
       const day = startOfWeek.getDay();
-      const diff = startOfWeek.getDate() - day;
+      // Ajustar para que lunes sea 0 en lugar de domingo
+      const mondayOffset = day === 0 ? 6 : day - 1;
+      const diff = startOfWeek.getDate() - mondayOffset;
       startOfWeek.setDate(diff);
       return startOfWeek;
+    }
+
+    getWeekDayName(date: Date): string {
+      const dayOfWeek = date.getDay();
+      // Mapear domingo (0) a índice 6, lunes (1) a índice 0, etc.
+      const adjustedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      return this.weekDays[adjustedDay];
     }
 
     private generateDayView(): void {
