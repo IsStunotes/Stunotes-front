@@ -20,6 +20,9 @@ import Swal from 'sweetalert2';
       <app-navbar></app-navbar>
 
       <div class="form-wrapper">
+        <div class="top-bar">
+  <button class="btn btn-secondary" (click)="cancelar()">← Volver</button>
+</div>
         <h2 class="form-title">📄 Crear Nuevo Documento</h2>
 
         <form (ngSubmit)="guardarDocumento()" #docForm="ngForm">
@@ -159,6 +162,22 @@ import Swal from 'sweetalert2';
     background-color: #654de0;
   }
 
+    .btn-secondary {
+  background-color: #654de0; /* gris suave */
+  color: white;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #672f4bff;
+}
+  `],
   .btn-danger {
     background-color: #ef4444;
   }
@@ -167,6 +186,7 @@ import Swal from 'sweetalert2';
     background-color: #dc2626;
   }
 `],
+
   imports: [CommonModule, FormsModule, NavbarLoggedComponent, FooterComponent, SidebarComponent]
 })
 export class DocumentCreateComponent implements OnInit {
