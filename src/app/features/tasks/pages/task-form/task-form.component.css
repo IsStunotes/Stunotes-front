@@ -1,14 +1,26 @@
 :host {
   background: #f8f9fa;
 }
+.task-form-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 .form-container {
   max-width: 700px;
   margin: 0 auto;
-  background: #f8f9fa;
+  background: white;
   font-family: "Font Awesome 6 Brand", sans-serif; 
-  padding-top: 95px;    
-  padding-left: 200px; 
-  height: calc(100vh - 200px);
+  padding: 40px 32px 32px 32px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  flex: 1 0 auto;
+  padding-left: 32px;
+  padding-top: 95px;
+}
+
+.task-form-page-wrapper app-footer {
+  flex-shrink: 0;
 }
 
 .form-header {

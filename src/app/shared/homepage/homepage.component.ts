@@ -30,8 +30,8 @@ import { SidebarComponent } from "../components/sidebar/sidebar.component";
   <section class="task-section">
     <div class="task-section-header">
       <h2>📌 Tareas por cumplir</h2>
-      <button class="create-task-btn" (click)="crearNuevaTarea()">
-        <span class="plus-icon">+</span> Nueva tarea
+      <button class="see-all-btn" (click)="verTodasLasTareas()">
+      <span class="plus-icon">+</span> Ver tareas
       </button>
     </div>
 
@@ -51,12 +51,12 @@ import { SidebarComponent } from "../components/sidebar/sidebar.component";
   </section>
 
   <section class="repository-section">
-  <div class="repository-section-header">
-    <h2>📁 Repositorios</h2>
-    <button class="create-task-btn" (click)="crearRepositorio()">
-      <span class="plus-icon">+</span> Ver repositorios
-    </button>
-  </div>
+    <div class="repository-section-header">
+      <h2>📁 Repositorios</h2>
+      <button class="see-all-btn" (click)="verTodosRepositorios()">
+        <span class="plus-icon">+</span> Ver repositorios
+      </button>
+    </div>
 
   <div *ngIf="repositorios.length > 0; else noRepos" class="repository-list">
     <div *ngFor="let repo of repositorios" class="repository-card" (click)="irADetalleRepositorio(repo.id)">
@@ -73,6 +73,9 @@ import { SidebarComponent } from "../components/sidebar/sidebar.component";
   <section class="task-section">
     <div class="task-section-header">
       <h2>📄 Documentos creados</h2>
+      <button class="see-all-btn" (click)="verTodosDocumentos()">
+        <span class="plus-icon">+</span> Ver documentos
+      </button>
     </div>
 
     <div *ngIf="documentos.length > 0; else noDocs" class="document-carousel-wrapper">
@@ -126,6 +129,7 @@ export class HomeComponent implements OnInit {
   user: any = null;
   saludo: string = '';
   nextTasks: TaskResponse[] = [];
+  allTasksCount: number = 0;
   documentos: DocumentResponse[] = [];
   repositorios: RepositoryResponse[] = [];
   notes: NoteResponse[] = [];
@@ -163,16 +167,20 @@ export class HomeComponent implements OnInit {
   }
 
   obtenerTareasProximas(): void {
-    this.taskService.getTasks(0, 5, undefined, undefined, 'createdAt', 'asc').subscribe({
+    this.taskService.getTasks(0, 10, undefined, undefined, 'createdAt', 'asc').subscribe({
         next: (res) => {
-          this.nextTasks = res.content
-            .filter((task: TaskResponse) => task.createdAt)
-            .slice(0, 5);
+          const filtered = res.content.filter((task: TaskResponse) => task.createdAt);
+          this.allTasksCount = filtered.length;
+          this.nextTasks = filtered.slice(0, 3);
         },
         error: (err) => {
           console.error('Error al cargar tareas próximas:', err);
         }
       });     
+  }
+
+  verTodasLasTareas(): void {
+    this.router.navigate(['/tasks']);
   }
 
   obtenerRepositorios(): void {
@@ -233,5 +241,12 @@ export class HomeComponent implements OnInit {
           console.error('Error al cargar las notas:', err);
         }
     });    
+  }
+
+  verTodosRepositorios(): void {
+    this.router.navigate(['/repositorios/list']);
+  }
+  verTodosDocumentos(): void {
+    this.router.navigate(['/document/create']);
   }
 }
