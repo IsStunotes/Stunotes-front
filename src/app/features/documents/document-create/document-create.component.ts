@@ -177,8 +177,7 @@ import Swal from 'sweetalert2';
 .btn-secondary:hover {
   background-color: #672f4bff;
 }
-  `],
-  .btn-danger {
+ .btn-danger {
     background-color: #ef4444;
   }
 
