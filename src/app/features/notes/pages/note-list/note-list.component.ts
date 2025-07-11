@@ -266,7 +266,7 @@ export class NoteListComponent implements OnInit {
          if (callback) callback();
          },
          error: (error) => {
-         console.error('Error al cargar colecciones:', error);
+         //console.error('Error al cargar colecciones:', error);
          //this.showError('Error al cargar las colecciones');
          }
       });
@@ -292,7 +292,7 @@ export class NoteListComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error al cargar notas(getNotes):', error);
+          //console.error('Error al cargar notas(getNotes):', error);
           this.showError('Error al cargar las notas');
           this.loading = false;
         }
@@ -400,7 +400,7 @@ export class NoteListComponent implements OnInit {
             this.loadNotes();
           },
           error: (error) => {
-            console.error('Error al eliminar la nota:', error);
+            //console.error('Error al eliminar la nota:', error);
             this.showError('Error al eliminar la nota');
           }
         });
@@ -411,7 +411,7 @@ export class NoteListComponent implements OnInit {
       this.selectedCollectionId = id;
       this.newCollectionName = this.collections.find(c => c.id === id)?.name || '';
 
-      console.log('Colección seleccionada ID:', id, this.newCollectionName);
+      //console.log('Colección seleccionada ID:', id, this.newCollectionName);
       this.loadNotes();
 
       this.showAll = false;
@@ -442,25 +442,25 @@ closeModal() {
 
 createNewCollection() {
   if (this.newCollectionName.trim()) {
-    console.log('Crear colección con nombre:', this.newCollectionName);
+    //console.log('Crear colección con nombre:', this.newCollectionName);
     let newCollection:CollectionRequest = {
       name:this.newCollectionName,
       userId: this.user.id
     };
-    console.log('Nueva colección:', newCollection);
-      this.collectionService.createCollection(newCollection).subscribe({
-         next: (response) => {
-         Swal.fire('Éxito', 'Colección creada correctamente.', 'success');
-         this.loadCollections(() => {
-            this.loadNotes();
-            this.updateVisibleCollections();
-         });
-         },
-         error: (error) => {
-         console.error('Error al crear la colección:', error);
-         this.showError('Error al crear la colección');
-         }
+    //console.log('Nueva colección:', newCollection);
+   this.collectionService.createCollection(newCollection).subscribe({
+      next: (response) => {
+      Swal.fire('Éxito', 'Colección creada correctamente.', 'success');
+      this.loadCollections(() => {
+         this.loadNotes();
+         this.updateVisibleCollections();
       });
+      },
+      error: (error) => {
+      //console.error('Error al crear la colección:', error);
+         this.showError('Error al crear la colección');
+      }
+   });
     this.closeModal();
   } else {
     this.showError('El nombre no puede estar vacío');
@@ -528,7 +528,7 @@ deleteCollection() {
                   this.selectedCollectionId = 0;
                },
                error: (error) => {
-                  console.error('Error al eliminar la colección_:', error);
+                  //console.error('Error al eliminar la colección_:', error);
                   this.showError(error.error.message);
                }
             });
