@@ -452,6 +452,7 @@ export class NoteListComponent implements OnInit {
    selectCollection(id: number): void {
       this.selectedCollectionId = id;
       this.newCollectionName = this.collections.find(c => c.id === id)?.name || '';
+      console.log('Colección seleccionada ID:', id, this.newCollectionName);
       this.loadNotes();
       this.showAll = false;
       this.updateVisibleCollections();
