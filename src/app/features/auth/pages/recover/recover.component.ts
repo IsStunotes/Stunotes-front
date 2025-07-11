@@ -1,34 +1,35 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PasswordResetService } from '../../../../services/password-reset.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-recover',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   template: `
   <div class="auth-container">
-  <div class="auth-box animate-slide-up">
-    <h1 class="auth-title">StuNotes</h1>
-    <p class="subtitle">¿Olvidaste tu contraseña? Ingresa tu correo y te enviaremos un enlace.</p>
+    <div class="auth-box animate-slide-up">
+      <h1 class="auth-title">StuNotes</h1>
+      <p class="subtitle">¿Olvidaste tu contraseña? Ingresa tu correo y te enviaremos un enlace.</p>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label>Correo electrónico</label>
-        <input type="email" formControlName="email" />
-      </div>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" formControlName="email" />
+        </div>
 
-      <button type="submit" [disabled]="submitting">
-        {{ submitting ? 'Enviando...' : 'Enviar correo de recuperación' }}
-      </button>
-    </form>
+        <button type="submit" [disabled]="submitting">
+          {{ submitting ? 'Enviando...' : 'Enviar correo de recuperación' }}
+        </button>
+      </form>
 
-    <a class="forgot-link" routerLink="/auth">Volver al inicio de sesión</a>
+      <a class="forgot-link" [routerLink]="['/auth']">Volver al inicio de sesión</a>
+    </div>
   </div>
-</div>
-`,
+  `,
   styleUrls: ['../auth/auth.component.css']
 })
 export class RecoverComponent {
@@ -51,16 +52,33 @@ export class RecoverComponent {
       const email = this.form.value.email;
       this.authService.sendResetEmail(email).subscribe({
         next: () => {
-          alert('Se envió un correo para restablecer tu contraseña.');
-          this.router.navigate(['/auth']);
+          Swal.fire({
+            icon: 'success',
+            title: 'Correo enviado',
+            text: 'Se envió un enlace para restablecer tu contraseña.',
+            confirmButtonColor: '#7c3aed'
+          }).then(() => {
+            this.router.navigate(['/auth']);
+          });
         },
         error: () => {
-          alert('Error al enviar el correo. Verifica el email ingresado.');
           this.submitting = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo enviar el correo. Verifica el email ingresado.',
+            confirmButtonColor: '#7c3aed'
+          });
         }
       });
     } else {
       this.form.markAllAsTouched();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campo requerido',
+        text: 'Por favor ingresa un correo electrónico válido.',
+        confirmButtonColor: '#7c3aed'
+      });
     }
   }
 }

@@ -11,10 +11,11 @@ import { CalendarEvent } from '../../../models/reminder.model';
 import { Subscription } from 'rxjs';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import Swal from 'sweetalert2';
+import { ChatComponent } from '../../chat/chat.component';
 
 @Component({
   selector: 'app-calendar',
-  imports: [CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent, FooterComponent],
+  imports: [CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent, FooterComponent, ChatComponent],
   styleUrls: ['./calendar.component.css'],
   encapsulation: ViewEncapsulation.None, 
   template: `
@@ -184,6 +185,7 @@ import Swal from 'sweetalert2';
 
       </div>
     </div>
+    <app-floating-chat></app-floating-chat>
     <app-footer></app-footer>
   `,
 })

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../services/auth.service'; 
 import { SignupRequest } from '../../../../models/auth.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register-teacher',
@@ -74,7 +75,12 @@ export class RegisterTeacherComponent {
   onSubmit(): void {
     if (this.registerForm.valid) {
       if (this.registerForm.value.password !== this.registerForm.value.confirmPassword) {
-        alert('Las contraseñas no coinciden');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Contraseñas no coinciden',
+          text: 'Por favor, asegúrate de que ambas contraseñas sean iguales.',
+          confirmButtonColor: '#7c3aed'
+        });
         return;
       }
 
@@ -90,16 +96,34 @@ export class RegisterTeacherComponent {
       this.authService.registerTeacher(request).subscribe({
         next: () => {
           this.submitting = false;
-          this.router.navigate(['/home']);
+          Swal.fire({
+            icon: 'success',
+            title: 'Registro exitoso',
+            text: 'Tu cuenta como profesor ha sido creada.',
+            confirmButtonColor: '#7c3aed'
+          }).then(() => {
+            this.router.navigate(['/home']);
+          });
         },
         error: (error) => {
           this.submitting = false;
           console.error('Error completo:', error);
-          alert('Error al registrar: ' + (error.error?.message || 'Error desconocido'));
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar',
+            text: error.error?.message || 'Ocurrió un error inesperado.',
+            confirmButtonColor: '#7c3aed'
+          });
         }        
       });
     } else {
       this.registerForm.markAllAsTouched();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor completa todos los campos requeridos.',
+        confirmButtonColor: '#7c3aed'
+      });
     }
   }
 

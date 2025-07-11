@@ -7,6 +7,7 @@ import { NavbarLoggedComponent } from '../../../../shared/components/navbar/navb
 import { SidebarComponent } from '../../../../shared/components/sidebar/sidebar.component';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 import Swal from 'sweetalert2';
+import { ChatComponent } from '../../../chat/chat.component';
 
 @Component({
   selector: 'app-user-profile',
@@ -16,7 +17,8 @@ import Swal from 'sweetalert2';
     CommonModule,
     NavbarLoggedComponent,
     SidebarComponent,
-    FooterComponent
+    FooterComponent,
+    ChatComponent
   ],
   template:`
   <app-navbar></app-navbar>
@@ -55,7 +57,7 @@ import Swal from 'sweetalert2';
     </form>
   </main>
 </div>
-
+<app-floating-chat></app-floating-chat>
 <app-footer></app-footer>
 
   `,

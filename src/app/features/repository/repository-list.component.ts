@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarLoggedComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { SidebarComponent } from "../../shared/components/sidebar/sidebar.component";
+import { ChatComponent } from '../chat/chat.component';
 
 @Component({
   standalone: true,
@@ -79,10 +80,10 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
 </ng-container>
 </div>
 </div>
-
+<app-floating-chat></app-floating-chat>
 <app-footer></app-footer>
 `,
-  imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent, FormsModule],
+  imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent, FormsModule, ChatComponent],
   styleUrls: ['repository-list.component.css']
 
 })

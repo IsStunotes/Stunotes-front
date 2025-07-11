@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../services/auth.service'; 
 import { LoginRequest, AuthResponse } from '../../../../models/auth.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-auth',
@@ -66,16 +67,10 @@ export class AuthComponent {
         next: (response: AuthResponse) => {
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response));
-          
-
 
           switch (response.role) {
             case 'STUDENT':
-              this.router.navigate(['/home']);
-              break;
             case 'TEACHER':
-              this.router.navigate(['/home']);
-              break;
             case 'ADMIN':
               this.router.navigate(['/home']);
               break;
@@ -85,13 +80,24 @@ export class AuthComponent {
 
           this.submitting = false;
         },
-        error: (error) => {
-          alert('Credenciales incorrectas o error en el servidor.');
+        error: () => {
           this.submitting = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Acceso denegado',
+            text: 'Credenciales incorrectas ',
+            confirmButtonColor: '#7c3aed'
+          });
         }
       });
     } else {
       this.loginForm.markAllAsTouched();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor completa todos los campos requeridos.',
+        confirmButtonColor: '#7c3aed'
+      });
     }
   }
 
