@@ -166,16 +166,10 @@ export class NoteFormComponent implements OnInit {
       this.collectionService.getCollections(this.user.id).subscribe({
          next: (collections: CollectionResponse[]) => {
             this.collections = collections;
-            if (collections.length === 0) {
-               Swal.fire('Información', 'No tienes colecciones creadas. Debes crear una colección antes de crear una nota.', 'info');
-               this.router.navigate(['/notes']);
-            }
             if (callback) callback();
          },
          error: (error) => {
-            //console.log(error);
             if( error.status === 404) {
-               //console.log('_note-form.component.ts -> Error al cargar las colecciones:', 'error');
                Swal.fire('Error', 'No se encontraron colecciones. Debe crear una colección antes de crear una nota.', 'error');
                this.router.navigate(['/notes']);
             } else {
@@ -198,7 +192,7 @@ export class NoteFormComponent implements OnInit {
             this.loading = false;
          },
          error: (error) => {
-            //console.error('note-form.component.ts -> Error al cargar la nota:', 'error');
+            console.error('note-form.component.ts -> Error al cargar la nota:', 'error');
             this.showError('Error al cargar la nota');
             this.loading = false;
             this.router.navigate(['/notes']);
@@ -222,14 +216,14 @@ export class NoteFormComponent implements OnInit {
          };
 
          if (this.isEditMode && this.noteId) {
-            //console.log('note-form.component.ts -> Actualizando nota con ID:', this.noteId, noteData);
+            console.log('note-form.component.ts -> Actualizando nota con ID:', this.noteId, noteData);
             this.noteService.updateNote(this.noteId, noteData).subscribe({
                next: () => {
                   Swal.fire('Éxito', 'Nota actualizada correctamente.', 'success');
                   this.router.navigate(['/notes']);
                },
                error: (error) => {
-                  //console.error('note-form.component.ts -> Error al actualizar la nota:', error);
+                  console.error('note-form.component.ts -> Error al actualizar la nota:', error);
                   this.submitting = false;
                   this.showError('Error al actualizar la nota');
                }
@@ -242,7 +236,7 @@ export class NoteFormComponent implements OnInit {
                   this.router.navigate(['/notes']);
                },
                error: (error) => {
-                  //console.error('note-form.component.ts -> Error al crear la nota:', error);
+                  console.error('note-form.component.ts -> Error al crear la nota:', error);
                   this.submitting = false;
                   this.showError('Error al crear la nota');
                }

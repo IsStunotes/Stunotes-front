@@ -38,7 +38,7 @@ export class NoteService {
          const sortParam = sortDirection ? `${sortBy},${sortDirection}` : sortBy;
          params = params.set('sort', sortParam);
       }
-      //console.log('Obteniendo notas con parámetros:', params.toString());  
+      console.log('Obteniendo notas con parámetros:', params.toString());  
       return this.http.get<PagedResponse<NoteResponse>>(this.apiUrl, { params });
    }
 
