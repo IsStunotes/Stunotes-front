@@ -129,16 +129,25 @@ export class DocumentCommentsComponent implements OnInit {
 
   crearComentario(): void {
     if (!this.nuevoComentario.trim()) {
-      alert('El comentario no puede estar vacío');
+      Swal.fire({
+        icon: 'info',
+        title: 'Comentario vacío',
+        text: 'El comentario no puede estar vacío.',
+        confirmButtonColor: '#6C47FF'
+      });
       return;
-    }
+    }    
 
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
-      alert('Debes iniciar sesión para comentar');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sesión requerida',
+        text: 'Debes iniciar sesión para comentar.',
+        confirmButtonColor: '#6C47FF'
+      });
       return;
-    }
-
+    }    
     const user = JSON.parse(storedUser);
 
     const comentario: CommentRequest = {
@@ -155,8 +164,13 @@ export class DocumentCommentsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al guardar comentario:', err);
-        alert('Error al crear el comentario');
-      }
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo crear el comentario. Intenta de nuevo.',
+          confirmButtonColor: '#6C47FF'
+        });
+      }      
     });
   }
 

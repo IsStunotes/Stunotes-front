@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { CalendarService } from '../../../services/calendar.service';
 import { CalendarEvent, ActivityResponse } from '../../../models/reminder.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-create-reminder-modal',
@@ -114,10 +115,6 @@ import { CalendarEvent, ActivityResponse } from '../../../models/reminder.model'
             </button>
           </div>
         </form>
-
-        <div class="error-alert" *ngIf="errorMessage">
-          {{ errorMessage }}
-        </div>
       </div>
     </div>
   `,
@@ -500,17 +497,27 @@ export class CreateReminderModalComponent implements OnChanges {
         const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000); // 1 hora desde ahora
         
         if (selectedDateTime < oneHourFromNow) {
-          this.errorMessage = 'Para recordatorios de hoy, la hora debe ser al menos 1 hora después de la actual.';
+          Swal.fire({
+            icon: 'warning',
+            title: 'Hora inválida',
+            text: 'Para recordatorios de hoy, la hora debe ser al menos 1 hora después de la actual.',
+            confirmButtonColor: '#6C47FF'
+          });
           this.isSubmitting = false;
           return;
-        }
+        }      
       } else {
         // Para fechas futuras, solo verificar que no sea en el pasado
         if (selectedDateTime <= now) {
-          this.errorMessage = 'La fecha y hora del recordatorio debe ser futura.';
+          Swal.fire({
+            icon: 'warning',
+            title: 'Fecha inválida',
+            text: 'La fecha y hora del recordatorio debe ser futura.',
+            confirmButtonColor: '#6C47FF'
+          });
           this.isSubmitting = false;
           return;
-        }
+        }        
       }
 
       if (this.isEditMode && this.reminderToEdit?.id) {
@@ -525,12 +532,27 @@ export class CreateReminderModalComponent implements OnChanges {
           error: (error) => {
             console.error('Error updating reminder:', error);
             if (error.message.includes('autenticado')) {
-              this.errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+              Swal.fire({
+                icon: 'info',
+                title: 'Sesión expirada',
+                text: 'Por favor, inicia sesión nuevamente.',
+                confirmButtonColor: '#6C47FF'
+              });
             } else if (error.message.includes('fecha')) {
-              this.errorMessage = 'La fecha del recordatorio debe ser futura.';
+              Swal.fire({
+                icon: 'warning',
+                title: 'Fecha inválida',
+                text: 'La fecha del recordatorio debe ser futura.',
+                confirmButtonColor: '#6C47FF'
+              });
             } else {
-              this.errorMessage = 'Error al actualizar el recordatorio. Por favor, intenta nuevamente.';
-            }
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo guardar el recordatorio. Intenta nuevamente.',
+                confirmButtonColor: '#6C47FF'
+              });
+            }            
             this.isSubmitting = false;
           }
         });

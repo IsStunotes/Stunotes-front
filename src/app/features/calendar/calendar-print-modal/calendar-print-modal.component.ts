@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core
 import { CommonModule } from '@angular/common';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-calendar-print-modal',
@@ -249,9 +250,13 @@ export class CalendarPrintModalComponent implements OnChanges {
 
     }).catch(error => {
       console.error('Error al generar la vista de impresión:', error);
-      alert('Error al preparar la impresión. Por favor, inténtelo de nuevo.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al imprimir',
+        text: 'No se pudo preparar la impresión. Intenta de nuevo.',
+        confirmButtonColor: '#6C47FF'
+      });
     });
-
     this.printCalendar.emit();
   }
 
@@ -308,8 +313,13 @@ export class CalendarPrintModalComponent implements OnChanges {
       pdf.save(fileName);
     }).catch(error => {
       console.error('Error al generar el PDF:', error);
-      alert('Error al generar el PDF. Por favor, inténtelo de nuevo.');
-    });
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al generar PDF',
+        text: 'Ocurrió un problema al generar el PDF. Intenta nuevamente.',
+        confirmButtonColor: '#6C47FF'
+      });
+    });    
 
     this.savePDF.emit();
   }

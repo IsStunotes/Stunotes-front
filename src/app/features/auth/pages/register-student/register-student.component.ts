@@ -36,9 +36,16 @@ import Swal from 'sweetalert2';
         </div>
 
         <div class="form-group">
-          <label class="form-label">Contraseña</label>
-          <input type="password" formControlName="password" class="form-control" />
-        </div>
+        <label class="form-label">Contraseña</label>
+        <input type="password" formControlName="password" class="form-control" (input)="onPasswordInput()" />
+        <ul class="password-hints" *ngIf="showPasswordHints">
+          <li [class.valid]="passwordStrength.hasUpperCase">Una letra mayúscula</li>
+          <li [class.valid]="passwordStrength.hasLowerCase">Una letra minúscula</li>
+          <li [class.valid]="passwordStrength.hasNumber">Un número</li>
+          <li [class.valid]="passwordStrength.hasSymbol">Un símbolo especial</li>
+          <li [class.valid]="passwordStrength.minLength">Al menos 8 caracteres</li>
+        </ul>
+      </div>
 
         <div class="form-group">
           <label class="form-label">Confirmar contraseña</label>
@@ -57,6 +64,15 @@ import Swal from 'sweetalert2';
 export class RegisterStudentComponent {
   registerForm: FormGroup;
   submitting = false;
+  showPasswordHints = false;
+
+  passwordStrength = {
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSymbol: false,
+    minLength: false
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -72,8 +88,36 @@ export class RegisterStudentComponent {
     });
   }
 
+  onPasswordInput(): void {
+    const password = this.registerForm.value.password || '';
+    this.showPasswordHints = password.length > 0;
+
+    this.passwordStrength = {
+      hasUpperCase: /[A-Z]/.test(password),
+      hasLowerCase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSymbol: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      minLength: password.length >= 8
+    };
+  }
+
+  isPasswordStrong(): boolean {
+    const s = this.passwordStrength;
+    return s.hasUpperCase && s.hasLowerCase && s.hasNumber && s.hasSymbol && s.minLength;
+  }
+
   onSubmit(): void {
     if (this.registerForm.valid) {
+      if (!this.isPasswordStrong()) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Contraseña insegura',
+          text: 'Tu contraseña debe cumplir con todos los requisitos de seguridad.',
+          confirmButtonColor: '#7c3aed'
+        });
+        return;
+      }
+
       if (this.registerForm.value.password !== this.registerForm.value.confirmPassword) {
         Swal.fire({
           icon: 'warning',
@@ -107,7 +151,6 @@ export class RegisterStudentComponent {
         },
         error: (error) => {
           this.submitting = false;
-          console.error('Error completo:', error);
           Swal.fire({
             icon: 'error',
             title: 'Error al registrar',

@@ -212,9 +212,14 @@ export class DocumentCreateComponent implements OnInit {
   guardarDocumento(): void {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
-      alert('No hay usuario autenticado. No se puede crear el documento.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Sesión no iniciada',
+        text: 'Debes iniciar sesión para crear un documento.',
+        confirmButtonColor: '#6C47FF'
+      });
       return;
-    }
+    }    
 
     try {
       const user = JSON.parse(storedUser);
@@ -237,12 +242,22 @@ export class DocumentCreateComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al crear documento:', err);
-          alert('Ocurrió un error al crear el documento');
-        }
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al crear documento',
+            text: 'Intenta nuevamente más tarde.',
+            confirmButtonColor: '#6C47FF'
+          });
+        }        
       });
     } catch {
-      alert('Error al obtener datos del usuario');
-    }
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de sesión',
+        text: 'No se pudo obtener la información del usuario. Intenta nuevamente.',
+        confirmButtonColor: '#6C47FF'
+      });
+    }    
   }
 
   cancelar(): void {

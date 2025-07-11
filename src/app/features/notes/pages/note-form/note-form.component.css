@@ -3,7 +3,7 @@
   padding-left: 200px; 
    height: calc(100vh - 4rem); /* altura menos el navbar */
    overflow-y: auto; /* habilita scroll solo en esta área */
-   background-color: #f4f4f4;
+   background-color: #f8f9fa;
 }
 
 .form-container {
