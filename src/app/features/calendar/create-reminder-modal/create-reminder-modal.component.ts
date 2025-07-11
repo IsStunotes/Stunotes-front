@@ -267,22 +267,14 @@ export class CreateReminderModalComponent implements OnChanges {
     
     // Listener para revalidar la hora cuando cambie la fecha
     this.reminderForm.get('fecha')?.valueChanges.subscribe((selectedDate) => {
-      if (selectedDate) {
-        const today = new Date();
-        const [year, month, day] = selectedDate.split('-').map(Number);
-        const selected = new Date(year, month - 1, day); // month es 0-indexado
-        
-        // Si selecciona la fecha de hoy, establecer una hora válida automáticamente
-        if (selected.toDateString() === today.toDateString()) {
-          const defaultTime = this.getDefaultTimeForToday();
-          this.reminderForm.patchValue({ hora: defaultTime }, { emitEvent: false });
-        }
-        
-        // Revalidar el campo de hora
-        setTimeout(() => {
-          this.reminderForm.get('hora')?.updateValueAndValidity();
-        }, 0);
+      if (selectedDate && this.isToday(selectedDate)) {
+        const defaultTime = this.getDefaultTimeForToday();
+        this.reminderForm.patchValue({ hora: defaultTime }, { emitEvent: false });
       }
+      
+      setTimeout(() => {
+        this.reminderForm.get('hora')?.updateValueAndValidity();
+      }, 0);
     });
   }
 
@@ -297,17 +289,11 @@ export class CreateReminderModalComponent implements OnChanges {
     if (changes['preselectedDate']?.currentValue && !this.isEditMode) {
       this.reminderForm.patchValue({ fecha: this.preselectedDate });
       
-      // Si la fecha preseleccionada es hoy, usar una hora válida
-      const today = new Date();
-      const [year, month, day] = this.preselectedDate.split('-').map(Number);
-      const selected = new Date(year, month - 1, day); // month es 0-indexado
-      
-      if (selected.toDateString() === today.toDateString()) {
+      if (this.isToday(this.preselectedDate)) {
         const defaultTime = this.getDefaultTimeForToday();
         this.reminderForm.patchValue({ hora: defaultTime });
       }
       
-      // Revalidar hora cuando cambie la fecha
       setTimeout(() => {
         this.reminderForm.get('hora')?.updateValueAndValidity();
       }, 0);
@@ -469,82 +455,62 @@ export class CreateReminderModalComponent implements OnChanges {
 
   getMinTime(): string | null {
     const selectedDate = this.reminderForm.get('fecha')?.value;
-    if (!selectedDate) return null;
+    if (!selectedDate || !this.isToday(selectedDate)) return null;
     
     const today = new Date();
-    const [year, month, day] = selectedDate.split('-').map(Number);
-    const selected = new Date(year, month - 1, day); // month es 0-indexado
+    const nextHour = today.getHours() + 1;
     
-    // Si la fecha seleccionada es hoy, retornar la hora actual + 1 hora
-    if (selected.toDateString() === today.toDateString()) {
-      const nextHour = today.getHours() + 1;
-      
-      // Si excede las 23, usar 23:59 como máximo
-      if (nextHour > 23) {
-        return '23:59';
-      }
-      
-      return `${nextHour.toString().padStart(2, '0')}:00`;
-    }
-    
-    // Si es una fecha futura, no hay restricción de hora
-    return null;
+    return nextHour > 23 ? '23:59' : `${nextHour.toString().padStart(2, '0')}:00`;
   }
 
   pastDateValidator = (control: any) => {
     if (!control.value) return null;
-    
-    const today = new Date();
-    const [year, month, day] = control.value.split('-').map(Number);
-    const selected = new Date(year, month - 1, day); // month es 0-indexado
-    
-    // Comparar solo las fechas, no las horas
-    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const selectedDateOnly = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
-    
-    return selectedDateOnly < todayDateOnly ? { pastDate: true } : null;
+    return this.isPastDate(control.value) ? { pastDate: true } : null;
   };
 
   pastTimeValidator = (control: any) => {
     if (!control.value) return null;
     
     const selectedDate = this.reminderForm?.get('fecha')?.value;
-    if (!selectedDate) return null;
+    if (!selectedDate || !this.isToday(selectedDate)) return null;
     
     const today = new Date();
-    const [year, month, day] = selectedDate.split('-').map(Number);
-    const selected = new Date(year, month - 1, day); // month es 0-indexado
+    const [selectedHour, selectedMinute] = control.value.split(':').map(Number);
+    const currentTimeInMinutes = today.getHours() * 60 + today.getMinutes();
+    const selectedTimeInMinutes = selectedHour * 60 + selectedMinute;
+    const oneHourLaterInMinutes = currentTimeInMinutes + 60;
     
-    // Solo validar si la fecha seleccionada es hoy
+    return selectedTimeInMinutes < oneHourLaterInMinutes ? { pastTime: true } : null;
+  };
+
+  private isToday(dateString: string): boolean {
+    const today = new Date();
+    const [year, month, day] = dateString.split('-').map(Number);
+    const selected = new Date(year, month - 1, day);
+    
     const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const selectedDateOnly = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
     
-    if (selectedDateOnly.getTime() === todayDateOnly.getTime()) {
-      const [selectedHour, selectedMinute] = control.value.split(':').map(Number);
-      const currentHour = today.getHours();
-      const currentMinute = today.getMinutes();
-      
-      // Crear tiempos para comparar
-      const selectedTimeInMinutes = selectedHour * 60 + selectedMinute;
-      const currentTimeInMinutes = currentHour * 60 + currentMinute;
-      const oneHourLaterInMinutes = currentTimeInMinutes + 60;
-      
-      // Requerir que sea al menos 1 hora después de la actual
-      if (selectedTimeInMinutes < oneHourLaterInMinutes) {
-        return { pastTime: true };
-      }
-    }
+    return selectedDateOnly.getTime() === todayDateOnly.getTime();
+  }
+
+  private isPastDate(dateString: string): boolean {
+    const today = new Date();
+    const [year, month, day] = dateString.split('-').map(Number);
+    const selected = new Date(year, month - 1, day);
     
-    return null;
-  };
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const selectedDateOnly = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
+    
+    return selectedDateOnly < todayDateOnly;
+  }
 
   private populateFormForEdit(): void {
     if (!this.reminderToEdit) return;
     
-    // Extraer fecha y hora del datetime
     const startDate = new Date(this.reminderToEdit.start);
-    const fecha = startDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    const hora = startDate.toTimeString().slice(0, 5); // HH:MM
+    const fecha = startDate.toISOString().split('T')[0];
+    const hora = startDate.toTimeString().slice(0, 5);
     
     this.reminderForm.patchValue({
       titulo: this.reminderToEdit.title,
@@ -552,7 +518,6 @@ export class CreateReminderModalComponent implements OnChanges {
       hora: hora
     });
     
-    // Revalidar después de poblar
     setTimeout(() => {
       this.reminderForm.get('fecha')?.updateValueAndValidity();
       this.reminderForm.get('hora')?.updateValueAndValidity();

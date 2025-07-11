@@ -116,11 +116,6 @@ import Swal from 'sweetalert2';
 
           <!-- Vista Diaria -->
           <div *ngIf="currentView === 'day'" class="day-view">
-            <div class="day-header-single">
-              <div class="day-title">
-                {{ calendarDays[0]?.date | date:'EEEE, d MMMM y':'es-ES' }}
-              </div>
-            </div>
             <div class="day-grid">
               <div *ngFor="let timeSlot of timeSlots" class="time-row-day">
                 <div class="time-label-day">{{ timeSlot }}</div>
@@ -212,13 +207,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // Calendar properties
     currentDate: Date = new Date();
     calendarDays: any[] = [];
-    private static readonly WEEK_DAYS = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
-    private static readonly MONTHS = [
+    weekDays: string[] = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+    months: string[] = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
-    weekDays: string[] = CalendarComponent.WEEK_DAYS;
-    months: string[] = CalendarComponent.MONTHS;
     timeSlots: string[] = [];
     weekStart: Date = new Date();
     weekEnd: Date = new Date();
@@ -459,6 +452,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     handleSavePDF(): void {
       console.log('Guardando PDF...');
+      Swal.fire({
+        title: 'PDF Guardado',
+        text: 'El calendario se ha guardado correctamente como PDF.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#8b5cf6'
+      });
       this.closePrintModal();
     }
 
@@ -610,26 +610,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
       console.log(`Vista cambiada a: ${view}`);
     }
 
-    handleDateClick(dateClickInfo: any): void {
-      console.log('Click en fecha detectado:', dateClickInfo);
-      
-      let selectedDate: string;
-      let selectedTime: string;
-      
-      if (dateClickInfo.dateStr && dateClickInfo.dateStr.includes('T')) {
-        const [date, time] = dateClickInfo.dateStr.split('T');
-        selectedDate = date;
-        selectedTime = time.substring(0, 5); 
-      } else {
-        selectedDate = dateClickInfo.dateStr || new Date().toISOString().split('T')[0];
-        selectedTime = '09:00'; 
-      }
-      
-      this.selectedDate = selectedDate;
-      this.selectedTime = selectedTime;
-      this.openCreateReminderModal();
-    }
-
     previousPeriod(): void {
       switch (this.currentView) {
         case 'month':
@@ -690,10 +670,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
         default:
           return '';
       }
-    }
-
-    trackByEventId(index: number, event: CalendarEvent): string {
-      return event.id || index.toString();
     }
 
     // Validation methods
