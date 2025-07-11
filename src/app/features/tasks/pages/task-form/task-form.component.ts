@@ -277,7 +277,7 @@ export class TaskFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/tasks']);
+    this.router.navigate(['/home']);
   }
 
   private markFormGroupTouched(): void {

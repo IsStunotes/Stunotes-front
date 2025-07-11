@@ -1,1 +1,0 @@
-import"./chunk-EQDQRRRY.js";var t=[{path:"",loadComponent:()=>import("./chunk-JN3LZ5DC.js").then(o=>o.NoteListComponent)},{path:"new",loadComponent:()=>import("./chunk-R7KR7SEF.js").then(o=>o.NoteFormComponent)},{path:":id/edit",loadComponent:()=>import("./chunk-R7KR7SEF.js").then(o=>o.NoteFormComponent)},{path:"**",redirectTo:"",pathMatch:"full"}];export{t as notesRoutes};

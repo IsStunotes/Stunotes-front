@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PasswordResetService } from '../../../../services/password-reset.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-reset-password',
@@ -70,11 +71,23 @@ export class ResetPasswordComponent implements OnInit {
       this.submitting = true;
       this.authService.resetPassword(this.token, this.form.value.newPassword).subscribe({
         next: () => {
-          alert('Contraseña actualizada con éxito.');
-          this.router.navigate(['/auth/login']);
+          Swal.fire({
+            icon: 'success',
+            title: 'Contraseña actualizada',
+            text: 'Tu contraseña se actualizó correctamente.',
+            confirmButtonText: 'Ir al login',
+            confirmButtonColor: '#6C47FF'
+          }).then(() => {
+            this.router.navigate(['/auth/login']);
+          });
         },
         error: () => {
-          alert('Error al actualizar la contraseña.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo actualizar la contraseña. Intenta de nuevo.',
+            confirmButtonColor: '#d33'
+          });
           this.submitting = false;
         }
       });
@@ -82,4 +95,5 @@ export class ResetPasswordComponent implements OnInit {
       this.form.markAllAsTouched();
     }
   }
+  
 }

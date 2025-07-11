@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../services/auth.service'; 
 import { SignupRequest } from '../../../../models/auth.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register-student',
@@ -35,9 +36,16 @@ import { SignupRequest } from '../../../../models/auth.model';
         </div>
 
         <div class="form-group">
-          <label class="form-label">Contraseña</label>
-          <input type="password" formControlName="password" class="form-control" />
-        </div>
+        <label class="form-label">Contraseña</label>
+        <input type="password" formControlName="password" class="form-control" (input)="onPasswordInput()" />
+        <ul class="password-hints" *ngIf="showPasswordHints">
+          <li [class.valid]="passwordStrength.hasUpperCase">Una letra mayúscula</li>
+          <li [class.valid]="passwordStrength.hasLowerCase">Una letra minúscula</li>
+          <li [class.valid]="passwordStrength.hasNumber">Un número</li>
+          <li [class.valid]="passwordStrength.hasSymbol">Un símbolo especial</li>
+          <li [class.valid]="passwordStrength.minLength">Al menos 8 caracteres</li>
+        </ul>
+      </div>
 
         <div class="form-group">
           <label class="form-label">Confirmar contraseña</label>
@@ -56,6 +64,15 @@ import { SignupRequest } from '../../../../models/auth.model';
 export class RegisterStudentComponent {
   registerForm: FormGroup;
   submitting = false;
+  showPasswordHints = false;
+
+  passwordStrength = {
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSymbol: false,
+    minLength: false
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -71,10 +88,43 @@ export class RegisterStudentComponent {
     });
   }
 
+  onPasswordInput(): void {
+    const password = this.registerForm.value.password || '';
+    this.showPasswordHints = password.length > 0;
+
+    this.passwordStrength = {
+      hasUpperCase: /[A-Z]/.test(password),
+      hasLowerCase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSymbol: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      minLength: password.length >= 8
+    };
+  }
+
+  isPasswordStrong(): boolean {
+    const s = this.passwordStrength;
+    return s.hasUpperCase && s.hasLowerCase && s.hasNumber && s.hasSymbol && s.minLength;
+  }
+
   onSubmit(): void {
     if (this.registerForm.valid) {
+      if (!this.isPasswordStrong()) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Contraseña insegura',
+          text: 'Tu contraseña debe cumplir con todos los requisitos de seguridad.',
+          confirmButtonColor: '#7c3aed'
+        });
+        return;
+      }
+
       if (this.registerForm.value.password !== this.registerForm.value.confirmPassword) {
-        alert('Las contraseñas no coinciden');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Contraseñas no coinciden',
+          text: 'Por favor, asegúrate de que ambas contraseñas sean iguales.',
+          confirmButtonColor: '#7c3aed'
+        });
         return;
       }
 
@@ -90,17 +140,33 @@ export class RegisterStudentComponent {
       this.authService.registerStudent(request).subscribe({
         next: () => {
           this.submitting = false;
-          this.router.navigate(['/home']);
+          Swal.fire({
+            icon: 'success',
+            title: 'Registro exitoso',
+            text: 'Tu cuenta ha sido creada correctamente.',
+            confirmButtonColor: '#7c3aed'
+          }).then(() => {
+            this.router.navigate(['/home']);
+          });
         },
         error: (error) => {
           this.submitting = false;
-          console.error('Error completo:', error);
-          alert('Error al registrar: ' + (error.error?.message || 'Error desconocido'));
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar',
+            text: error.error?.message || 'Ocurrió un error inesperado.',
+            confirmButtonColor: '#7c3aed'
+          });
         }
-        
       });
     } else {
       this.registerForm.markAllAsTouched();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor completa todos los campos requeridos.',
+        confirmButtonColor: '#7c3aed'
+      });
     }
   }
 

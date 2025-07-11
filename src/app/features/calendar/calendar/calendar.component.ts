@@ -10,10 +10,12 @@ import { CalendarService } from '../../../services/calendar.service';
 import { CalendarEvent } from '../../../models/reminder.model';
 import { Subscription } from 'rxjs';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
+import Swal from 'sweetalert2';
+import { ChatComponent } from '../../chat/chat.component';
 
 @Component({
   selector: 'app-calendar',
-  imports: [CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent, FooterComponent],
+  imports: [CalendarPrintModalComponent, CreateReminderModalComponent, CommonModule, SidebarComponent, NavbarLoggedComponent, FooterComponent, ChatComponent],
   styleUrls: ['./calendar.component.css'],
   encapsulation: ViewEncapsulation.None, 
   template: `
@@ -65,12 +67,14 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
                      class="day-cell" 
                      [class.other-month]="!day.isCurrentMonth"
                      [class.today]="day.isToday"
-                     (click)="onDateClick(day)">
+                     [class.past-date]="!isValidFutureDate(day.date)"
+                     [class.clickable]="isValidFutureDate(day.date)"
+                     (click)="isValidFutureDate(day.date) ? onDateClick(day) : null">
                   <div class="day-number">{{ day.date.getDate() }}</div>
                   <div class="day-events">
                     <div *ngFor="let event of day.events | slice:0:3" 
                          class="event-item-month"
-                         (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                         (click)="$event.stopPropagation(); handleEventClick($any(event), $event)">
                       {{ $any(event).title }}
                     </div>
                     <div *ngIf="day.events.length > 3" class="more-events">
@@ -89,7 +93,7 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
               <div *ngFor="let day of calendarDays" 
                    class="day-header-week"
                    [class.today]="day.isToday">
-                <div class="day-name">{{ weekDays[day.date.getDay()] }}</div>
+                <div class="day-name">{{ getWeekDayName(day.date) }}</div>
                 <div class="day-number">{{ day.date.getDate() }}</div>
               </div>
             </div>
@@ -98,10 +102,12 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
                 <div class="time-label">{{ timeSlot }}</div>
                 <div *ngFor="let day of calendarDays" 
                      class="time-slot"
-                     (click)="onTimeSlotClick(day, timeSlot)">
+                     [class.past-time]="!isValidTimeSlot(day, timeSlot)"
+                     [class.clickable]="isValidTimeSlot(day, timeSlot)"
+                     (click)="isValidTimeSlot(day, timeSlot) ? onTimeSlotClick(day, timeSlot) : null">
                   <div *ngFor="let event of getEventsForTimeSlot(day, timeSlot)" 
                        class="event-item-week"
-                       (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                       (click)="$event.stopPropagation(); handleEventClick($any(event), $event)">
                     {{ $any(event).title }}
                   </div>
                 </div>
@@ -111,18 +117,16 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
 
           <!-- Vista Diaria -->
           <div *ngIf="currentView === 'day'" class="day-view">
-            <div class="day-header-single">
-              <div class="day-title">
-                {{ calendarDays[0]?.date | date:'EEEE, d MMMM y':'es-ES' }}
-              </div>
-            </div>
             <div class="day-grid">
               <div *ngFor="let timeSlot of timeSlots" class="time-row-day">
                 <div class="time-label-day">{{ timeSlot }}</div>
-                <div class="time-slot-day" (click)="onTimeSlotClick(calendarDays[0], timeSlot)">
+                <div class="time-slot-day" 
+                     [class.past-time]="!isValidTimeSlot(calendarDays[0], timeSlot)"
+                     [class.clickable]="isValidTimeSlot(calendarDays[0], timeSlot)"
+                     (click)="isValidTimeSlot(calendarDays[0], timeSlot) ? onTimeSlotClick(calendarDays[0], timeSlot) : null">
                   <div *ngFor="let event of getEventsForTimeSlot(calendarDays[0], timeSlot)" 
                        class="event-item-day"
-                       (click)="$event.stopPropagation(); handleEventClick($any(event))">
+                       (click)="$event.stopPropagation(); handleEventClick($any(event), $event)">
                     {{ $any(event).title }}
                   </div>
                 </div>
@@ -144,12 +148,44 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
             [isVisible]="showCreateReminderModal"
             [preselectedDate]="selectedDate"
             [preselectedTime]="selectedTime"
+            [isEditMode]="isEditMode"
+            [reminderToEdit]="reminderToEdit"
             (close)="closeCreateReminderModal()"
-            (reminderCreated)="onReminderCreated($event)">
+            (reminderCreated)="onReminderCreated($event)"
+            (reminderUpdated)="onReminderUpdated($event)">
         </app-create-reminder-modal>
+
+        <div *ngIf="showEventOptionsModal" 
+             class="event-options-modal"
+             [style.left.px]="modalPosition.x"
+             [style.top.px]="modalPosition.y">
+          <div class="event-options-content">
+            <div class="event-info">
+              <h4>{{ selectedEvent?.title }}</h4>
+              <p>{{ formatEventDate(selectedEvent?.start || '') }}</p>
+            </div>
+            <div class="event-options-buttons">
+              <button class="option-btn update-btn" (click)="updateReminder()">
+                <i class="fas fa-edit"></i> Actualizar
+              </button>
+              <button class="option-btn delete-btn" (click)="confirmDeleteReminder()">
+                <i class="fas fa-trash"></i> Eliminar
+              </button>
+              <button class="option-btn cancel-btn" (click)="closeEventOptionsModal()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="showEventOptionsModal" 
+             class="event-options-overlay" 
+             (click)="closeEventOptionsModal()">
+        </div>
 
       </div>
     </div>
+    <app-floating-chat></app-floating-chat>
     <app-footer></app-footer>
   `,
 })
@@ -157,16 +193,21 @@ export class CalendarComponent implements OnInit, OnDestroy {
     currentView: string = 'week';
     showPrintModal: boolean = false;
     showCreateReminderModal: boolean = false;
+    showEventOptionsModal: boolean = false;
+    selectedEvent: CalendarEvent | null = null;
+    modalPosition = { x: 0, y: 0 };
     events: CalendarEvent[] = [];
     error: string = '';
     selectedDate: string = '';
     selectedTime: string = '';
+    isEditMode: boolean = false;
+    reminderToEdit: CalendarEvent | null = null;
     private eventsSubscription?: Subscription;
     
     // Calendar properties
     currentDate: Date = new Date();
     calendarDays: any[] = [];
-    weekDays: string[] = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+    weekDays: string[] = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
     months: string[] = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -227,7 +268,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     private updateCalendarEvents(): void {
-      // Update calendar view when events change
       this.updateCalendarView();
       console.log('Events updated:', this.events.length);
     }
@@ -271,7 +311,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
       const startDate = new Date(firstDay);
-      startDate.setDate(startDate.getDate() - firstDay.getDay());
+      
+      const dayOfWeek = firstDay.getDay();
+      const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      startDate.setDate(startDate.getDate() - mondayOffset);
 
       this.calendarDays = [];
       const current = new Date(startDate);
@@ -293,10 +336,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     private generateWeekView(): void {
-      const startOfWeek = new Date(this.currentDate);
-      const day = startOfWeek.getDay();
-      const diff = startOfWeek.getDate() - day;
-      startOfWeek.setDate(diff);
+      const startOfWeek = this.getStartOfWeek(this.currentDate);
       
       this.weekStart = new Date(startOfWeek);
       this.weekEnd = new Date(startOfWeek);
@@ -316,6 +356,23 @@ export class CalendarComponent implements OnInit, OnDestroy {
       }
     }
 
+    private getStartOfWeek(date: Date): Date {
+      const startOfWeek = new Date(date);
+      const day = startOfWeek.getDay();
+      // Ajustar para que lunes sea 0 en lugar de domingo
+      const mondayOffset = day === 0 ? 6 : day - 1;
+      const diff = startOfWeek.getDate() - mondayOffset;
+      startOfWeek.setDate(diff);
+      return startOfWeek;
+    }
+
+    getWeekDayName(date: Date): string {
+      const dayOfWeek = date.getDay();
+      // Mapear domingo (0) a índice 6, lunes (1) a índice 0, etc.
+      const adjustedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      return this.weekDays[adjustedDay];
+    }
+
     private generateDayView(): void {
       const dayEvents = this.getEventsForDate(this.currentDate);
       this.calendarDays = [{
@@ -326,15 +383,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     private getEventsForDate(date: Date): CalendarEvent[] {
-      return this.events.filter(event => {
-        const eventDate = new Date(event.start);
-        return eventDate.toDateString() === date.toDateString();
-      });
+      return this.events.filter(event => 
+        this.isSameDay(new Date(event.start), date)
+      );
     }
 
     private isToday(date: Date): boolean {
-      const today = new Date();
-      return date.toDateString() === today.toDateString();
+      return this.isSameDay(date, new Date());
     }
 
     private isSameDay(date1: Date, date2: Date): boolean {
@@ -353,12 +408,33 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     onDateClick(day: any): void {
+      if (!this.isValidFutureDate(day.date)) {
+        Swal.fire('Error', 'No puedes crear recordatorios en fechas pasadas.', 'error');
+        return;
+      }
+
       this.selectedDate = day.date.toISOString().split('T')[0];
-      this.selectedTime = '09:00';
+      
+      if (this.isToday(day.date)) {
+        this.selectedTime = this.getValidTimeForToday();
+      } else {
+        this.selectedTime = '09:00';
+      }
+      
       this.openCreateReminderModal();
     }
 
     onTimeSlotClick(day: any, timeSlot: string): void {
+      if (!this.isValidFutureDate(day.date)) {
+        Swal.fire('Error', 'No puedes crear recordatorios en fechas pasadas.', 'error');
+        return;
+      }
+
+      if (this.isToday(day.date) && !this.isValidTimeForToday(timeSlot)) {
+        Swal.fire('Error', 'No puedes crear recordatorios en horas pasadas.', 'error');
+        return;
+      }
+
       this.selectedDate = day.date.toISOString().split('T')[0];
       this.selectedTime = timeSlot;
       this.openCreateReminderModal();
@@ -383,6 +459,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     handleSavePDF(): void {
       console.log('Guardando PDF...');
+      Swal.fire({
+        title: 'PDF Guardado',
+        text: 'El calendario se ha guardado correctamente como PDF.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#8b5cf6'
+      });
       this.closePrintModal();
     }
 
@@ -390,7 +473,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
       if (!this.selectedDate) {
         const today = new Date();
         this.selectedDate = today.toISOString().split('T')[0];
-        this.selectedTime = '09:00';
+        
+        // Si es hoy, usar una hora válida
+        if (this.isToday(today)) {
+          this.selectedTime = this.getValidTimeForToday();
+        } else {
+          this.selectedTime = '09:00';
+        }
       }
       this.showCreateReminderModal = true;
     }
@@ -399,13 +488,26 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.showCreateReminderModal = false;
       this.selectedDate = '';
       this.selectedTime = '';
+      this.isEditMode = false;
+      this.reminderToEdit = null;
     }
 
     onReminderCreated(event: CalendarEvent): void {
 
       this.calendarService.addEvent(event);
       console.log('Recordatorio creado exitosamente:', event);
+      
+      Swal.fire('Éxito', 'Recordatorio creado correctamente.', 'success');
 
+      this.closeCreateReminderModal();
+    }
+
+    onReminderUpdated(event: CalendarEvent): void {
+      this.calendarService.updateEventInSubject(event);
+      console.log('Recordatorio actualizado exitosamente:', event);
+      
+      Swal.fire('Éxito', 'Recordatorio actualizado correctamente.', 'success');
+      
       this.closeCreateReminderModal();
     }
 
@@ -418,7 +520,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
           this.calendarService.removeEventFromSubject(reminderId);
           console.log('Recordatorio eliminado exitosamente');
           
-          alert('Recordatorio eliminado exitosamente');
+          Swal.fire('Éxito', 'Recordatorio eliminado correctamente.', 'success');
         },
         error: (error) => {
           console.error('Error eliminando recordatorio:', error);
@@ -431,27 +533,71 @@ export class CalendarComponent implements OnInit, OnDestroy {
             errorMessage += ` ${error.error.message}`;
           }
           
-          alert(errorMessage);
+          Swal.fire('Error', errorMessage, 'error');
         }
       });
     }
 
-    handleEventClick(event: CalendarEvent): void {
-      const confirmed = confirm(
-        `¿Deseas eliminar este recordatorio?\n\n` +
-        `Título: ${event.title}\n` +
-        `Fecha: ${this.formatEventDate(event.start)}\n\n` +
-        `Esta acción no se puede deshacer.`
-      );
+    handleEventClick(event: CalendarEvent, mouseEvent?: MouseEvent): void {
+      this.selectedEvent = event;
       
-      if (confirmed && event.id) {
-        this.deleteReminder(event.id);
+      if (mouseEvent) {
+        this.modalPosition.x = mouseEvent.clientX;
+        this.modalPosition.y = mouseEvent.clientY;
+      } else {
+        this.modalPosition.x = window.innerWidth / 2 - 150;
+        this.modalPosition.y = window.innerHeight / 2 - 100;
       }
+      
+      this.showEventOptionsModal = true;
+    }
+
+    closeEventOptionsModal(): void {
+      this.showEventOptionsModal = false;
+      this.selectedEvent = null;
+    }
+
+    updateReminder(): void {
+      if (!this.selectedEvent) return;
+      
+      this.isEditMode = true;
+      this.reminderToEdit = this.selectedEvent;
+      this.selectedDate = '';
+      this.selectedTime = '';
+      
+      this.showCreateReminderModal = true;
+      this.closeEventOptionsModal();
+    }
+
+    confirmDeleteReminder(): void {
+      if (!this.selectedEvent) return;
+      
+      Swal.fire({
+        title: '¿Estás seguro?',
+        html: `
+          <p>¿Deseas eliminar este recordatorio?</p>
+          <br>
+          <strong>Título:</strong> ${this.selectedEvent.title}<br>
+          <strong>Fecha:</strong> ${this.formatEventDate(this.selectedEvent.start)}<br>
+          <br>
+          <em>Esta acción no se puede deshacer.</em>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed && this.selectedEvent?.id) {
+          this.deleteReminder(this.selectedEvent.id);
+          this.closeEventOptionsModal();
+        }
+      });
     }
 
     formatEventDate(dateString: string): string {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', {
+      return new Date(dateString).toLocaleDateString('es-ES', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -465,26 +611,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.currentView = view;
       this.updateCalendarView();
       console.log(`Vista cambiada a: ${view}`);
-    }
-
-    handleDateClick(dateClickInfo: any): void {
-      console.log('Click en fecha detectado:', dateClickInfo);
-      
-      let selectedDate: string;
-      let selectedTime: string;
-      
-      if (dateClickInfo.dateStr && dateClickInfo.dateStr.includes('T')) {
-        const [date, time] = dateClickInfo.dateStr.split('T');
-        selectedDate = date;
-        selectedTime = time.substring(0, 5); 
-      } else {
-        selectedDate = dateClickInfo.dateStr || new Date().toISOString().split('T')[0];
-        selectedTime = '09:00'; 
-      }
-      
-      this.selectedDate = selectedDate;
-      this.selectedTime = selectedTime;
-      this.openCreateReminderModal();
     }
 
     previousPeriod(): void {
@@ -549,7 +675,42 @@ export class CalendarComponent implements OnInit, OnDestroy {
       }
     }
 
-    trackByEventId(index: number, event: CalendarEvent): string {
-      return event.id || index.toString();
+
+    isValidFutureDate(date: Date): boolean {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkDate = new Date(date);
+      checkDate.setHours(0, 0, 0, 0);
+      return checkDate >= today;
+    }
+
+    isValidTimeForToday(timeSlot: string): boolean {
+      const now = new Date();
+      const [slotHour, slotMinute] = timeSlot.split(':').map(Number);
+      
+      const currentDateTime = new Date();
+      currentDateTime.setHours(now.getHours(), now.getMinutes(), 0, 0);
+      
+      const slotDateTime = new Date();
+      slotDateTime.setHours(slotHour, slotMinute, 0, 0);
+      
+      return slotDateTime > currentDateTime;
+    }
+
+    private getValidTimeForToday(): string {
+      const now = new Date();
+      let nextHour = now.getHours();
+      if (now.getMinutes() >= 30) {
+        nextHour += 1;
+      }
+      
+      nextHour = Math.max(6, Math.min(22, nextHour));
+      
+      return `${nextHour.toString().padStart(2, '0')}:00`;
+    }
+
+    isValidTimeSlot(day: any, timeSlot: string): boolean {
+      return this.isValidFutureDate(day.date) && 
+             (!this.isToday(day.date) || this.isValidTimeForToday(timeSlot));
     }
 }

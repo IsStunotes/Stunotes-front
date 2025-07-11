@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { NoteResponse, } from '../../../../models/note.model';
+import { NoteRequest, NoteResponse, } from '../../../../models/note.model';
 import { NoteService } from '../../../../services/note.service';
 import { CollectionResponse,CollectionRequest } from '../../../../models/collection.model';
 import { CollectionService } from '../../../../services/collection.service';
@@ -110,7 +110,7 @@ import Swal from 'sweetalert2';
             <div class="col-title">
                <h2 class="section-title">MIS COLLECIONES</h2>
             </div>
-            <div class="col-actions">
+            <div class="col-actions" *ngIf="selectedCollectionId !== 0">
                <button class="edit-btn" (click)="openModal(true)" title="Editar">
                   <i class="fas fa-edit"></i>
                </button>
@@ -123,20 +123,23 @@ import Swal from 'sweetalert2';
          <div *ngIf="collections.length === 0" class="no-tasks">
             <i class="fas fa-folder-open"></i>
             <p>No hay colecciones</p>
-            <button class="create-task-btn" (click)="createNewNote()">
+            <button class="create-task-btn" (click)="createNewCollection()">
                <i class="fas fa-plus"></i> Crear primera colección
             </button>
          </div>
 
 
-         <div class="collection-container">
-            <div *ngFor="let collection of visibleCollections" 
-                  class="collection-card"
-                  [class.selected]="collection.id === selectedCollectionId"
-                  (click)="selectCollection(collection.id)">
-               {{ collection.name }}
+         <div class="collection-scroll-wrapper">
+            <div class="collection-container">
+               <div *ngFor="let collection of visibleCollections"
+                     class="collection-card"
+                     [class.selected]="collection.id === selectedCollectionId"
+                     (click)="selectCollection(collection.id)">
+                  {{ collection.name }}
+               </div>
             </div>
          </div>
+
 
          <div *ngIf="collections.length > 3" class="toggle-btn-container">
             <button class="toggle-btn" (click)="toggleShowAll()">
@@ -267,7 +270,7 @@ export class NoteListComponent implements OnInit {
          },
          error: (error) => {
          console.error('Error al cargar colecciones:', error);
-         this.showError('Error al cargar las colecciones');
+         //this.showError('Error al cargar las colecciones');
          }
       });
       this.updateVisibleCollections();
@@ -375,8 +378,47 @@ export class NoteListComponent implements OnInit {
   }
 
   createNewNote(): void {
-    this.router.navigate(['/notes/new']);
-  }
+   if (this.collections.length === 0) {
+     const defaultName = `Mis notas`;
+     const newCollection: CollectionRequest = {
+       name: defaultName,
+       userId: this.user.id
+     };
+ 
+     this.collectionService.createCollection(newCollection).subscribe({
+       next: (createdCollection) => {
+         this.loadCollections(() => {
+           const collectionId = createdCollection.id;
+           const titlePrefix = 'Nota';
+           const existingNotes = this.notes.filter(n => n.title.startsWith(titlePrefix));
+           const noteNumber = existingNotes.length + 1;
+ 
+           const newNote: NoteRequest = {
+             title: `${titlePrefix} ${noteNumber}`,
+             content: '',
+             collectionId
+           };
+ 
+           this.noteService.createNote(newNote).subscribe({
+             next: (note) => {
+               Swal.fire('Nota creada', 'Se ha creado una nueva nota automáticamente.', 'success');
+               this.router.navigate(['/notes', note.id, 'edit']);
+             },
+             error: () => {
+               this.showError('Error al crear la nota.');
+             }
+           });
+         });
+       },
+       error: () => {
+         this.showError('No se pudo crear la colección por defecto.');
+       }
+     });
+   } else {
+     this.router.navigate(['/notes/new']);
+   }
+ }
+ 
 
   editNote(noteId: number): void {
     this.router.navigate(['/notes', noteId, 'edit']);
@@ -407,18 +449,23 @@ export class NoteListComponent implements OnInit {
       }
     });
   }
-   selectCollection(id: number) {
+   selectCollection(id: number): void {
       this.selectedCollectionId = id;
       this.newCollectionName = this.collections.find(c => c.id === id)?.name || '';
-
-      console.log('Colección seleccionada ID:', id, this.newCollectionName);
       this.loadNotes();
-
+   
       this.showAll = false;
       this.updateVisibleCollections();
+   
+      // Centrar visualmente
+      setTimeout(() => {
+      const el = document.querySelector('.collection-card.selected');
+      if (el) {
+         el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+      }, 100);
    }
-
-
+ 
 openModal(editMode:boolean = false) {
    this.showModal = true;
    if (editMode && this.selectedCollectionId === 0) {

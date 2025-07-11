@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
   standalone: true,
   selector: 'app-document-create',
   template: `
+  <div class="form-layout">
     <app-sidebar></app-sidebar>
 
     <div class="form-container">
@@ -39,125 +40,128 @@ import Swal from 'sweetalert2';
             Versión:
             <input type="number" [(ngModel)]="documento.version" name="version" required min="1" />
           </label>
+
           <label>
-  Selecciona Repositorio:
-  <select [(ngModel)]="documento.repositoryId" name="repositoryId" required>
-    <option *ngFor="let repo of listaRepositorios" [value]="repo.id">
-      Repositorio {{ repo.id }}
-    </option>
-  </select>
-</label>
+            Selecciona Repositorio:
+            <select [(ngModel)]="documento.repositoryId" name="repositoryId" required>
+              <option *ngFor="let repo of listaRepositorios" [value]="repo.id">
+                Repositorio {{ repo.id }}
+              </option>
+            </select>
+          </label>
+
           <div class="buttons">
             <button class="btn btn-primary" type="submit" [disabled]="docForm.invalid">Guardar</button>
             <button class="btn btn-danger" type="button" (click)="cancelar()">Cancelar</button>
           </div>
         </form>
       </div>
-
     </div>
-    <app-footer></app-footer>
+  </div>
+  <app-footer></app-footer>
 `,
-  styles: [`
-    :host {
-      background: rgba(240, 240, 240, 0.7);
-      font-family: 'Poppins', sans-serif;
-    }
+ styles: [`
+  :host {
+    background: #fff;
+    font-family: 'Poppins', sans-serif;
+  }
 
-    .form-container {
-      flex: 1;
-      padding-top: 95px;     /* deja espacio al navbar */
-      padding-left: 100px; 
-      height: calc(100vh - 200px); /* altura menos el navbar */      display: flex;
-      flex-direction: column;
-      display: flex;
-      align-items: start;
-      justify-content: flex-start;
+  .form-layout {
+    display: flex;
+    height: 60rem;
+  }
 
-    }
+  app-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    height: 100%;
+  }
 
-    .form-wrapper {
-      margin: 2rem auto;
-      padding: 2rem;
-      max-width: 600px;
-      width: 100%;
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-      border: 1px solid #e5e7eb;
-    }
+  .form-container {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    padding-right: 100px; 
+    overflow-y: auto;
+  }
 
-    .form-title {
-      text-align: center;
-      font-size: 1.8rem;
-      margin-bottom: 2rem;
-      font-weight: 600;
-      color: #4b5563;
-      position: relative;
-    }
+  .form-wrapper {
+    margin: 30px auto;
+    zoom: 1.1;
+    padding: 2rem;
+    max-width: 1000px;
+    background:rgb(255, 255, 255);
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
 
-    .form-title::after {
-      content: '';
-      display: block;
-      width: 60px;
-      height: 4px;
-      background: #7c3aed;
-      margin: 8px auto 0;
-      border-radius: 2px;
-    }
+  .form-title {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    color: #4b5563;
+    position: relative;
+  }
 
-    label {
-      display: block;
-      margin-bottom: 1.5rem;
-      font-weight: 500;
-      color: #374151;
-    }
+  .form-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #7c3aed;
+    margin: 8px auto 0;
+    border-radius: 2px;
+  }
 
-    input, textarea {
-      width: 100%;
-      padding: 0.6rem 0.75rem;
-      margin-top: 0.4rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
+  label {
+    display: block;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    color: #374151;
+  }
 
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
+  input, textarea, select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    margin-top: 0.4rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
 
-    .buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-    }
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
 
-    .btn {
-      padding: 0.6rem 1.2rem;
-      font-weight: 600;
-      font-size: 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      color: #fff;
-    }
+  .buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
 
-    .btn-primary {
-      background-color: #7c3aed;
-    }
+  .btn {
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: #fff;
+  }
 
-    .btn-primary:hover {
-      background-color: #654de0;
-    }
+  .btn-primary {
+    background-color: #7c3aed;
+  }
 
-    .btn-danger {
-      background-color: #ef4444;
-    }
+  .btn-primary:hover {
+    background-color: #654de0;
+  }
 
-    .btn-danger:hover {
-      background-color: #dc2626;
-    }
     .btn-secondary {
   background-color: #654de0; /* gris suave */
   color: white;
@@ -174,6 +178,15 @@ import Swal from 'sweetalert2';
   background-color: #672f4bff;
 }
   `],
+  .btn-danger {
+    background-color: #ef4444;
+  }
+
+  .btn-danger:hover {
+    background-color: #dc2626;
+  }
+`],
+
   imports: [CommonModule, FormsModule, NavbarLoggedComponent, FooterComponent, SidebarComponent]
 })
 export class DocumentCreateComponent implements OnInit {
@@ -219,9 +232,14 @@ export class DocumentCreateComponent implements OnInit {
   guardarDocumento(): void {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
-      alert('No hay usuario autenticado. No se puede crear el documento.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Sesión no iniciada',
+        text: 'Debes iniciar sesión para crear un documento.',
+        confirmButtonColor: '#6C47FF'
+      });
       return;
-    }
+    }    
 
     try {
       const user = JSON.parse(storedUser);
@@ -244,12 +262,22 @@ export class DocumentCreateComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al crear documento:', err);
-          alert('Ocurrió un error al crear el documento');
-        }
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al crear documento',
+            text: 'Intenta nuevamente más tarde.',
+            confirmButtonColor: '#6C47FF'
+          });
+        }        
       });
     } catch {
-      alert('Error al obtener datos del usuario');
-    }
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de sesión',
+        text: 'No se pudo obtener la información del usuario. Intenta nuevamente.',
+        confirmButtonColor: '#6C47FF'
+      });
+    }    
   }
 
   cancelar(): void {

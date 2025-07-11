@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarLoggedComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { SidebarComponent } from "../../shared/components/sidebar/sidebar.component";
+import { ChatComponent } from '../chat/chat.component';
 
 @Component({
   standalone: true,
@@ -79,10 +80,10 @@ import { SidebarComponent } from "../../shared/components/sidebar/sidebar.compon
 </ng-container>
 </div>
 </div>
-
+<app-floating-chat></app-floating-chat>
 <app-footer></app-footer>
 `,
-  imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent, FormsModule],
+  imports: [CommonModule, RouterModule, NavbarLoggedComponent, FooterComponent, SidebarComponent, FormsModule, ChatComponent],
   styleUrls: ['repository-list.component.css']
 
 })
@@ -108,11 +109,14 @@ loadRepositories(): void {
 
   const storedUser = localStorage.getItem('user');
   if (!storedUser) {
-    this.error = 'No hay usuario autenticado.';
-    this.loading = false;
+    Swal.fire({
+      icon: 'error',
+      title: 'Sesión no iniciada',
+      text: 'Debes iniciar sesión para crear un repositorio.',
+      confirmButtonColor: '#6C47FF'
+    });
     return;
-  }
-
+  }  
   const user = JSON.parse(storedUser);
 
   const handler = (repos: RepositoryResponse[]) => {
@@ -163,9 +167,14 @@ cancelar(): void {
 crearRepositorio(): void {
   const storedUser = localStorage.getItem('user');
   if (!storedUser) {
-    alert('No hay usuario autenticado.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Sesión no iniciada',
+      text: 'Debes iniciar sesión para crear un repositorio.',
+      confirmButtonColor: '#6C47FF'
+    });
     return;
-  }
+  }  
 
   const user = JSON.parse(storedUser);
 
@@ -185,10 +194,15 @@ crearRepositorio(): void {
   width: '80%'
 });
 },
-    error: (err) => {
-      console.error('Error al crear repositorio:', err);
-      alert('Error al crear repositorio');
-    }
+  error: (err) => {
+    console.error('Error al crear repositorio:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error al crear repositorio',
+      text: 'Intenta nuevamente más tarde.',
+      confirmButtonColor: '#6C47FF'
+    });
+  }
   });
 }
 
@@ -229,21 +243,43 @@ eliminarRepositorio(repoId: number): void {
   });
 }
 eliminarDocumento(documentId: number, repositoryId: number): void {
-  if (!confirm('¿Deseas eliminar este documento?')) {
-    return;
-  }
-
-  this.documentService.deleteDocument(documentId).subscribe({
-    next: () => {
-      const repo = this.repositories.find(r => r.id === repositoryId);
-      if (repo) {
-        repo.documents = repo.documents.filter(doc => doc.id !== documentId);
-      }
-    },
-    error: (err) => {
-      console.error('Error al eliminar documento:', err);
-      alert('No se pudo eliminar el documento');
+  Swal.fire({
+    title: '¿Eliminar documento?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#aaa',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.documentService.deleteDocument(documentId).subscribe({
+        next: () => {
+          const repo = this.repositories.find(r => r.id === repositoryId);
+          if (repo) {
+            repo.documents = repo.documents.filter(doc => doc.id !== documentId);
+          }
+  
+          Swal.fire({
+            icon: 'success',
+            title: 'Documento eliminado',
+            text: 'El documento fue eliminado correctamente.',
+            confirmButtonText: 'OK',
+            width: '70%'
+          });
+        },
+        error: (err) => {
+          console.error('Error al eliminar documento:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar el documento.',
+            confirmButtonText: 'Cerrar'
+          });
+        }
+      });
     }
-  });
+  });  
 }
 }
