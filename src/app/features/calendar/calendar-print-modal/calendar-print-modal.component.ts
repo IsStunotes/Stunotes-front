@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-calendar-print-modal',
@@ -10,14 +12,13 @@ import { CommonModule } from '@angular/common';
     <div class="modal-overlay" (click)="onClose()" *ngIf="isVisible">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-body">
-          <div class="preview-container">
+          <div class="preview-container" id="calendar-content">
             <div class="print-header">
               <h2>Calendario Semanal</h2>
               <h3>{{ getCurrentWeekTitle() }}</h3>
             </div>
             
             <div class="weekly-calendar-preview">
-              <!-- Header de días -->
               <div class="week-header-print">
                 <div class="time-column-header-print"></div>
                 <div *ngFor="let day of weekDays" class="day-header-print">
@@ -26,7 +27,6 @@ import { CommonModule } from '@angular/common';
                 </div>
               </div>
               
-              <!-- Grid de horarios -->
               <div class="week-grid-print">
                 <div *ngFor="let timeSlot of timeSlots" class="time-row-print">
                   <div class="time-label-print">{{ timeSlot }}</div>
@@ -43,15 +43,17 @@ import { CommonModule } from '@angular/common';
         </div>
         
         <div class="modal-footer no-print">
-          <button class="action-btn print-btn" (click)="onPrint()">
-            Imprimir
-          </button>
-          <button class="action-btn pdf-btn" (click)="onSavePDF()">
-            Guardar PDF
-          </button>
-          <button class="action-btn cancel-btn" (click)="onClose()">
-            Cancelar
-          </button>
+          <div style="margin-left: auto; display: flex; gap: 15px;">
+            <button class="action-btn print-btn" (click)="onPrint()">
+              Imprimir
+            </button>
+            <button class="action-btn pdf-btn" (click)="onSavePDF()">
+              Guardar PDF
+            </button>
+            <button class="action-btn cancel-btn" (click)="onClose()">
+              Cancelar
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -67,11 +69,16 @@ export class CalendarPrintModalComponent implements OnChanges {
 
   weekDays: any[] = [];
   timeSlots: string[] = [];
-  weekDayNames: string[] = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+  weekDayNames: string[] = ['DOM', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'LUN'];
   monthNames: string[] = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
+
+  constructor() {
+    this.generateTimeSlots();
+    this.generateCurrentWeek();
+  }
 
   ngOnChanges(): void {
     this.generateTimeSlots();
@@ -81,17 +88,16 @@ export class CalendarPrintModalComponent implements OnChanges {
 
   private generateTimeSlots(): void {
     this.timeSlots = [];
-    for (let hour = 6; hour <= 22; hour++) {
-      this.timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+    for (let hour = 6; hour <= 22; hour += 2) {
+      const currentHour = hour.toString().padStart(2, '0');
+      const nextHour = (hour + 2).toString().padStart(2, '0');
+      this.timeSlots.push(`${currentHour}:00-${nextHour}:00`);
     }
+    console.log('Time slots generated:', this.timeSlots.length, this.timeSlots);
   }
 
   private generateCurrentWeek(): void {
-    const startOfWeek = new Date(this.currentDate);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day;
-    startOfWeek.setDate(diff);
-
+    const startOfWeek = this.getStartOfWeek(this.currentDate);
     this.weekDays = [];
     const current = new Date(startOfWeek);
 
@@ -103,6 +109,14 @@ export class CalendarPrintModalComponent implements OnChanges {
       });
       current.setDate(current.getDate() + 1);
     }
+  }
+
+  private getStartOfWeek(date: Date): Date {
+    const startOfWeek = new Date(date);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day;
+    startOfWeek.setDate(diff);
+    return startOfWeek;
   }
 
   getCurrentWeekTitle(): string {
@@ -120,26 +134,18 @@ export class CalendarPrintModalComponent implements OnChanges {
   getEventsForDayAndTime(date: Date, timeSlot: string): any[] {
     if (!this.events || this.events.length === 0) return [];
     
-    const targetDate = new Date(date);
-    const targetHour = parseInt(timeSlot.split(':')[0]);
+    const startHour = parseInt(timeSlot.split(':')[0]);
+    const endHour = startHour + 2;
     
     return this.events.filter(event => {
       const eventDate = new Date(event.start);
-      return eventDate.toDateString() === targetDate.toDateString() && 
-             eventDate.getHours() === targetHour;
+      const eventHour = eventDate.getHours();
+      return this.isSameDay(eventDate, date) && eventHour >= startHour && eventHour < endHour;
     });
   }
 
-  formatEventDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  private isSameDay(date1: Date, date2: Date): boolean {
+    return date1.toDateString() === date2.toDateString();
   }
 
   onClose(): void {
@@ -147,15 +153,164 @@ export class CalendarPrintModalComponent implements OnChanges {
   }
 
   onPrint(): void {
-    // Trigger print for the current window - the CSS will handle hiding the buttons
-    setTimeout(() => {
-      window.print();
-    }, 100);
+    const element = document.getElementById('calendar-content');
+    if (!element) {
+      console.error('No se encontró el elemento del calendario');
+      return;
+    }
+
+    const options = {
+      scale: 1.2, 
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      removeContainer: true,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: element.offsetWidth,
+      windowHeight: element.offsetHeight,
+      ignoreElements: (el: Element) => {
+        return el.classList.contains('no-print') || 
+               el.classList.contains('modal-footer');
+      }
+    };
+
+    html2canvas(element, options).then(canvas => {
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/png');
+      img.style.width = '100%';
+      img.style.height = 'auto';
+
+      const printContainer = document.createElement('div');
+      printContainer.style.display = 'none';
+      printContainer.id = 'temp-print-container';
+      printContainer.appendChild(img);
+
+      const printStyles = document.createElement('style');
+      printStyles.innerHTML = `
+        @page {
+          size: A4 landscape;
+          margin: 10mm;
+        }
+        @media print {
+          * {
+            box-sizing: border-box;
+          }
+          html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+          }
+          body * {
+            visibility: hidden;
+          }
+          #temp-print-container, #temp-print-container * {
+            visibility: visible;
+          }
+          #temp-print-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: block !important;
+            page-break-after: avoid;
+            page-break-before: avoid;
+            page-break-inside: avoid;
+          }
+          #temp-print-container img {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            max-height: calc(100vh - 20mm);
+            object-fit: contain;
+            page-break-after: avoid;
+            page-break-before: avoid;
+            page-break-inside: avoid;
+            display: block;
+          }
+        }
+      `;
+
+
+      document.head.appendChild(printStyles);
+      document.body.appendChild(printContainer);
+
+      setTimeout(() => {
+        window.print();
+        
+        setTimeout(() => {
+          document.head.removeChild(printStyles);
+          document.body.removeChild(printContainer);
+        }, 1000);
+      }, 500);
+
+    }).catch(error => {
+      console.error('Error al generar la vista de impresión:', error);
+      alert('Error al preparar la impresión. Por favor, inténtelo de nuevo.');
+    });
+
     this.printCalendar.emit();
   }
 
   onSavePDF(): void {
-    alert('Funcionalidad de PDF no implementada. Use la opción de imprimir del navegador.');
+    const element = document.getElementById('calendar-content');
+    if (!element) {
+      console.error('No se encontró el elemento del calendario');
+      return;
+    }
+
+    const options = {
+      scale: 1.5, 
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      removeContainer: true,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: element.offsetWidth,
+      windowHeight: element.offsetHeight
+    };
+
+    html2canvas(element, options).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      
+      const pdf = new jsPDF({
+        orientation: 'landscape', 
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const scaledWidth = imgWidth * ratio;
+      const scaledHeight = imgHeight * ratio;
+      
+      const x = (pdfWidth - scaledWidth) / 2;
+      const y = (pdfHeight - scaledHeight) / 2;
+
+      if (scaledWidth > 0 && scaledHeight > 0) {
+        pdf.addImage(imgData, 'PNG', x, y, scaledWidth, scaledHeight);
+      }
+      
+      const startDate = this.weekDays[0].fullDate;
+      const endDate = this.weekDays[6].fullDate;
+      const startDateString = startDate.toISOString().split('T')[0]; 
+      const endDateString = endDate.toISOString().split('T')[0]; 
+      const fileName = `horario_${startDateString}_${endDateString}.pdf`;
+      
+      pdf.save(fileName);
+    }).catch(error => {
+      console.error('Error al generar el PDF:', error);
+      alert('Error al generar el PDF. Por favor, inténtelo de nuevo.');
+    });
+
     this.savePDF.emit();
   }
 }

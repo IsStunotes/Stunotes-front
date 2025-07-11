@@ -164,26 +164,11 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.print-btn { 
-  background: #8b5cf6;
-}
-
 .create-btn { 
   background: #a855f7;
 }
 
-.nav-btn {
-  border: 1px solid #d1d5db;
-  background: transparent;
-  color: #374151;
-  font-size: 14px;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-block;
-  white-space: nowrap;
-}
+
 
 /* Estilos para el calendario nativo de Angular */
 
@@ -415,20 +400,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.day-header-single {
-  padding: 20px;
-  background-color: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: center;
-}
-
-.day-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #374151;
-  text-transform: capitalize;
-}
-
 .day-grid {
   max-height: calc(100vh - 300px);
   overflow-y: auto;
@@ -479,7 +450,188 @@
   background-color: #2563eb;
 }
 
-/* Responsive Design */
+.event-options-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 998;
+}
+
+.event-options-modal {
+  position: fixed;
+  z-index: 999;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  min-width: 280px;
+  max-width: 320px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.event-options-content {
+  padding: 16px;
+}
+
+.event-info {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.event-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.event-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.event-options-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  width: 100%;
+  text-align: left;
+}
+
+.option-btn i {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+}
+
+.update-btn {
+  background: #8b5cf6;
+  color: white;
+}
+
+.update-btn:hover {
+  background: #7c3aed;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.cancel-btn {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+  color: #374151;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.past-date {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  background-color: #e5e7eb !important;
+  color: #6b7280;
+  border: 1px solid #d1d5db !important;
+}
+
+.past-date:hover {
+  background-color: #e5e7eb !important;
+  cursor: not-allowed !important;
+}
+
+.past-time {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  background-color: #e5e7eb !important;
+  pointer-events: none;
+  border: 1px solid #d1d5db !important;
+}
+
+.past-time:hover {
+  background-color: #e5e7eb !important;
+  cursor: not-allowed !important;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background-color: #f3f4f6;
+}
+
+.past-date .event-item-month,
+.past-date .event-item-week,
+.past-date .event-item-day {
+  cursor: pointer;
+  pointer-events: all;
+  opacity: 1;
+}
+
+.time-slot.past-time,
+.time-slot-day.past-time {
+  background-color: #e5e7eb !important;
+  border: 1px solid #d1d5db !important;
+}
+
+@media (max-width: 768px) {
+  .event-options-modal {
+    min-width: 260px;
+    max-width: 280px;
+  }
+  
+  .event-options-content {
+    padding: 14px;
+  }
+  
+  .option-btn {
+    padding: 12px;
+    font-size: 13px;
+  }
+  
+  .event-info h4 {
+    font-size: 15px;
+  }
+  
+  .event-info p {
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .calendar-header {
     flex-direction: column;
