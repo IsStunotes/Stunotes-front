@@ -269,7 +269,7 @@ export class NoteListComponent implements OnInit {
          if (callback) callback();
          },
          error: (error) => {
-         console.error('Error al cargar colecciones:', error);
+         //console.error('Error al cargar colecciones:', error);
          //this.showError('Error al cargar las colecciones');
          }
       });
@@ -293,7 +293,7 @@ export class NoteListComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error al cargar notas(getNotes):', error);
+          //console.error('Error al cargar notas(getNotes):', error);
           this.showError('Error al cargar las notas');
           this.loading = false;
         }
@@ -375,45 +375,12 @@ export class NoteListComponent implements OnInit {
     }
   }
 
-  createNewNote(): void {
+ createNewNote(): void {
    if (this.collections.length === 0) {
-     const defaultName = `Mis notas`;
-     const newCollection: CollectionRequest = {
-       name: defaultName,
-       userId: this.user.id
-     };
- 
-     this.collectionService.createCollection(newCollection).subscribe({
-       next: (createdCollection) => {
-         this.loadCollections(() => {
-           const collectionId = createdCollection.id;
-           const titlePrefix = 'Nota';
-           const existingNotes = this.notes.filter(n => n.title.startsWith(titlePrefix));
-           const noteNumber = existingNotes.length + 1;
- 
-           const newNote: NoteRequest = {
-             title: `${titlePrefix} ${noteNumber}`,
-             content: '',
-             collectionId
-           };
- 
-           this.noteService.createNote(newNote).subscribe({
-             next: (note) => {
-               Swal.fire('Nota creada', 'Se ha creado una nueva nota automáticamente.', 'success');
-               this.router.navigate(['/notes', note.id, 'edit']);
-             },
-             error: () => {
-               this.showError('Error al crear la nota.');
-             }
-           });
-         });
-       },
-       error: () => {
-         this.showError('No se pudo crear la colección por defecto.');
-       }
-     });
+      Swal.fire('Información', 'No tienes colecciones creadas. Debes crear una colección antes de crear una nota.', 'info');
+      this.router.navigate(['/notes']);
    } else {
-     this.router.navigate(['/notes/new']);
+      this.router.navigate(['/notes/new']);
    }
  }
  
@@ -440,7 +407,7 @@ export class NoteListComponent implements OnInit {
             this.loadNotes();
           },
           error: (error) => {
-            console.error('Error al eliminar la nota:', error);
+            //console.error('Error al eliminar la nota:', error);
             this.showError('Error al eliminar la nota');
           }
         });
@@ -487,16 +454,17 @@ closeModal() {
    this.selectedCollectionId = 0;
    this.newCollectionName = '';
    this.updateVisibleCollections();
+   this.clearAllFilters();
 }
 
 createNewCollection() {
   if (this.newCollectionName.trim()) {
-    console.log('Crear colección con nombre:', this.newCollectionName);
+    //console.log('Crear colección con nombre:', this.newCollectionName);
     let newCollection:CollectionRequest = {
       name:this.newCollectionName,
       userId: this.user.id
     };
-    console.log('Nueva colección:', newCollection);
+    //console.log('Nueva colección:', newCollection);
       this.collectionService.createCollection(newCollection).subscribe({
          next: (response) => {
          Swal.fire('Éxito', 'Colección creada correctamente.', 'success');
@@ -506,7 +474,7 @@ createNewCollection() {
          });
          },
          error: (error) => {
-         console.error('Error al crear la colección:', error);
+         //console.error('Error al crear la colección:', error);
          this.showError('Error al crear la colección');
          }
       });
@@ -543,7 +511,7 @@ editCollection(){
             });
          },
          error: (error) => {
-            console.error('Error al actualizar la colección:', error);
+            //console.error('Error al actualizar la colección:', error);
             this.showError('Error al actualizar la colección');
          }
       });
@@ -577,7 +545,7 @@ deleteCollection() {
                   this.selectedCollectionId = 0;
                },
                error: (error) => {
-                  console.error('Error al eliminar la colección_:', error);
+                  //console.error('Error al eliminar la colección_:', error);
                   this.showError(error.error.message);
                }
             });
