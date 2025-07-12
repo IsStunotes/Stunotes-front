@@ -123,6 +123,10 @@ import Swal from 'sweetalert2';
     </div>
   `,
   styles: [`
+    :host{
+      font-family: 'Poppins', sans-serif;
+    }
+    
     .modal-overlay {
       font-family: 'Poppins', sans-serif;
       position: fixed;
@@ -141,35 +145,37 @@ import Swal from 'sweetalert2';
       background: white;
       border-radius: 8px;
       width: 90%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
+      max-width: 480px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px;
+      padding: 16px 20px;
       border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
     }
 
     .modal-header h3 {
       margin: 0;
       color: #333;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
     }
 
     .close-btn {
       background: none;
       border: none;
-      font-size: 2rem;
+      font-size: 1.5rem;
       cursor: pointer;
       color: #666;
       padding: 0;
-      width: 30px;
-      height: 30px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -181,26 +187,39 @@ import Swal from 'sweetalert2';
 
     .modal-body {
       padding: 20px;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       font-weight: 500;
       color: #333;
+      font-size: 14px;
+      flex-shrink: 0;
     }
 
     .form-control {
       width: 100%;
-      padding: 10px;
+      padding: 8px 12px;
       border: 1px solid #ddd;
       border-radius: 4px;
       font-size: 14px;
       transition: border-color 0.3s;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      height: 40px;
     }
 
     .form-control:focus {
@@ -222,23 +241,29 @@ import Swal from 'sweetalert2';
     .error-message {
       color: #dc3545;
       font-size: 12px;
-      margin-top: 5px;
+      margin-top: 4px;
+      flex-shrink: 0;
     }
 
     .modal-footer {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-      margin-top: 20px;
+      margin-top: 16px;
+      flex-shrink: 0;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
     }
 
     .btn {
-      padding: 10px 20px;
+      padding: 8px 16px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
       font-size: 14px;
       transition: background-color 0.3s;
+      height: 36px;
+      min-width: 100px;
     }
 
     .btn-secondary {
@@ -274,12 +299,16 @@ import Swal from 'sweetalert2';
     }
 
     .activity-info {
-      margin-top: 8px;
-      padding: 12px;
+      margin-top: 6px;
+      padding: 8px 10px;
       background-color: #f8f9fa !important;
       border-radius: 4px;
       border: 1px solid #e9ecef;
       color: #495057 !important;
+      flex-shrink: 0;
+      max-height: 80px;
+      overflow-y: auto;
+      font-size: 13px;
     }
 
     .activity-info * {
@@ -307,9 +336,10 @@ import Swal from 'sweetalert2';
     }
 
     .activity-detail {
-      margin-bottom: 6px;
-      font-size: 0.875rem;
+      margin-bottom: 4px;
+      font-size: 12px;
       color: #495057 !important;
+      line-height: 1.3;
     }
 
     .activity-detail:last-child {
@@ -317,9 +347,10 @@ import Swal from 'sweetalert2';
     }
 
     .no-tasks-message {
-      margin-top: 5px;
+      margin-top: 4px;
       color: #6c757d;
       font-style: italic;
+      flex-shrink: 0;
     }
 
     .no-tasks-message small {
@@ -333,6 +364,7 @@ import Swal from 'sweetalert2';
       background-size: 16px;
       padding-right: 40px;
       appearance: none;
+      height: 40px;
     }
   `]
 })
